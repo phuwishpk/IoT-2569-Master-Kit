@@ -10,7 +10,9 @@
 ```text
 IoT-2569-Master-Kit/
 ├── circuits/                      # ผังวงจรเวกเตอร์ SVG (ครบ 38 ขา) และรูปภาพ PNG ทุกแล็บ
+├── students/                      # โฟลเดอร์และคู่มือรันโปรเจกต์แยกรายบุคคล (7 คน)
 ├── CIRCUITS_WIRING_GUIDE.md       # คู่มือผังวงจรฮาร์ดแวร์และการต่อสายไฟทุกแล็บ
+├── RUN_COMMANDS_GUIDE.md          # รวมคำสั่งรันทุกโปรเจกต์ (Run Commands Master Cheat Sheet)
 ├── MASTER_CHECKLIST.md            # Checklist ตรวจงาน + คำสั่ง SSH + สิ่งที่ต้องแคปใน Terminal
 ├── CHECKLIST_AND_DATA_COPY.md     # ตารางบันทึกค่าสำเร็จรูป (Copy-Paste) ครบ 12 สัปดาห์
 ├── setup_friend.py                # สคริปต์เปลี่ยนรหัสนักศึกษา/ชื่อ/Wi-Fi และสร้าง SVG Gauge Lab 8.5
@@ -30,6 +32,22 @@ IoT-2569-Master-Kit/
 ├── Week11_MQTT_and_RainMaker/     # Week 11: MQTT Cloud Broker, mTLS & ESP RainMaker
 └── Week12_Flutter_MQTT_App/       # Week 12: Flutter Mobile IoT & MQTT Dashboard
 ```
+
+---
+
+## 👥 คู่มือคำสั่งรันเฉพาะบุคคล (Personalized Student Guides)
+
+| รหัสนักศึกษา | ชื่อ - นามสกุล | ชื่อภาษาอังกฤษ | ลิงก์คู่มือคำสั่งรันประจำตัว |
+| :---: | :--- | :--- | :---: |
+| **67030248** | นายสุวิจักขณ์ ลาวัง | Suwijak Lawang | [📂 RUN_COMMANDS_67030248.md](students/67030248_Suwijak_Lawang/RUN_COMMANDS_67030248.md) |
+| **67030249** | นางสาวสุวิมล ศรีประไหม | Suwimon Sripramai | [📂 RUN_COMMANDS_67030249.md](students/67030249_Suwimon_Sripramai/RUN_COMMANDS_67030249.md) |
+| **67030268** | นายกร แดงทอง | Korn Daengthong | [📂 RUN_COMMANDS_67030268.md](students/67030268_Korn_Daengthong/RUN_COMMANDS_67030268.md) |
+| **67030270** | นายกฤษฏิณัช สำราญกิจ | Kritsadinat Samrankit | [📂 RUN_COMMANDS_67030270.md](students/67030270_Kritsadinat_Samrankit/RUN_COMMANDS_67030270.md) |
+| **67030299** | นางสาวธนพร พิศมัย | Thanaporn Pitsamai | [📂 RUN_COMMANDS_67030299.md](students/67030299_Thanaporn_Pitsamai/RUN_COMMANDS_67030299.md) |
+| **67030359** | นายอัฐวุฒิ บัวเรียน | Attawut Bualian | [📂 RUN_COMMANDS_67030359.md](students/67030359_Attawut_Bualian/RUN_COMMANDS_67030359.md) |
+| **67030360** | นายอิทธิพัทธิ์ สุทธินวล | Ittipat Sutthinuan | [📂 RUN_COMMANDS_67030360.md](students/67030360_Ittipat_Sutthinuan/RUN_COMMANDS_67030360.md) |
+
+*(ดูรายชื่อและวิดเจ็ตหน้าปัดคู่ Lab 8.5 เพิ่มเติมที่ [STUDENTS_INDEX.md](students/STUDENTS_INDEX.md))*
 
 ---
 
@@ -60,6 +78,22 @@ python3 remote_doctor.py --fix-ports
 # เปลี่ยนชื่อ รหัส และสร้างหน้าปัด SVG Gauge Lab 8.5 ให้เพื่อนอัตโนมัติ
 python3 setup_friend.py --id 67030XXX --name-en "Friend Name" --name-th "ชื่อเพื่อน" --wifi "WiFi_Name" --pass "WiFi_Pass"
 ```
+
+---
+
+## 👥 คู่มือคำสั่งรันเฉพาะบุคคล (Personalized Student Guides)
+
+| รหัสนักศึกษา | ชื่อ - นามสกุล | ชื่อภาษาอังกฤษ | ลิงก์คู่มือคำสั่งรันประจำตัว |
+| :---: | :--- | :--- | :---: |
+| **67030248** | นายสุวิจักขณ์ ลาวัง | Suwijak Lawang | [📂 RUN_COMMANDS_67030248.md](students/67030248_Suwijak_Lawang/RUN_COMMANDS_67030248.md) |
+| **67030249** | นางสาวสุวิมล ศรีประไหม | Suwimon Sripramai | [📂 RUN_COMMANDS_67030249.md](students/67030249_Suwimon_Sripramai/RUN_COMMANDS_67030249.md) |
+| **67030268** | นายกร แดงทอง | Korn Daengthong | [📂 RUN_COMMANDS_67030268.md](students/67030268_Korn_Daengthong/RUN_COMMANDS_67030268.md) |
+| **67030270** | นายกฤษฏิณัช สำราญกิจ | Kritsadinat Samrankit | [📂 RUN_COMMANDS_67030270.md](students/67030270_Kritsadinat_Samrankit/RUN_COMMANDS_67030270.md) |
+| **67030299** | นางสาวธนพร พิศมัย | Thanaporn Pitsamai | [📂 RUN_COMMANDS_67030299.md](students/67030299_Thanaporn_Pitsamai/RUN_COMMANDS_67030299.md) |
+| **67030359** | นายอัฐวุฒิ บัวเรียน | Attawut Bualian | [📂 RUN_COMMANDS_67030359.md](students/67030359_Attawut_Bualian/RUN_COMMANDS_67030359.md) |
+| **67030360** | นายอิทธิพัทธิ์ สุทธินวล | Ittipat Sutthinuan | [📂 RUN_COMMANDS_67030360.md](students/67030360_Ittipat_Sutthinuan/RUN_COMMANDS_67030360.md) |
+
+*(ดูรายชื่อและวิดเจ็ตหน้าปัดคู่ Lab 8.5 เพิ่มเติมที่ [STUDENTS_INDEX.md](students/STUDENTS_INDEX.md))*
 
 ---
 
