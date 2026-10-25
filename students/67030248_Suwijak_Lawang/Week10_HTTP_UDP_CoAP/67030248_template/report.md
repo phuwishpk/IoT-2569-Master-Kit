@@ -2,7 +2,7 @@
 ## Local Control Protocols (HTTP, UDP, CoAP) & Edge Device Discovery
 
 **รหัสนักศึกษา:** 67030248  
-**ชื่อ-นามสกุล:** นายสุวิจักขณ์ ลาวัง  
+**ชื่อ-นามสกุล:** นายสุวิจักขณ์ ลาวัง (Suwijak Lawang)  
 
 ---
 

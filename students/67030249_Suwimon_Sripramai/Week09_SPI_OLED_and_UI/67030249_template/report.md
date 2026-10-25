@@ -1,6 +1,7 @@
 # รายงานสรุปผลการทดลอง สัปดาห์ที่ 9: SPI OLED Display, Framebuffer และ Kestrel Web Server
 
-**รหัสนักศึกษา:** 67030249  
+**รหัสนักศึกษา:** 67030249
+**ชื่อ-นามสกุล:** นางสาวสุวิมล ศรีประไหม (Suwimon Sripramai)  
 **วิชา:** IoT Engineering & Embedded Systems  
 **วันที่ทำการทดลอง:** 25 ตุลาคม 2569  
 

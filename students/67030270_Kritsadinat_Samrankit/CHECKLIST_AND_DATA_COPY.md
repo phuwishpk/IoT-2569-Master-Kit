@@ -13,7 +13,7 @@
 | **Week 03** | 👤 **ทำเดี่ยว** | ส่องไฟฉาย / ปิดมืด เซนเซอร์ LDR เพื่อสอบเทียบค่า Lux vs ADC | บอร์ด ESP32 + LDR + R 10k |
 | **Week 04** | 👤 **ทำเดี่ยว** | วางกระดาษสีแดง เขียว น้ำเงิน จ่อเซนเซอร์เพื่อจำแนกสี | บอร์ด ESP32 + RGB LED + LDR |
 | **Week 05** | 👤 **ทำเดี่ยว** | สแกนหา Wi-Fi และต่อเน็ต Hotspot ของตัวเอง | คอมพิวเตอร์ + ESP32 |
-| ⭐ **Week 06** | 👥 **ทำคู่ (หรือ 2 เครื่อง)** | **เครื่องที่ 1 (ESP32):** ปล่อย Wi-Fi SoftAP `ESP32_AP_XXXX`<br>**เครื่องที่ 2 (เพื่อน / มือถือ / โน้ตบุ๊ก):** เชื่อมต่อเข้า AP ของเพื่อน แล้วยิง iperf / HTTP request วัด Throughput | ESP32 + โน้ตบุ๊กเพื่อน / สมาร์ทโฟน |
+| ⭐ **Week 06** | 👥 **ทำคู่ (หรือ 2 เครื่อง)** | **เครื่องที่ 1 (ESP32):** ปล่อย Wi-Fi SoftAP `ESP32_AP_0270`<br>**เครื่องที่ 2 (เพื่อน / มือถือ / โน้ตบุ๊ก):** เชื่อมต่อเข้า AP ของเพื่อน แล้วยิง iperf / HTTP request วัด Throughput | ESP32 + โน้ตบุ๊กเพื่อน / สมาร์ทโฟน |
 | **Week 07** | 👤 **ทำเดี่ยว (หรือคู่ช่วยกด)** | ESP32 ทำตัวเป็น BLE Peripheral / มือถือเปิดแอปส่งรหัส Wi-Fi | ESP32 + สมาร์ทโฟน |
 | **Week 08** | 👤 **ทำเดี่ยว** | รัน Kestrel Web Server บนคอมพิวเตอร์ และเปิดดู Dashboard | คอมพิวเตอร์ |
 | **Week 09** | 👤 **ทำเดี่ยว** | ESP32 ขับจอ OLED 7 ขา และรัน Kestrel UI ส่งข้อความผ่าน API | ESP32 + จอ OLED + POT |
@@ -91,7 +91,7 @@
 ### ⭐ 🟡 Week 06: Wi-Fi SoftAP, Throughput & FreeRTOS (ทำคู่ / 2 เครื่อง)
 * **สิ่งที่ต้องแคปใน Terminal และเบราว์เซอร์:**
   1. **Terminal บอร์ด ESP32 (Lab 6.1):** 
-     * ต้องเห็นข้อความประกาศ SoftAP: `[AP_INIT] SSID: ESP32_AP_XXXX` *(ต้องมีเลขท้าย 4 ตัว)*
+     * ต้องเห็นข้อความประกาศ SoftAP: `[AP_INIT] SSID: ESP32_AP_0270` *(ต้องมีเลขท้าย 4 ตัว)*
      * ตอนเพื่อนหรือมือถือเชื่อมต่อเข้ามา: `[WIFI_EVENT_AP_STACONNECTED] MAC: xx:xx:xx... AID: 1`
   2. **Terminal เครื่องเพื่อน / Client (Lab 6.2 TCP Throughput):**
      * รันสคริปต์วัดความเร็ว: `python3 throughput_test.py --ip 192.168.4.1`
@@ -108,7 +108,7 @@
 ### 🟡 Week 07: Wi-Fi Provisioning BLE & SoftAP (ทำเดี่ยว / คู่ช่วยกดแอป)
 * **สิ่งที่ต้องแคปใน Terminal:**
   1. **Terminal เริ่มต้นทำ BLE Provisioning (Lab 7.2):**
-     * ต้องเห็น: `[PROV_MGR] Provisioning service started`, `Device Name: PROV_XXXXXX`, `PoP: abcd1234`
+     * ต้องเห็น: `[PROV_MGR] Provisioning service started`, `Device Name: PROV_0270XX`, `PoP: abcd1234`
   2. **Terminal ตอนใส่รหัส PoP ผิด (Security 1 Test):**
      * ต้องเห็นข้อความ Error ตัวแดง: `E (14520) security1: Invalid proof of possession!` / `Verification failed`
   3. **Terminal ตอนตั้งค่า Wi-Fi สำเร็จ & NVS Forensics (Lab 7.1):**
@@ -129,7 +129,7 @@
      * `lab8-1_act4_led_on.png`: หน้าสั่งเปิดไฟ LED
      * `lab8-1_act4_led_off.png`: หน้าสั่งปิดไฟ LED
      * `lab8-1_act4_terminal_log.png`: ข้อความบน Terminal ตอบรับคำขอ
-     * `lab8-1_micro_challenge_student.png`: หน้า `http://localhost:5000/api/student` **ต้องแสดง `studentId: 67030XXX` และ `studentName` ของตัวเอง**
+     * `lab8-1_micro_challenge_student.png`: หน้า `http://localhost:5000/api/student` **ต้องแสดง `studentId: 67030270` และ `studentName` ของตัวเอง**
   3. **วิดีโอ 4 คลิป (Lab 8.2 - 8.5):**
      * Lab 8.5 ต้องโชว์หน้าปัดซ้าย-ขวาที่คำนวณตรงกับเลขท้าย 3 ตัวของรหัสนักศึกษาตัวเอง
 
@@ -145,9 +145,9 @@
      * `lab9_2_browser_telemetry.png`: เปิดดู JSON บนเบราว์เซอร์
      * `lab9_2_network_devtools.png`: เปิด F12 ดู Network Request Headers
      * `lab9_2_curl_post_calibrate.png`: คำสั่ง `curl -X POST http://localhost:5117/api/oled/calibrate`
-     * `lab9_2_curl_post_oled_message.png`: คำสั่ง `curl -X POST http://localhost:5117/api/oled/message -d "ID: 67030XXX"` **(ต้องส่งรหัสตัวเอง)**
+     * `lab9_2_curl_post_oled_message.png`: คำสั่ง `curl -X POST http://localhost:5117/api/oled/message -d "ID: 67030270"` **(ต้องส่งรหัสตัวเอง)**
   3. **รูปถ่ายจอจริง OLED (2 รูป):**
-     * `lab9_1_oled_result.jpg`: ภาพจอจริงติดชัดเจน แสดงตัวหนังสือ **`HELLO WORLD`** และ **`ID: 67030XXX`**
+     * `lab9_1_oled_result.jpg`: ภาพจอจริงติดชัดเจน แสดงตัวหนังสือ **`HELLO WORLD`** และ **`ID: 67030270`**
 
 ---
 
@@ -179,7 +179,7 @@
   1. **Terminal 1 (Broker Start):** `images/lab11_1_broker_start.png`
      * `mosquitto -c mosquitto_local.conf -v` ขึ้นข้อความ: `Opening ipv4 listen socket on port 1883`, `Opening ipv4 listen socket on port 8883`
   2. **Terminal 2 (MQTT Wildcards):** `images/lab11_1_wildcards.png`
-     * `mosquitto_sub -t "iot/67030XXX/#" -v` ดักจับทุก Topic ย่อย
+     * `mosquitto_sub -t "iot/67030270/#" -v` ดักจับทุก Topic ย่อย
   3. **Terminal 3 (QoS Comparison):** `images/lab11_1_qos.png`
      * เทียบข้อความส่งแบบ QoS 0, QoS 1, QoS 2
   4. **Terminal 4 (Retained Message):** `images/lab11_1_retain.png`
@@ -191,7 +191,7 @@
   7. **Terminal 7 (CLI Sub Telemetry):** `images/lab11_2_cli_telemetry.png`
      * หน้าจอฝั่งเพื่อนได้รับ JSON สตรีมเข้ามาต่อเนื่อง
   8. **Terminal 8 (LED Command):** `images/lab11_2_led_control.png`
-     * สั่ง `mosquitto_pub -t "iot/67030XXX/led/cmd" -m '{"state": true}'` แล้วไฟบนบอร์ดติดทันที
+     * สั่ง `mosquitto_pub -t "iot/67030270/led/cmd" -m '{"state": true}'` แล้วไฟบนบอร์ดติดทันที
   9. **Terminal 9 (OpenSSL Certs):** `images/lab11_3_openssl_certs.png`
      * แสดงไฟล์ `ca.crt`, `server.crt`, `client.crt`
   10. **Terminal 10 (mTLS Authorized vs Unauthorized):** `images/lab11_3_cli_mtls.png`
@@ -207,8 +207,8 @@
 * **สิ่งที่ต้องแคปใน Terminal และแอปพลิเคชัน Flutter (รวม 11 รูป):**
   1. **Terminal บอร์ด ESP32 (1 รูป):**
      * ต้องเห็น: ต่อ Wi-Fi สำเร็จ & เชื่อมต่อ MQTT Broker พอร์ต 1883 ได้สำเร็จ
-     * ต้องเห็น: ส่ง JSON Telemetry ออก Topic `iot/67030XXX/telemetry` ทุก 2 วินาที
-     * ต้องเห็น: ตอบรับคำสั่งเปิด-ปิดไฟจากแอปมือถือ และส่ง ACK กลับ Topic `iot/67030XXX/led/state`
+     * ต้องเห็น: ส่ง JSON Telemetry ออก Topic `iot/67030270/telemetry` ทุก 2 วินาที
+     * ต้องเห็น: ตอบรับคำสั่งเปิด-ปิดไฟจากแอปมือถือ และส่ง ACK กลับ Topic `iot/67030270/led/state`
   2. **Terminal รัน Flutter (1 รูป):**
      * คำสั่ง `flutter run -d chrome` หรือรันบนเครื่องสมาร์ทโฟน
      * แสดงข้อความ: `Flutter run key commands. Syncing files to device... Connected to MQTT Broker!`
@@ -221,7 +221,7 @@
      * **รูปที่ 6 (State Feedback ACK):** ปุ่มสวิตช์แสดงสถานะซิงค์สมบูรณ์เมื่อได้รับข้อความยืนยันจากบอร์ด
      * **รูปที่ 7 (LWT Offline Banner):** ถอดสาย ESP32 แล้วแอปขึ้นแบนเนอร์สีแดงแจ้งเตือน `Device Offline!` ภายใน 15 วินาที
      * **รูปที่ 8 (Message Log Screen):** หน้าแสดงตารางประวัติข้อความ JSON ย้อนหลัง (Timestamp, Topic, Payload)
-     * **รูปที่ 9 (Settings Screen):** หน้าตั้งค่า Client ID และ Topic Prefix `iot/67030XXX` ของตัวเอง
+     * **รูปที่ 9 (Settings Screen):** หน้าตั้งค่า Client ID และ Topic Prefix `iot/67030270` ของตัวเอง
   4. **รูปถ่ายบอร์ดวงจรจริงคู่กับหน้าจอแอป (1 รูป):** `images/hardware_circuit.jpg`
 
 ---
@@ -241,7 +241,7 @@
   - [ ] แคป Terminal ต่อ Wi-Fi ได้รับ IP 192.168.x.x
   - [ ] แคป Terminal Disconnect Reason Code 201 (SSID ผิด) และ 202/15 (รหัสผ่านผิด)
 - [ ] **Week 07 (Wi-Fi Provisioning)** [เดี่ยว / คู่ช่วยกดมือถือ]
-  - [ ] แคป Terminal เริ่มต้น BLE Advertising ชื่อ PROV_XXXXXX
+  - [ ] แคป Terminal เริ่มต้น BLE Advertising ชื่อ PROV_0270XX
   - [ ] แคป Terminal ตอนใส่ PoP ผิด (Invalid proof of possession!)
   - [ ] แคป Terminal บันทึก NVS และ Auto-reconnect หลังรีบูต
 - [ ] **Week 08 (Kestrel Web Server)** [เดี่ยว]
@@ -260,14 +260,14 @@
   - [ ] แคป Terminal ตรวจจับสี (Target Color Matched: RED/GREEN/BLUE)
   - [ ] กราฟ Transient 4 รูป + อัดคลิปส่องกระดาษสี 1 คลิป
 - [ ] **Week 09 (SPI OLED & Kestrel UI)** [เดี่ยว]
-  - [ ] ถ่ายรูปจอจริง OLED 2 รูป (เห็น HELLO WORLD และ ID: 67030XXX)
+  - [ ] ถ่ายรูปจอจริง OLED 2 รูป (เห็น HELLO WORLD และ ID: 67030270)
   - [ ] แคป Terminal Framebuffer Hex dump ('H' = 0x7F 0x08 0x08 0x08 0x7F)
   - [ ] แคปคำสั่ง curl ทดสอบ API 5 รูป (POST /api/oled/message ส่งรหัสตัวเอง)
   - [ ] อัดคลิป 1 คลิป หมุน POT เทียบหน้าเว็บคู่กับจอจริง
 
 ### 👥 เฟส 3: แล็บคู่ (รับ-ส่งสัญญาณข้ามเครื่องในวง Wi-Fi เดียวกัน)
 - [ ] ⭐ **Week 06 (Wi-Fi SoftAP & Throughput)** [ทำคู่]
-  - [ ] เครื่อง 1: แคป Terminal ปล่อย AP (ESP32_AP_XXXX มีเลขท้าย 4 ตัว)
+  - [ ] เครื่อง 1: แคป Terminal ปล่อย AP (ESP32_AP_0270 มีเลขท้าย 4 ตัว)
   - [ ] เครื่อง 2: เพื่อนเชื่อมต่อ AP สำเร็จ (AID: 1)
   - [ ] เครื่อง 2: แคป Terminal รันสคริปต์ Throughput ได้ความเร็ว 5 ระดับกำลังส่ง (กราฟ rssi_vs_throughput.png)
   - [ ] เครื่อง 1: แคป Terminal แสดง FreeRTOS Stack High Water Mark

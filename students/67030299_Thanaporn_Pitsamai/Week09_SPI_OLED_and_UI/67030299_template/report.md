@@ -1,6 +1,7 @@
 # รายงานสรุปผลการทดลอง สัปดาห์ที่ 9: SPI OLED Display, Framebuffer และ Kestrel Web Server
 
-**รหัสนักศึกษา:** 67030299  
+**รหัสนักศึกษา:** 67030299
+**ชื่อ-นามสกุล:** นางสาวธนพร พิศมัย (Thanaporn Pitsamai)  
 **วิชา:** IoT Engineering & Embedded Systems  
 **วันที่ทำการทดลอง:** 25 ตุลาคม 2569  
 

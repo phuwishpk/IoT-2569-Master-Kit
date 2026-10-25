@@ -1,6 +1,7 @@
 # รายงานสรุปผลการทดลอง สัปดาห์ที่ 9: SPI OLED Display, Framebuffer และ Kestrel Web Server
 
-**รหัสนักศึกษา:** 67030248  
+**รหัสนักศึกษา:** 67030248
+**ชื่อ-นามสกุล:** นายสุวิจักขณ์ ลาวัง (Suwijak Lawang)  
 **วิชา:** IoT Engineering & Embedded Systems  
 **วันที่ทำการทดลอง:** 25 ตุลาคม 2569  
 

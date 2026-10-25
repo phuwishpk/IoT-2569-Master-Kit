@@ -1,6 +1,7 @@
 # รายงานสรุปผลการทดลอง สัปดาห์ที่ 9: SPI OLED Display, Framebuffer และ Kestrel Web Server
 
-**รหัสนักศึกษา:** 67030360  
+**รหัสนักศึกษา:** 67030360
+**ชื่อ-นามสกุล:** นายอิทธิพัทธิ์ สุทธินวล (Ittipat Sutthinuan)  
 **วิชา:** IoT Engineering & Embedded Systems  
 **วันที่ทำการทดลอง:** 25 ตุลาคม 2569  
 
