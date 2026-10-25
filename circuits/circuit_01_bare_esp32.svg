@@ -33,7 +33,7 @@
     <rect x="0" y="100" width="775" height="115" rx="6" fill="#e7f1ff" stroke="#b6d4fe" />
     <text x="15" y="25" font-size="14px" font-weight="bold" fill="#0d6efd">2. ขาแอนะล็อกอินพุต (Analog-to-Digital Converter - ADC):</text>
     <text x="15" y="48" font-size="13px" fill="#0d6efd">• <tspan font-weight="bold">ADC1 (GPIO 32, 33, 34, 35, 36/VP, 39/VN):</tspan> **ปลอดภัยสูงสุด** ใช้งานได้ตลอดเวลา ไม่กวน Wi-Fi</text>
-    <text x="25" y="70" font-size="12px" fill="#495057">&rarr; แล็บในวิชานี้กำหนดให้ใช้ <tspan font-weight="bold" fill="#0d6efd">GPIO 34 (ADC1_CH6)</tspan> เป็นหลักสำหรับ Potentiometer และ LDR</text>
+    <text x="25" y="70" font-size="12px" fill="#495057">→ แล็บในวิชานี้กำหนดให้ใช้ <tspan font-weight="bold" fill="#0d6efd">GPIO 34 (ADC1_CH6)</tspan> เป็นหลักสำหรับ Potentiometer และ LDR</text>
     <text x="15" y="95" font-size="13px" fill="#6c757d">• <tspan font-weight="bold">ADC2 (GPIO 0, 2, 4, 12-15, 25-27):</tspan> ห้ามใช้อ่านแอนะล็อกขณะเปิด Wi-Fi (Wi-Fi Driver จะจองบล็อก ADC2)</text>
 
     <!-- Group 3: High-speed SPI Buses -->

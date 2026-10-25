@@ -61,12 +61,12 @@
     <rect x="0" y="0" width="315" height="50" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
     <circle cx="15" cy="25" r="6" fill="#fd7e14" />
     <text x="32" y="22" font-weight="bold" fill="#fd7e14">GPIO 2 (ESP32 ขวาแถว 14)</text>
-    <text x="32" y="40" font-size="12px" fill="#495057">&rarr; ต่อผ่าน R 220Ω เข้าขาขายาว (Anode +)</text>
+    <text x="32" y="40" font-size="12px" fill="#495057">→ ต่อผ่าน R 220Ω เข้าขาขายาว (Anode +)</text>
 
     <rect x="0" y="65" width="315" height="50" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
     <circle cx="15" cy="90" r="6" fill="#212529" />
     <text x="32" y="87" font-weight="bold" fill="#212529">GND (ESP32 ขวาแถว 1)</text>
-    <text x="32" y="105" font-size="12px" fill="#495057">&rarr; ต่อเข้าขาสั้น (Cathode -) ของ LED</text>
+    <text x="32" y="105" font-size="12px" fill="#495057">→ ต่อเข้าขาสั้น (Cathode -) ของ LED</text>
   </g>
 
   <g transform="translate(20, 200)">

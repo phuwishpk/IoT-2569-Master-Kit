@@ -40,7 +40,7 @@
   <!-- Central Tie Node -->
   <g transform="translate(225, 290)">
     <circle cx="45" cy="0" r="10" fill="#0d6efd" stroke="#212529" stroke-width="2" />
-    <text x="70" y="6" font-size="13px" font-weight="bold" fill="#0d6efd">Vout (Node กลาง) &rarr; ส่งเข้า GPIO 34</text>
+    <text x="70" y="6" font-size="13px" font-weight="bold" fill="#0d6efd">Vout (Node กลาง) → ส่งเข้า GPIO 34</text>
   </g>
 
   <!-- Resistor 10k Box -->
@@ -84,17 +84,17 @@
     <rect x="0" y="0" width="315" height="46" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
     <circle cx="15" cy="23" r="5" fill="#dc3545" />
     <text x="30" y="19" font-weight="bold" fill="#dc3545">3V3 (ESP32 ซ้ายแถว 1)</text>
-    <text x="30" y="36" fill="#495057">&rarr; ขาที่ 1 ของ LDR (สายสีแดง)</text>
+    <text x="30" y="36" fill="#495057">→ ขาที่ 1 ของ LDR (สายสีแดง)</text>
 
     <rect x="0" y="58" width="315" height="46" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
     <circle cx="15" cy="81" r="5" fill="#0d6efd" />
     <text x="30" y="77" font-weight="bold" fill="#0d6efd">GPIO 34 (ESP32 ซ้ายแถว 5)</text>
-    <text x="30" y="94" fill="#495057">&rarr; Node กึ่งกลาง LDR + R 10k (สายสีน้ำเงิน)</text>
+    <text x="30" y="94" fill="#495057">→ Node กึ่งกลาง LDR + R 10k (สายสีน้ำเงิน)</text>
 
     <rect x="0" y="116" width="315" height="46" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
     <circle cx="15" cy="139" r="5" fill="#212529" />
     <text x="30" y="135" font-weight="bold" fill="#212529">GND (ESP32 ซ้ายแถว 14)</text>
-    <text x="30" y="152" fill="#495057">&rarr; ขาอีกข้างของ R 10kΩ (สายสีดำ)</text>
+    <text x="30" y="152" fill="#495057">→ ขาอีกข้างของ R 10kΩ (สายสีดำ)</text>
   </g>
 
   <!-- Formula Box -->
@@ -102,9 +102,9 @@
     <rect x="0" y="0" width="315" height="150" rx="8" fill="#f8f9fa" stroke="#dee2e6" />
     <text x="15" y="25" font-size="13px" font-weight="bold" fill="#212529">📐 สูตรคำนวณวงจรแบ่งแรงดัน:</text>
     <text x="15" y="55" font-size="13px" font-family="monospace" fill="#0d6efd">Vout = (R10k / (R_ldr + R10k)) × 3.3V</text>
-    <text x="15" y="85" font-size="12px" fill="#495057">• มืดสนิท: R_ldr &gt; 200kΩ &rarr; ADC สูง ~3900+</text>
-    <text x="15" y="108" font-size="12px" fill="#495057">• แสงห้อง: R_ldr ~7kΩ &rarr; ADC ~1700 (1.4V)</text>
-    <text x="15" y="131" font-size="12px" fill="#495057">• ไฟฉายจ่อ: R_ldr &lt; 1kΩ &rarr; ADC ลดเหลือ &lt; 200</text>
+    <text x="15" y="85" font-size="12px" fill="#495057">• มืดสนิท: R_ldr &gt; 200kΩ → ADC สูง ~3900+</text>
+    <text x="15" y="108" font-size="12px" fill="#495057">• แสงห้อง: R_ldr ~7kΩ → ADC ~1700 (1.4V)</text>
+    <text x="15" y="131" font-size="12px" fill="#495057">• ไฟฉายจ่อ: R_ldr &lt; 1kΩ → ADC ลดเหลือ &lt; 200</text>
   </g>
 
   <!-- Self-assessment tip -->
@@ -112,7 +112,7 @@
     <rect x="0" y="0" width="315" height="165" rx="8" fill="#d1e7dd" stroke="#a3cfbb" />
     <text x="15" y="25" font-size="13px" font-weight="bold" fill="#0f5132">📝 สิ่งที่ต้องส่งใน Report Week 03:</text>
     <text x="15" y="50" font-size="12px" fill="#0f5132">1. วิธีคำนวณแรงดัน Vadc = (ADC/4095) × 3.3V</text>
-    <text x="15" y="73" font-size="12px" fill="#0f5132">2. ตารางเทียบแสง 5 ระดับ (มืดสนิท &rarr; ไฟฉายจ่อ)</text>
+    <text x="15" y="73" font-size="12px" fill="#0f5132">2. ตารางเทียบแสง 5 ระดับ (มืดสนิท → ไฟฉายจ่อ)</text>
     <text x="15" y="96" font-size="12px" fill="#0f5132">3. รูปกราฟ Scatter Trendline (chart week3.png)</text>
     <text x="15" y="120" font-size="12px" fill="#0f5132">4. กรอกตาราง Rubric ประเมินตนเอง</text>
     <text x="15" y="145" font-size="12px" font-weight="bold" fill="#0f5132">✨ ข้อมูลสำเร็จรูปมีอยู่ใน CHECKLIST_AND_DATA_COPY.md</text>

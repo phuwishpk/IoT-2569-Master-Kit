@@ -322,7 +322,7 @@ def build_circuit_7_svg():
     <rect x="0" y="0" width="305" height="50" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
     <line x1="12" y1="25" x2="35" y2="25" stroke="#dc3545" stroke-width="5" stroke-linecap="round" />
     <text x="45" y="20" font-size="13px" font-weight="bold" fill="#dc3545">ขา 3V3 (ESP32 ซ้ายบน)</text>
-    <text x="45" y="38" font-size="12px" fill="#495057">&rarr; ต่อเข้า ขา 1 ของ POT (สายสีแดง)</text>
+    <text x="45" y="38" font-size="12px" fill="#495057">→ ต่อเข้า ขา 1 ของ POT (สายสีแดง)</text>
   </g>
 
   <!-- Item 2: GPIO 34 -->
@@ -330,7 +330,7 @@ def build_circuit_7_svg():
     <rect x="0" y="0" width="305" height="50" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
     <line x1="12" y1="25" x2="35" y2="25" stroke="#0d6efd" stroke-width="5" stroke-linecap="round" />
     <text x="45" y="20" font-size="13px" font-weight="bold" fill="#0d6efd">ขา G34 (ESP32 ซ้ายแถว 5)</text>
-    <text x="45" y="38" font-size="12px" fill="#495057">&rarr; ต่อเข้า ขากลาง Wiper (สายสีน้ำเงิน)</text>
+    <text x="45" y="38" font-size="12px" fill="#495057">→ ต่อเข้า ขากลาง Wiper (สายสีน้ำเงิน)</text>
   </g>
 
   <!-- Item 3: GND Left -->
@@ -338,7 +338,7 @@ def build_circuit_7_svg():
     <rect x="0" y="0" width="305" height="50" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
     <line x1="12" y1="25" x2="35" y2="25" stroke="#212529" stroke-width="5" stroke-linecap="round" />
     <text x="45" y="20" font-size="13px" font-weight="bold" fill="#212529">ขา GND (ESP32 ซ้ายแถว 14)</text>
-    <text x="45" y="38" font-size="12px" fill="#495057">&rarr; ต่อเข้า ขา 3 ของ POT (สายสีดำ)</text>
+    <text x="45" y="38" font-size="12px" fill="#495057">→ ต่อเข้า ขา 3 ของ POT (สายสีดำ)</text>
   </g>
 
   <!-- Item 4: GPIO 2 -->
@@ -346,7 +346,7 @@ def build_circuit_7_svg():
     <rect x="0" y="0" width="305" height="50" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
     <line x1="12" y1="25" x2="35" y2="25" stroke="#fd7e14" stroke-width="5" stroke-linecap="round" />
     <text x="45" y="20" font-size="13px" font-weight="bold" fill="#fd7e14">ขา G2 (ESP32 ขวาแถว 14)</text>
-    <text x="45" y="38" font-size="12px" fill="#495057">&rarr; ต่อเข้า R 220Ω &gt; Anode (+) (สายสีส้ม)</text>
+    <text x="45" y="38" font-size="12px" fill="#495057">→ ต่อเข้า R 220Ω &gt; Anode (+) (สายสีส้ม)</text>
   </g>
 
   <!-- Item 5: GND Right -->
@@ -354,7 +354,7 @@ def build_circuit_7_svg():
     <rect x="0" y="0" width="305" height="50" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
     <line x1="12" y1="25" x2="35" y2="25" stroke="#212529" stroke-width="5" stroke-linecap="round" />
     <text x="45" y="20" font-size="13px" font-weight="bold" fill="#212529">ขา GND (ESP32 ขวาแถว 1)</text>
-    <text x="45" y="38" font-size="12px" fill="#495057">&rarr; ต่อเข้า Cathode (-) ของ LED (สายสีดำ)</text>
+    <text x="45" y="38" font-size="12px" fill="#495057">→ ต่อเข้า Cathode (-) ของ LED (สายสีดำ)</text>
   </g>
 
   <!-- Important Speedrun Advice -->
@@ -668,56 +668,56 @@ def build_circuit_6_svg():
     <rect x="0" y="0" width="325" height="36" rx="4" fill="#f8f9fa" />
     <circle cx="15" cy="18" r="5" fill="#212529" />
     <text x="30" y="16" font-weight="bold" fill="#212529">1. GND</text>
-    <text x="100" y="16" fill="#495057">&rarr; GND บนบอร์ด (กราวด์)</text>
+    <text x="100" y="16" fill="#495057">→ GND บนบอร์ด (กราวด์)</text>
     <text x="30" y="30" font-size="10px" fill="#6c757d">สายสีดำ</text>
 
     <!-- Pin 2 -->
     <rect x="0" y="44" width="325" height="36" rx="4" fill="#f8f9fa" />
     <circle cx="15" cy="62" r="5" fill="#dc3545" />
     <text x="30" y="60" font-weight="bold" fill="#dc3545">2. VCC</text>
-    <text x="100" y="60" fill="#495057">&rarr; ขา 3.3V (ไฟเลี้ยงจอภาพ)</text>
+    <text x="100" y="60" fill="#495057">→ ขา 3.3V (ไฟเลี้ยงจอภาพ)</text>
     <text x="30" y="74" font-size="10px" fill="#6c757d">สายสีแดง (ห้ามต่อ 5V)</text>
 
     <!-- Pin 3 -->
     <rect x="0" y="88" width="325" height="36" rx="4" fill="#f8f9fa" />
     <circle cx="15" cy="106" r="5" fill="#198754" />
     <text x="30" y="104" font-weight="bold" fill="#198754">3. D0 (SCK)</text>
-    <text x="100" y="104" fill="#495057">&rarr; GPIO 18 (SPI2 Clock)</text>
+    <text x="100" y="104" fill="#495057">→ GPIO 18 (SPI2 Clock)</text>
     <text x="30" y="118" font-size="10px" fill="#6c757d">สายสีเขียว</text>
 
     <!-- Pin 4 -->
     <rect x="0" y="132" width="325" height="36" rx="4" fill="#f8f9fa" />
     <circle cx="15" cy="150" r="5" fill="#a370f7" />
     <text x="30" y="148" font-weight="bold" fill="#a370f7">4. D1 (MOSI)</text>
-    <text x="100" y="148" fill="#495057">&rarr; GPIO 23 (SPI2 Data)</text>
+    <text x="100" y="148" fill="#495057">→ GPIO 23 (SPI2 Data)</text>
     <text x="30" y="162" font-size="10px" fill="#6c757d">สายสีม่วง</text>
 
     <!-- Pin 5 -->
     <rect x="0" y="176" width="325" height="36" rx="4" fill="#f8f9fa" />
     <circle cx="15" cy="194" r="5" fill="#0dcaf0" />
     <text x="30" y="192" font-weight="bold" fill="#0dcaf0">5. RES (Reset)</text>
-    <text x="100" y="192" fill="#495057">&rarr; GPIO 4 (Active Low)</text>
+    <text x="100" y="192" fill="#495057">→ GPIO 4 (Active Low)</text>
     <text x="30" y="206" font-size="10px" fill="#6c757d">สายสีฟ้า</text>
 
     <!-- Pin 6 -->
     <rect x="0" y="220" width="325" height="36" rx="4" fill="#f8f9fa" />
     <circle cx="15" cy="238" r="5" fill="#d63384" />
     <text x="30" y="236" font-weight="bold" fill="#d63384">6. DC (Data/Cmd)</text>
-    <text x="100" y="236" fill="#495057">&rarr; GPIO 2 (0=Cmd, 1=Data)</text>
+    <text x="100" y="236" fill="#495057">→ GPIO 2 (0=Cmd, 1=Data)</text>
     <text x="30" y="250" font-size="10px" fill="#6c757d">สายสีชมพู</text>
 
     <!-- Pin 7 -->
     <rect x="0" y="264" width="325" height="36" rx="4" fill="#f8f9fa" />
     <circle cx="15" cy="282" r="5" fill="#fd7e14" />
     <text x="30" y="280" font-weight="bold" fill="#fd7e14">7. CS (Chip Sel)</text>
-    <text x="100" y="280" fill="#495057">&rarr; GPIO 5 (Active Low)</text>
+    <text x="100" y="280" fill="#495057">→ GPIO 5 (Active Low)</text>
     <text x="30" y="294" font-size="10px" fill="#6c757d">สายสีส้ม</text>
 
     <!-- POT Pin -->
     <rect x="0" y="308" width="325" height="36" rx="4" fill="#f8f9fa" />
     <circle cx="15" cy="326" r="5" fill="#0d6efd" />
     <text x="30" y="324" font-weight="bold" fill="#0d6efd">POT Wiper</text>
-    <text x="100" y="324" fill="#495057">&rarr; GPIO 34 (ADC1_CH6)</text>
+    <text x="100" y="324" fill="#495057">→ GPIO 34 (ADC1_CH6)</text>
     <text x="30" y="338" font-size="10px" fill="#6c757d">สายสีน้ำเงิน</text>
   </g>
 
@@ -805,13 +805,13 @@ def build_circuit_5_svg():
     <!-- 4 Terminals of RGB LED -->
     <g transform="translate(20, 165)" font-size="11px">
       <!-- R -->
-      <circle cx="15" cy="15" r="5" fill="#dc3545" /><text x="28" y="19" fill="#dc3545" font-weight="bold">R (แดง)</text><text x="80" y="19" fill="#6c757d">&rarr; R 220Ω &gt; G4</text>
+      <circle cx="15" cy="15" r="5" fill="#dc3545" /><text x="28" y="19" fill="#dc3545" font-weight="bold">R (แดง)</text><text x="80" y="19" fill="#6c757d">→ R 220Ω &gt; G4</text>
       <!-- Cathode -->
-      <circle cx="15" cy="40" r="5" fill="#212529" /><text x="28" y="44" fill="#212529" font-weight="bold">Cathode (-)</text><text x="95" y="44" fill="#6c757d">&rarr; GND</text>
+      <circle cx="15" cy="40" r="5" fill="#212529" /><text x="28" y="44" fill="#212529" font-weight="bold">Cathode (-)</text><text x="95" y="44" fill="#6c757d">→ GND</text>
       <!-- G -->
-      <circle cx="15" cy="65" r="5" fill="#198754" /><text x="28" y="69" fill="#198754" font-weight="bold">G (เขียว)</text><text x="80" y="69" fill="#6c757d">&rarr; R 220Ω &gt; G5</text>
+      <circle cx="15" cy="65" r="5" fill="#198754" /><text x="28" y="69" fill="#198754" font-weight="bold">G (เขียว)</text><text x="80" y="69" fill="#6c757d">→ R 220Ω &gt; G5</text>
       <!-- B -->
-      <circle cx="15" cy="90" r="5" fill="#0d6efd" /><text x="28" y="94" fill="#0d6efd" font-weight="bold">B (น้ำเงิน)</text><text x="85" y="94" fill="#6c757d">&rarr; R 220Ω &gt; G23</text>
+      <circle cx="15" cy="90" r="5" fill="#0d6efd" /><text x="28" y="94" fill="#0d6efd" font-weight="bold">B (น้ำเงิน)</text><text x="85" y="94" fill="#6c757d">→ R 220Ω &gt; G23</text>
     </g>
   </g>
 
@@ -824,9 +824,9 @@ def build_circuit_5_svg():
     <text x="95" y="148" text-anchor="middle" font-size="11px" fill="#6c757d">รับแสงสะท้อนจากวัตถุ</text>
     
     <g transform="translate(15, 175)" font-size="11px">
-      <circle cx="15" cy="15" r="5" fill="#dc3545" /><text x="28" y="19" fill="#dc3545">ขา 1 &rarr; 3.3V (ไฟเลี้ยง)</text>
-      <circle cx="15" cy="45" r="6" fill="#0dcaf0" /><text x="28" y="49" font-weight="bold" fill="#0dcaf0">Node กลาง &rarr; GPIO 34</text>
-      <circle cx="15" cy="75" r="5" fill="#212529" /><text x="28" y="79" fill="#212529">R 10kΩ &rarr; GND (กราวด์)</text>
+      <circle cx="15" cy="15" r="5" fill="#dc3545" /><text x="28" y="19" fill="#dc3545">ขา 1 → 3.3V (ไฟเลี้ยง)</text>
+      <circle cx="15" cy="45" r="6" fill="#0dcaf0" /><text x="28" y="49" font-weight="bold" fill="#0dcaf0">Node กลาง → GPIO 34</text>
+      <circle cx="15" cy="75" r="5" fill="#212529" /><text x="28" y="79" fill="#212529">R 10kΩ → GND (กราวด์)</text>
     </g>
   </g>
 
@@ -836,7 +836,7 @@ def build_circuit_5_svg():
     <text x="20" y="30" font-size="14px" font-weight="bold" fill="#0d6efd">🔬 ขั้นตอนการทดลองจำแนกสี (Week 04):</text>
     <text x="20" y="58" font-size="13px" fill="#212529">1. วางหลอดไฟ RGB LED และเซนเซอร์ LDR หันหน้าขนานไปข้างหน้า</text>
     <text x="20" y="84" font-size="13px" fill="#212529">2. นำวัตถุสีแดง สีเขียว สีน้ำเงิน วางจ่อข้างหน้าห่าง ~1 - 2 cm</text>
-    <text x="20" y="110" font-size="13px" fill="#212529">3. บอร์ด ESP32 จะเปิดไฟทีละสี (R &rarr; G &rarr; B) เพื่อวัดค่าการสะท้อน</text>
+    <text x="20" y="110" font-size="13px" fill="#212529">3. บอร์ด ESP32 จะเปิดไฟทีละสี (R → G → B) เพื่อวัดค่าการสะท้อน</text>
     <text x="20" y="136" font-size="13px" fill="#212529">4. วัตถุสีใดจะสะท้อนแสงสีนั้นได้มากที่สุด ทำให้ค่า ADC เปลี่ยนแปลงเด่นชัด</text>
     <text x="20" y="165" font-size="13px" font-weight="bold" fill="#198754">✅ คำนวณ Trimmed Mean 10% และส่วนเบี่ยงเบนมาตรฐาน (SD) ลงตาราง</text>
   </g>
@@ -880,37 +880,37 @@ def build_circuit_5_svg():
     <rect x="0" y="0" width="325" height="42" rx="4" fill="#f8f9fa" />
     <circle cx="15" cy="21" r="5" fill="#dc3545" />
     <text x="30" y="18" font-weight="bold" fill="#dc3545">GPIO 4 (ESP32 ขวาแถว 13)</text>
-    <text x="30" y="34" fill="#495057">&rarr; LED ขาแดง R (ต่อผ่าน R 220Ω)</text>
+    <text x="30" y="34" fill="#495057">→ LED ขาแดง R (ต่อผ่าน R 220Ω)</text>
 
     <rect x="0" y="52" width="325" height="42" rx="4" fill="#f8f9fa" />
     <circle cx="15" cy="73" r="5" fill="#198754" />
     <text x="30" y="70" font-weight="bold" fill="#198754">GPIO 5 (ESP32 ขวาแถว 10)</text>
-    <text x="30" y="86" fill="#495057">&rarr; LED ขาเขียว G (ต่อผ่าน R 220Ω)</text>
+    <text x="30" y="86" fill="#495057">→ LED ขาเขียว G (ต่อผ่าน R 220Ω)</text>
 
     <rect x="0" y="104" width="325" height="42" rx="4" fill="#f8f9fa" />
     <circle cx="15" cy="125" r="5" fill="#0d6efd" />
     <text x="30" y="122" font-weight="bold" fill="#0d6efd">GPIO 23 (ESP32 ขวาแถว 2)</text>
-    <text x="30" y="138" fill="#495057">&rarr; LED ขาน้ำเงิน B (ต่อผ่าน R 220Ω)</text>
+    <text x="30" y="138" fill="#495057">→ LED ขาน้ำเงิน B (ต่อผ่าน R 220Ω)</text>
 
     <rect x="0" y="156" width="325" height="42" rx="4" fill="#f8f9fa" />
     <circle cx="15" cy="177" r="5" fill="#212529" />
     <text x="30" y="174" font-weight="bold" fill="#212529">GND (ESP32 ขวาแถว 1)</text>
-    <text x="30" y="190" fill="#495057">&rarr; ขา Common Cathode (ขายาวสุด)</text>
+    <text x="30" y="190" fill="#495057">→ ขา Common Cathode (ขายาวสุด)</text>
 
     <rect x="0" y="208" width="325" height="42" rx="4" fill="#f8f9fa" />
     <circle cx="15" cy="229" r="5" fill="#dc3545" />
     <text x="30" y="226" font-weight="bold" fill="#dc3545">3V3 (ESP32 ซ้ายแถว 1)</text>
-    <text x="30" y="242" fill="#495057">&rarr; ไฟเลี้ยงเซนเซอร์ LDR (ขา 1)</text>
+    <text x="30" y="242" fill="#495057">→ ไฟเลี้ยงเซนเซอร์ LDR (ขา 1)</text>
 
     <rect x="0" y="260" width="325" height="42" rx="4" fill="#f8f9fa" />
     <circle cx="15" cy="281" r="5" fill="#0dcaf0" />
     <text x="30" y="278" font-weight="bold" fill="#0dcaf0">GPIO 34 (ESP32 ซ้ายแถว 5)</text>
-    <text x="30" y="294" fill="#495057">&rarr; Node กลาง LDR + R 10k (ADC1)</text>
+    <text x="30" y="294" fill="#495057">→ Node กลาง LDR + R 10k (ADC1)</text>
 
     <rect x="0" y="312" width="325" height="42" rx="4" fill="#f8f9fa" />
     <circle cx="15" cy="333" r="5" fill="#212529" />
     <text x="30" y="330" font-weight="bold" fill="#212529">GND (ESP32 ซ้ายแถว 14)</text>
-    <text x="30" y="346" fill="#495057">&rarr; ขาตัวต้านทานคงที่ 10kΩ</text>
+    <text x="30" y="346" fill="#495057">→ ขาตัวต้านทานคงที่ 10kΩ</text>
   </g>
 
   <!-- Light shielding tip -->
@@ -990,7 +990,7 @@ def build_circuit_4_svg():
   <!-- Central Tie Node -->
   <g transform="translate(225, 290)">
     <circle cx="45" cy="0" r="10" fill="#0d6efd" stroke="#212529" stroke-width="2" />
-    <text x="70" y="6" font-size="13px" font-weight="bold" fill="#0d6efd">Vout (Node กลาง) &rarr; ส่งเข้า GPIO 34</text>
+    <text x="70" y="6" font-size="13px" font-weight="bold" fill="#0d6efd">Vout (Node กลาง) → ส่งเข้า GPIO 34</text>
   </g>
 
   <!-- Resistor 10k Box -->
@@ -1034,17 +1034,17 @@ def build_circuit_4_svg():
     <rect x="0" y="0" width="315" height="46" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
     <circle cx="15" cy="23" r="5" fill="#dc3545" />
     <text x="30" y="19" font-weight="bold" fill="#dc3545">3V3 (ESP32 ซ้ายแถว 1)</text>
-    <text x="30" y="36" fill="#495057">&rarr; ขาที่ 1 ของ LDR (สายสีแดง)</text>
+    <text x="30" y="36" fill="#495057">→ ขาที่ 1 ของ LDR (สายสีแดง)</text>
 
     <rect x="0" y="58" width="315" height="46" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
     <circle cx="15" cy="81" r="5" fill="#0d6efd" />
     <text x="30" y="77" font-weight="bold" fill="#0d6efd">GPIO 34 (ESP32 ซ้ายแถว 5)</text>
-    <text x="30" y="94" fill="#495057">&rarr; Node กึ่งกลาง LDR + R 10k (สายสีน้ำเงิน)</text>
+    <text x="30" y="94" fill="#495057">→ Node กึ่งกลาง LDR + R 10k (สายสีน้ำเงิน)</text>
 
     <rect x="0" y="116" width="315" height="46" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
     <circle cx="15" cy="139" r="5" fill="#212529" />
     <text x="30" y="135" font-weight="bold" fill="#212529">GND (ESP32 ซ้ายแถว 14)</text>
-    <text x="30" y="152" fill="#495057">&rarr; ขาอีกข้างของ R 10kΩ (สายสีดำ)</text>
+    <text x="30" y="152" fill="#495057">→ ขาอีกข้างของ R 10kΩ (สายสีดำ)</text>
   </g>
 
   <!-- Formula Box -->
@@ -1052,9 +1052,9 @@ def build_circuit_4_svg():
     <rect x="0" y="0" width="315" height="150" rx="8" fill="#f8f9fa" stroke="#dee2e6" />
     <text x="15" y="25" font-size="13px" font-weight="bold" fill="#212529">📐 สูตรคำนวณวงจรแบ่งแรงดัน:</text>
     <text x="15" y="55" font-size="13px" font-family="monospace" fill="#0d6efd">Vout = (R10k / (R_ldr + R10k)) × 3.3V</text>
-    <text x="15" y="85" font-size="12px" fill="#495057">• มืดสนิท: R_ldr &gt; 200kΩ &rarr; ADC สูง ~3900+</text>
-    <text x="15" y="108" font-size="12px" fill="#495057">• แสงห้อง: R_ldr ~7kΩ &rarr; ADC ~1700 (1.4V)</text>
-    <text x="15" y="131" font-size="12px" fill="#495057">• ไฟฉายจ่อ: R_ldr &lt; 1kΩ &rarr; ADC ลดเหลือ &lt; 200</text>
+    <text x="15" y="85" font-size="12px" fill="#495057">• มืดสนิท: R_ldr &gt; 200kΩ → ADC สูง ~3900+</text>
+    <text x="15" y="108" font-size="12px" fill="#495057">• แสงห้อง: R_ldr ~7kΩ → ADC ~1700 (1.4V)</text>
+    <text x="15" y="131" font-size="12px" fill="#495057">• ไฟฉายจ่อ: R_ldr &lt; 1kΩ → ADC ลดเหลือ &lt; 200</text>
   </g>
 
   <!-- Self-assessment tip -->
@@ -1062,7 +1062,7 @@ def build_circuit_4_svg():
     <rect x="0" y="0" width="315" height="165" rx="8" fill="#d1e7dd" stroke="#a3cfbb" />
     <text x="15" y="25" font-size="13px" font-weight="bold" fill="#0f5132">📝 สิ่งที่ต้องส่งใน Report Week 03:</text>
     <text x="15" y="50" font-size="12px" fill="#0f5132">1. วิธีคำนวณแรงดัน Vadc = (ADC/4095) × 3.3V</text>
-    <text x="15" y="73" font-size="12px" fill="#0f5132">2. ตารางเทียบแสง 5 ระดับ (มืดสนิท &rarr; ไฟฉายจ่อ)</text>
+    <text x="15" y="73" font-size="12px" fill="#0f5132">2. ตารางเทียบแสง 5 ระดับ (มืดสนิท → ไฟฉายจ่อ)</text>
     <text x="15" y="96" font-size="12px" fill="#0f5132">3. รูปกราฟ Scatter Trendline (chart week3.png)</text>
     <text x="15" y="120" font-size="12px" fill="#0f5132">4. กรอกตาราง Rubric ประเมินตนเอง</text>
     <text x="15" y="145" font-size="12px" font-weight="bold" fill="#0f5132">✨ ข้อมูลสำเร็จรูปมีอยู่ใน CHECKLIST_AND_DATA_COPY.md</text>
@@ -1123,7 +1123,7 @@ def build_circuit_1_svg():
     <rect x="0" y="100" width="775" height="115" rx="6" fill="#e7f1ff" stroke="#b6d4fe" />
     <text x="15" y="25" font-size="14px" font-weight="bold" fill="#0d6efd">2. ขาแอนะล็อกอินพุต (Analog-to-Digital Converter - ADC):</text>
     <text x="15" y="48" font-size="13px" fill="#0d6efd">• <tspan font-weight="bold">ADC1 (GPIO 32, 33, 34, 35, 36/VP, 39/VN):</tspan> **ปลอดภัยสูงสุด** ใช้งานได้ตลอดเวลา ไม่กวน Wi-Fi</text>
-    <text x="25" y="70" font-size="12px" fill="#495057">&rarr; แล็บในวิชานี้กำหนดให้ใช้ <tspan font-weight="bold" fill="#0d6efd">GPIO 34 (ADC1_CH6)</tspan> เป็นหลักสำหรับ Potentiometer และ LDR</text>
+    <text x="25" y="70" font-size="12px" fill="#495057">→ แล็บในวิชานี้กำหนดให้ใช้ <tspan font-weight="bold" fill="#0d6efd">GPIO 34 (ADC1_CH6)</tspan> เป็นหลักสำหรับ Potentiometer และ LDR</text>
     <text x="15" y="95" font-size="13px" fill="#6c757d">• <tspan font-weight="bold">ADC2 (GPIO 0, 2, 4, 12-15, 25-27):</tspan> ห้ามใช้อ่านแอนะล็อกขณะเปิด Wi-Fi (Wi-Fi Driver จะจองบล็อก ADC2)</text>
 
     <!-- Group 3: High-speed SPI Buses -->
@@ -1239,12 +1239,12 @@ def build_circuit_2_svg():
     <rect x="0" y="0" width="315" height="50" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
     <circle cx="15" cy="25" r="6" fill="#fd7e14" />
     <text x="32" y="22" font-weight="bold" fill="#fd7e14">GPIO 2 (ESP32 ขวาแถว 14)</text>
-    <text x="32" y="40" font-size="12px" fill="#495057">&rarr; ต่อผ่าน R 220Ω เข้าขาขายาว (Anode +)</text>
+    <text x="32" y="40" font-size="12px" fill="#495057">→ ต่อผ่าน R 220Ω เข้าขาขายาว (Anode +)</text>
 
     <rect x="0" y="65" width="315" height="50" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
     <circle cx="15" cy="90" r="6" fill="#212529" />
     <text x="32" y="87" font-weight="bold" fill="#212529">GND (ESP32 ขวาแถว 1)</text>
-    <text x="32" y="105" font-size="12px" fill="#495057">&rarr; ต่อเข้าขาสั้น (Cathode -) ของ LED</text>
+    <text x="32" y="105" font-size="12px" fill="#495057">→ ต่อเข้าขาสั้น (Cathode -) ของ LED</text>
   </g>
 
   <g transform="translate(20, 200)">
@@ -1348,17 +1348,17 @@ def build_circuit_3_svg():
     <rect x="0" y="0" width="315" height="50" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
     <circle cx="15" cy="25" r="6" fill="#dc3545" />
     <text x="32" y="22" font-weight="bold" fill="#dc3545">ขา 3V3 (ESP32 ซ้ายแถว 1)</text>
-    <text x="32" y="40" font-size="12px" fill="#495057">&rarr; ขาที่ 1 ของ POT (สายสีแดง)</text>
+    <text x="32" y="40" font-size="12px" fill="#495057">→ ขาที่ 1 ของ POT (สายสีแดง)</text>
 
     <rect x="0" y="65" width="315" height="50" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
     <circle cx="15" cy="90" r="6" fill="#0d6efd" />
     <text x="32" y="87" font-weight="bold" fill="#0d6efd">GPIO 34 (ESP32 ซ้ายแถว 5)</text>
-    <text x="32" y="105" font-size="12px" fill="#495057">&rarr; ขากลาง Wiper (สายสีน้ำเงิน ADC1)</text>
+    <text x="32" y="105" font-size="12px" fill="#495057">→ ขากลาง Wiper (สายสีน้ำเงิน ADC1)</text>
 
     <rect x="0" y="130" width="315" height="50" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
     <circle cx="15" cy="155" r="6" fill="#212529" />
     <text x="32" y="152" font-weight="bold" fill="#212529">GND (ESP32 ซ้ายแถว 14)</text>
-    <text x="32" y="170" font-size="12px" fill="#495057">&rarr; ขาที่ 3 ของ POT (สายสีดำ)</text>
+    <text x="32" y="170" font-size="12px" fill="#495057">→ ขาที่ 3 ของ POT (สายสีดำ)</text>
   </g>
 
   <g transform="translate(20, 270)">

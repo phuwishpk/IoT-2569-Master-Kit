@@ -25,13 +25,14 @@
 ### ⭐⭐⭐ วงจรที่ 7: สถานี IoT มาตรฐาน (Standard IoT Station: POT + LED)
 * **สัปดาห์ที่ใช้:** **Week 02 (Lab 2.3)**, **Week 10 (HTTP/UDP/CoAP)**, **Week 11 (MQTT & RainMaker)**, **Week 12 (Flutter Mobile)**
 * **คำกำกับ:** **วงจรหลักที่สำคัญที่สุด!** แสดงขา ESP32 ครบ 38 ขา โดยโยงสายไฟ 5 เส้น:
-  1. **สายสีแดง (3.3V):** จากขาซ้ายแถว 1 (`3V3`) &rarr; ขา 1 ของ Potentiometer
-  2. **สายสีน้ำเงิน (Signal):** จากขาซ้ายแถว 5 (`GPIO 34`) &rarr; ขากลาง (Wiper) ของ Potentiometer
-  3. **สายสีดำ (GND):** จากขาซ้ายแถว 14 (`GND`) &rarr; ขา 3 ของ Potentiometer
-  4. **สายสีส้ม (LED Out):** จากขาขวาแถว 14 (`GPIO 2`) &rarr; ตัวต้านทาน 220Ω &rarr; ขาขายาว (Anode +) ของ LED
-  5. **สายสีดำ (GND):** จากขาขวาแถว 1 (`GND`) &rarr; ขาขาสั้น (Cathode -) ของ LED
+  1. **สายสีแดง (3.3V):** จากขาซ้ายแถว 1 (`3V3`) → ขา 1 ของ Potentiometer
+  2. **สายสีน้ำเงิน (Signal):** จากขาซ้ายแถว 5 (`GPIO 34`) → ขากลาง (Wiper) ของ Potentiometer
+  3. **สายสีดำ (GND):** จากขาซ้ายแถว 14 (`GND`) → ขา 3 ของ Potentiometer
+  4. **สายสีส้ม (LED Out):** จากขาขวาแถว 14 (`GPIO 2`) → ตัวต้านทาน 220Ω → ขาขายาว (Anode +) ของ LED
+  5. **สายสีดำ (GND):** จากขาขวาแถว 1 (`GND`) → ขาขาสั้น (Cathode -) ของ LED
 
-![วงจรที่ 7: Standard IoT Station (POT + LED)](circuits/circuit_07_standard_iot_station.svg)
+![วงจรที่ 7: Standard IoT Station (POT + LED)](circuits/circuit_07_standard_iot_station.png)  
+🔍 [คลิกดูไฟล์เวกเตอร์ SVG ความละเอียดสูง (SVG Format)](circuits/circuit_07_standard_iot_station.svg)
 
 > 💡 **กลยุทธ์ทำแล็บให้เร็วที่สุด:** ต่อวงจรที่ 7 นี้บน Breadboard ครั้งเดียวตอนทำ Week 02 (Lab 2.3) แล้ว **ปล่อยวงจรนี้ไว้เลย** เมื่อถึง Week 10, Week 11, และ Week 12 สามารถหยิบบอร์ดนี้มาเสียบสาย USB แล้วแฟลชโค้ดได้ทันทีโดยไม่ต้องต่อสายไฟใหม่แม้แต่เส้นเดียว!
 
@@ -41,13 +42,14 @@
 * **สัปดาห์ที่ใช้:** **Week 09 (SPI OLED and Kestrel UI)**
 * **คำกำกับ:** แสดงขา ESP32 ครบ 38 ขา พร้อมโยงสายบัส SPI2 ความเร็วสูง 10 MHz 5 ขา + ไฟเลี้ยง 2 ขา + Potentiometer 10k บนขา GPIO 34
 
-![วงจรที่ 6: SPI OLED and Potentiometer](circuits/circuit_06_spi_oled_pot.svg)
+![วงจรที่ 6: SPI OLED and Potentiometer](circuits/circuit_06_spi_oled_pot.png)  
+🔍 [คลิกดูไฟล์เวกเตอร์ SVG ความละเอียดสูง (SVG Format)](circuits/circuit_06_spi_oled_pot.svg)
 
 #### 📌 ตารางการเชื่อมต่อขา OLED (SSD1306 7-Pin) เข้ากับ ESP32
 | ขาบนโมดูล OLED | ชื่อสัญญาณ | ตำแหน่งขาบน ESP32 (ครบ 38 ขา) | สีสายไฟ | หน้าที่ในการทำงาน |
 | :---: | :---: | :---: | :---: | :--- |
 | **Pin 1: GND** | Ground | **ขาขวาแถว 1 (`GND`)** | สีดำ | กราวด์ระบบ |
-| **Pin 2: VCC** | Power 3.3V | **ขาซ้ายแถว 1 (`3V3`)** | สีแดง | ไฟเลี้ยงจอภาพ (3.3V) |
+| **Pin 2: VCC** | Power 3.3V | **ขาซ้ายแถว 1 (`3V3`)** | สีแดง | ไฟเลี้ยงจอภาพ (3.3V ห้ามต่อ 5V) |
 | **Pin 3: D0** | SCK / Clock | **ขาขวาแถว 9 (`GPIO 18`)** | สีเขียว | สัญญาณนาฬิกา SPI2 Clock |
 | **Pin 4: D1** | MOSI / Data | **ขาขวาแถว 2 (`GPIO 23`)** | สีม่วง | สัญญาณข้อมูลส่งออกจาก ESP32 |
 | **Pin 5: RES** | Hardware Reset | **ขาขวาแถว 13 (`GPIO 4`)** | สีฟ้า | สัญญาณรีเซ็ตจอภาพ (Active Low) |
@@ -61,7 +63,8 @@
 * **สัปดาห์ที่ใช้:** **Week 04 (LED & RGB Color Sensing)**
 * **คำกำกับ:** แสดงขา ESP32 ครบ 38 ขา พร้อมต่อหลอดไฟแม่สี 3 สี (ผ่านตัวต้านทาน 220Ω) และรับแสงสะท้อนผ่านเซนเซอร์ LDR
 
-![วงจรที่ 5: RGB Color Sensing](circuits/circuit_05_rgb_color_sensing.svg)
+![วงจรที่ 5: RGB Color Sensing](circuits/circuit_05_rgb_color_sensing.png)  
+🔍 [คลิกดูไฟล์เวกเตอร์ SVG ความละเอียดสูง (SVG Format)](circuits/circuit_05_rgb_color_sensing.svg)
 
 #### 📌 ตารางการเชื่อมต่อขา Week 04
 | อุปกรณ์ | ขาเป้าหมาย | ตำแหน่งขาบน ESP32 | สีสายไฟ |
@@ -80,7 +83,8 @@
 * **สัปดาห์ที่ใช้:** **Week 03 (Sensors & Calibration II)**
 * **คำกำกับ:** แสดงขา ESP32 ครบ 38 ขา โดยต่อตัวต้านทานไวแสง LDR อนุกรมกับตัวต้านทานคงที่ 10kΩ แล้วดึงจุดแยกแรงดันเข้าขา GPIO 34 (ADC1)
 
-![วงจรที่ 4: LDR Voltage Divider](circuits/circuit_04_ldr_divider.svg)
+![วงจรที่ 4: LDR Voltage Divider](circuits/circuit_04_ldr_divider.png)  
+🔍 [คลิกดูไฟล์เวกเตอร์ SVG ความละเอียดสูง (SVG Format)](circuits/circuit_04_ldr_divider.svg)
 
 ---
 
@@ -88,7 +92,8 @@
 * **สัปดาห์ที่ใช้:** **Week 02 (Lab 2.2)**, **Week 08 (Lab 8.3)**
 * **คำกำกับ:** แสดงขา ESP32 ครบ 38 ขา หมุนปรับแรงดันแอนะล็อก 0.00V ถึง 3.30V เข้าสู่ขา GPIO 34
 
-![วงจรที่ 3: Potentiometer ADC](circuits/circuit_03_pot_adc.svg)
+![วงจรที่ 3: Potentiometer ADC](circuits/circuit_03_pot_adc.png)  
+🔍 [คลิกดูไฟล์เวกเตอร์ SVG ความละเอียดสูง (SVG Format)](circuits/circuit_03_pot_adc.svg)
 
 ---
 
@@ -96,7 +101,8 @@
 * **สัปดาห์ที่ใช้:** **Week 02 (Lab 2.1)**
 * **คำกำกับ:** แสดงขา ESP32 ครบ 38 ขา ต่อหลอดไฟ LED ผ่านตัวต้านทาน 220Ω เข้าขา GPIO 2 (หรือใช้หลอด Blue LED บนบอร์ด)
 
-![วงจรที่ 2: LED PWM](circuits/circuit_02_led_pwm.svg)
+![วงจรที่ 2: LED PWM](circuits/circuit_02_led_pwm.png)  
+🔍 [คลิกดูไฟล์เวกเตอร์ SVG ความละเอียดสูง (SVG Format)](circuits/circuit_02_led_pwm.svg)
 
 ---
 
@@ -104,4 +110,5 @@
 * **สัปดาห์ที่ใช้:** **Week 01, Week 05, Week 06, Week 07, Week 08 (Lab 8.1, 8.2, 8.4, 8.5)**
 * **คำกำกับ:** ใช้แบบบอร์ดเปล่า เสียบสาย Micro-USB เข้าคอมพิวเตอร์อย่างเดียว ไม่ต้องต่อ Breadboard
 
-![วงจรที่ 1: ผังขาบอร์ด ESP32 ฉบับสมบูรณ์](circuits/circuit_01_bare_esp32.svg)
+![วงจรที่ 1: ผังขาบอร์ด ESP32 ฉบับสมบูรณ์](circuits/circuit_01_bare_esp32.png)  
+🔍 [คลิกดูไฟล์เวกเตอร์ SVG ความละเอียดสูง (SVG Format)](circuits/circuit_01_bare_esp32.svg)

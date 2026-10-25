@@ -63,17 +63,17 @@
     <rect x="0" y="0" width="315" height="50" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
     <circle cx="15" cy="25" r="6" fill="#dc3545" />
     <text x="32" y="22" font-weight="bold" fill="#dc3545">ขา 3V3 (ESP32 ซ้ายแถว 1)</text>
-    <text x="32" y="40" font-size="12px" fill="#495057">&rarr; ขาที่ 1 ของ POT (สายสีแดง)</text>
+    <text x="32" y="40" font-size="12px" fill="#495057">→ ขาที่ 1 ของ POT (สายสีแดง)</text>
 
     <rect x="0" y="65" width="315" height="50" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
     <circle cx="15" cy="90" r="6" fill="#0d6efd" />
     <text x="32" y="87" font-weight="bold" fill="#0d6efd">GPIO 34 (ESP32 ซ้ายแถว 5)</text>
-    <text x="32" y="105" font-size="12px" fill="#495057">&rarr; ขากลาง Wiper (สายสีน้ำเงิน ADC1)</text>
+    <text x="32" y="105" font-size="12px" fill="#495057">→ ขากลาง Wiper (สายสีน้ำเงิน ADC1)</text>
 
     <rect x="0" y="130" width="315" height="50" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
     <circle cx="15" cy="155" r="6" fill="#212529" />
     <text x="32" y="152" font-weight="bold" fill="#212529">GND (ESP32 ซ้ายแถว 14)</text>
-    <text x="32" y="170" font-size="12px" fill="#495057">&rarr; ขาที่ 3 ของ POT (สายสีดำ)</text>
+    <text x="32" y="170" font-size="12px" fill="#495057">→ ขาที่ 3 ของ POT (สายสีดำ)</text>
   </g>
 
   <g transform="translate(20, 270)">
