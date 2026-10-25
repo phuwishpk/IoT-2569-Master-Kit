@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 880" width="1280" height="880" style="background:#f8f9fa; font-family: -apple-system, 'Thonburi', 'Sarabun', 'Segoe UI', Arial, sans-serif;">
+<defs>
+  <style>
+    .title { font-size: 24px; font-weight: bold; fill: #0d6efd; }
+    .subtitle { font-size: 15px; fill: #495057; }
+    .badge-lab { font-size: 14px; font-weight: bold; fill: #6f42c1; }
+    .card { fill: #ffffff; stroke: #dee2e6; stroke-width: 1.5; rx: 10; }
+    .wire { stroke-linecap: round; stroke-linejoin: round; fill: none; }
+  </style>
+</defs>
+
+<!-- Header Card -->
+<rect x="25" y="20" width="1230" height="100" class="card" />
+<text x="45" y="52" class="title">วงจรที่ 2: ควบคุมหลอดไฟ LED ผ่านขา GPIO 2 (LED Blink &amp; PWM)</text>
+<text x="45" y="78" class="subtitle">แสดงขาทั้งหมดของ ESP32 (ครบ 38 ขา) พร้อมต่อหลอดไฟ LED ผ่านตัวต้านทาน 220Ω เข้าขา GPIO 2 (หรือใช้ Onboard Blue LED)</text>
+<text x="45" y="102" class="badge-lab">📌 ใช้ใน: Week 02 (Lab 2.1) — ทดสอบไฟกระพริบและการหรี่แสงไฟ LED</text>
+
+<!-- ESP32 Board (Full 38 Pins) -->
+<g transform="translate(60, 140)">  <rect x="0" y="0" width="260" height="670" rx="14" fill="#1e222b" stroke="#3e4451" stroke-width="2.5" />  <rect x="45" y="45" width="170" height="190" rx="6" fill="#ced4da" stroke="#adb5bd" stroke-width="2" />  <text x="130" y="115" text-anchor="middle" font-size="14px" font-weight="bold" fill="#212529">ESP-WROOM-32</text>  <text x="130" y="138" text-anchor="middle" font-size="11px" fill="#495057">Wi-Fi &amp; Bluetooth</text>  <text x="130" y="158" text-anchor="middle" font-size="10px" font-family="monospace" fill="#6c757d">240MHz DUAL CORE</text>  <rect x="102" y="648" width="56" height="26" rx="4" fill="#adb5bd" stroke="#6c757d" stroke-width="1.5" />  <text x="130" y="664" text-anchor="middle" font-size="10px" font-weight="bold" fill="#212529">USB</text>  <rect x="25" y="605" width="24" height="20" rx="3" fill="#dc3545" />  <text x="37" y="598" text-anchor="middle" font-size="10px" font-weight="bold" fill="#adb5bd">EN</text>  <rect x="211" y="605" width="24" height="20" rx="3" fill="#495057" />  <text x="223" y="598" text-anchor="middle" font-size="10px" font-weight="bold" fill="#adb5bd">BOOT</text>  <rect x="200" y="560" width="12" height="8" rx="2" fill="#0d6efd" stroke="#0b5ed7" />  <text x="206" y="552" text-anchor="middle" font-size="9px" fill="#0dcaf0">LED:D2</text>  <circle cx="8" cy="55" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="20" y="59" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">3V3</text>  <circle cx="8" cy="85" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="20" y="89" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">EN</text>  <circle cx="8" cy="115" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="20" y="119" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">VP</text>  <circle cx="8" cy="145" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="20" y="149" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">VN</text>  <circle cx="8" cy="175" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="20" y="179" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">G34</text>  <circle cx="8" cy="205" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="20" y="209" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">G35</text>  <circle cx="8" cy="235" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="20" y="239" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">G32</text>  <circle cx="8" cy="265" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="20" y="269" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">G33</text>  <circle cx="8" cy="295" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="20" y="299" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">G25</text>  <circle cx="8" cy="325" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="20" y="329" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">G26</text>  <circle cx="8" cy="355" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="20" y="359" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">G27</text>  <circle cx="8" cy="385" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="20" y="389" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">G14</text>  <circle cx="8" cy="415" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="20" y="419" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">G12</text>  <circle cx="8" cy="445" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="20" y="449" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">GND</text>  <circle cx="8" cy="475" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="20" y="479" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">G13</text>  <circle cx="8" cy="505" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="20" y="509" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">D2</text>  <circle cx="8" cy="535" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="20" y="539" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">D3</text>  <circle cx="8" cy="565" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="20" y="569" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">CMD</text>  <circle cx="8" cy="595" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="20" y="599" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">5V</text>  <circle cx="252" cy="55" r="5" fill="#212529" stroke="#212529" stroke-width="1.5" />  <text x="240" y="59" text-anchor="end" font-size="12px" font-family="monospace" font-weight="bold" fill="#ffffff">GND</text>  <circle cx="252" cy="85" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="240" y="89" text-anchor="end" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">G23</text>  <circle cx="252" cy="115" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="240" y="119" text-anchor="end" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">G22</text>  <circle cx="252" cy="145" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="240" y="149" text-anchor="end" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">TX</text>  <circle cx="252" cy="175" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="240" y="179" text-anchor="end" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">RX</text>  <circle cx="252" cy="205" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="240" y="209" text-anchor="end" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">G21</text>  <circle cx="252" cy="235" r="5" fill="#212529" stroke="#212529" stroke-width="1.5" />  <text x="240" y="239" text-anchor="end" font-size="12px" font-family="monospace" font-weight="bold" fill="#ffffff">GND</text>  <circle cx="252" cy="265" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="240" y="269" text-anchor="end" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">G19</text>  <circle cx="252" cy="295" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="240" y="299" text-anchor="end" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">G18</text>  <circle cx="252" cy="325" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="240" y="329" text-anchor="end" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">G5</text>  <circle cx="252" cy="355" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="240" y="359" text-anchor="end" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">TX2</text>  <circle cx="252" cy="385" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="240" y="389" text-anchor="end" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">RX2</text>  <circle cx="252" cy="415" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="240" y="419" text-anchor="end" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">G4</text>  <circle cx="252" cy="445" r="5" fill="#fd7e14" stroke="#212529" stroke-width="1.5" />  <text x="240" y="449" text-anchor="end" font-size="12px" font-family="monospace" font-weight="bold" fill="#ffffff">G2</text>  <circle cx="252" cy="475" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="240" y="479" text-anchor="end" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">G15</text>  <circle cx="252" cy="505" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="240" y="509" text-anchor="end" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">D1</text>  <circle cx="252" cy="535" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="240" y="539" text-anchor="end" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">D0</text>  <circle cx="252" cy="565" r="5" fill="#ffc107" stroke="#212529" stroke-width="1.5" />  <text x="240" y="569" text-anchor="end" font-size="12px" font-family="monospace" font-weight="normal" fill="#adb5bd">CLK</text>  <circle cx="252" cy="595" r="5" fill="#212529" stroke="#212529" stroke-width="1.5" />  <text x="240" y="599" text-anchor="end" font-size="12px" font-family="monospace" font-weight="bold" fill="#ffffff">GND</text></g>
+
+<!-- Breadboard Layout -->
+<g transform="translate(420, 150)">
+  <rect x="0" y="0" width="450" height="600" rx="12" fill="#f1f3f5" stroke="#ced4da" stroke-width="2" />
+  <text x="180" y="30" font-size="14px" font-weight="bold" fill="#adb5bd">BREADBOARD</text>
+  
+  <!-- LED + Resistor Box -->
+  <g transform="translate(125, 100)">
+    <rect x="0" y="0" width="200" height="300" rx="8" fill="#ffffff" stroke="#dee2e6" />
+    <circle cx="100" cy="80" r="40" fill="#dc3545" opacity="0.9" />
+    <polygon points="75,115 125,115 100,145" fill="#dc3545" />
+    <text x="100" y="180" text-anchor="middle" font-size="15px" font-weight="bold" fill="#212529">LED (Red / Blue)</text>
+    
+    <!-- Resistor 220 Ohm -->
+    <rect x="65" y="200" width="70" height="24" rx="4" fill="#e2d9cc" stroke="#8b7355" stroke-width="2" />
+    <line x1="77" y1="200" x2="77" y2="224" stroke="#dc3545" stroke-width="3.5" />
+    <line x1="90" y1="200" x2="90" y2="224" stroke="#dc3545" stroke-width="3.5" />
+    <line x1="103" y1="200" x2="103" y2="224" stroke="#8b4513" stroke-width="3.5" />
+    <text x="100" y="245" text-anchor="middle" font-size="12px" font-weight="bold" fill="#8b4513">R 220Ω (แดง-แดง-น้ำตาล)</text>
+    
+    <!-- Terminals -->
+    <circle cx="75" cy="275" r="7" fill="#fd7e14" /><text x="75" y="295" text-anchor="middle" font-size="11px" fill="#fd7e14">Anode (+)</text>
+    <circle cx="125" cy="275" r="6" fill="#212529" /><text x="125" y="295" text-anchor="middle" font-size="11px" fill="#212529">Cathode (-)</text>
+  </g>
+</g>
+
+<!-- Wire Routing -->
+<!-- GPIO 2 Pad -> Resistor Anode -->
+<path d="M 312 585 L 350 585 L 350 525 L 620 525 L 620 425" stroke="#fd7e14" stroke-width="4.5" class="wire" />
+<circle cx="312" cy="585" r="3" fill="#ffffff" />
+
+<!-- GND Right Pad -> LED Cathode -->
+<path d="M 312 735 L 330 735 L 330 550 L 670 550 L 670 425" stroke="#212529" stroke-width="4.5" class="wire" />
+<circle cx="312" cy="735" r="3" fill="#ffffff" />
+
+<!-- Right Side Info Box -->
+<g transform="translate(900, 150)">
+  <rect x="0" y="0" width="355" height="600" rx="12" class="card" />
+  <text x="25" y="35" font-size="16px" font-weight="bold" fill="#0d6efd">📋 รายละเอียดการต่อวงจร</text>
+  
+  <g transform="translate(20, 60)" font-size="13px">
+    <rect x="0" y="0" width="315" height="50" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
+    <circle cx="15" cy="25" r="6" fill="#fd7e14" />
+    <text x="32" y="22" font-weight="bold" fill="#fd7e14">GPIO 2 (ESP32 ขวาแถว 14)</text>
+    <text x="32" y="40" font-size="12px" fill="#495057">→ ต่อผ่าน R 220Ω เข้าขาขายาว (Anode +)</text>
+
+    <rect x="0" y="65" width="315" height="50" rx="6" fill="#f8f9fa" stroke="#dee2e6" />
+    <circle cx="15" cy="90" r="6" fill="#212529" />
+    <text x="32" y="87" font-weight="bold" fill="#212529">GND (ESP32 ขวาแถว 1)</text>
+    <text x="32" y="105" font-size="12px" fill="#495057">→ ต่อเข้าขาสั้น (Cathode -) ของ LED</text>
+  </g>
+
+  <g transform="translate(20, 200)">
+    <rect x="0" y="0" width="315" height="200" rx="8" fill="#d1e7dd" stroke="#a3cfbb" />
+    <text x="15" y="25" font-size="14px" font-weight="bold" fill="#0f5132">💡 ทริคเด็ดไม่ต้องต่อวงจรภายนอก:</text>
+    <text x="15" y="52" font-size="12px" fill="#0f5132">• บอร์ด ESP32 NodeMCU-32S มีหลอดไฟ LED</text>
+    <text x="15" y="74" font-size="12px" fill="#0f5132">  สีน้ำเงิน (Onboard Blue LED) เชื่อมอยู่กับ</text>
+    <text x="15" y="96" font-size="12px" font-weight="bold" fill="#0f5132">  ขา GPIO 2 อยู่แล้วบนตัวบอร์ด!</text>
+    <text x="15" y="122" font-size="12px" fill="#0f5132">• ถ้าไม่มี Breadboard หรือหลอดไฟ</text>
+    <text x="15" y="144" font-size="12px" fill="#0f5132">  สามารถสั่งรันโค้ดแล้วดูไฟสีน้ำเงินกระพริบ</text>
+    <text x="15" y="166" font-size="12px" fill="#0f5132">  บนตัวบอร์ดเพื่ออัดคลิปส่งได้ทันที 100%</text>
+  </g>
+</g>
+</svg>
