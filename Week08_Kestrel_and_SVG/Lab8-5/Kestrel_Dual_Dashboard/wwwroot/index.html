@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dual-Channel IoT Command Center - 67030183</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #070b14;
+            --card-bg: rgba(14, 22, 38, 0.78);
+            --border-glow: rgba(0, 242, 254, 0.25);
+            --cyan-glow: #00f2fe;
+            --blue-glow: #38bdf8;
+            --green-glow: #10b981;
+            --yellow-glow: #f59e0b;
+            --red-glow: #ff0055;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: radial-gradient(circle at 50% 15%, #132238 0%, var(--bg-deep) 100%);
+            color: var(--text-primary);
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 16px;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #00f2fe, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .student-pill {
+            display: inline-block;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--cyan-glow);
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid rgba(0, 242, 254, 0.35);
+            border-radius: 20px;
+            padding: 4px 16px;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+
+        .formula-calc {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 5px 14px;
+            display: inline-block;
+        }
+
+        .formula-calc strong {
+            color: #38bdf8;
+        }
+
+        /* Responsive Dual Pane Grid */
+        .command-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 25px;
+            width: 100%;
+            max-width: 960px;
+            margin-top: 10px;
+        }
+
+        .widget-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 24px;
+            padding: 28px 24px;
+            backdrop-filter: blur(14px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 242, 254, 0.08);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .widget-panel:hover {
+            border-color: rgba(0, 242, 254, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .panel-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+        }
+
+        .panel-channel-tag {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 6px;
+            letter-spacing: 1px;
+        }
+
+        .tag-cha {
+            background: rgba(0, 242, 254, 0.15);
+            color: #00f2fe;
+            border: 1px solid rgba(0, 242, 254, 0.4);
+        }
+
+        .tag-chb {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .panel-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        /* SVG Containers */
+        .svg-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 230px;
+            margin: 10px 0;
+        }
+
+        /* 1. Liquid Tank Styles */
+        #water-fill {
+            transition: y 0.12s ease-out, height 0.12s ease-out;
+        }
+
+        /* 2. VU Meter Styles */
+        .led {
+            transition: opacity 0.08s ease, filter 0.08s ease;
+        }
+
+        /* Status & Telemetry Metrics */
+        .metric-banner {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--cyan-glow);
+            filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.4));
+            margin: 10px 0 14px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .metric-card {
+            background: rgba(10, 16, 28, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .metric-val {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 3px;
+        }
+
+        .footer-status {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .source-badge {
+            display: inline-block;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            border-radius: 20px;
+            padding: 6px 18px;
+            font-size: 0.85rem;
+            color: var(--cyan-glow);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+<div class="header-section">
+    <div class="student-pill">STUDENT ID: 67030183 &bull; PHUWISH</div>
+    <h1 class="header-title">🎛️ DUAL-CHANNEL IOT COMMAND CENTER</h1>
+    <div class="formula-calc">
+        Calculation (N=183): 
+        Left = (183%4)+1 = <strong>4 (Liquid Tank)</strong> | 
+        Right = (⌊183/4⌋%4)+1 = <strong>2 (Audio VU Meter)</strong>
+    </div>
+</div>
+
+<div class="command-grid">
+    <!-- ================================================================= -->
+    <!-- แผงซ้าย: CH-A (เกจ์ที่ 4: Liquid Level Tank ตามรหัส 67030183)       -->
+    <!-- เชื่อมต่อ Potentiometer ฮาร์ดแวร์จริงบนบอร์ด ESP32                   -->
+    <!-- ================================================================= -->
+    <div class="widget-panel" id="panel-left">
+        <div class="panel-header">
+            <span class="panel-channel-tag tag-cha">CHANNEL A</span>
+            <span class="panel-title">Liquid Level Tank</span>
+            <span style="font-size: 0.75rem; color: #10b981;">● HARDWARE</span>
+        </div>
+
+        <div class="svg-container">
+            <!-- Liquid Level Tank Pure SVG -->
+            <svg width="220" height="220" viewBox="0 0 220 220" id="liquid-tank">
+                <defs>
+                    <linearGradient id="water-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.95"/>
+                        <stop offset="100%" stop-color="#4facfe" stop-opacity="0.75"/>
+                    </linearGradient>
+                    <clipPath id="tank-shape">
+                        <rect x="55" y="25" width="90" height="135" rx="18"/>
+                    </clipPath>
+                </defs>
+
+                <!-- พื้นหลังถังน้ำด้านใน -->
+                <rect x="55" y="25" width="90" height="135" rx="18" fill="#07101e" stroke="#1e293b" stroke-width="2"/>
+
+                <!-- ระดับของเหลวสีฟ้าเรืองแสง -->
+                <g clip-path="url(#tank-shape)">
+                    <rect id="water-fill" x="55" y="160" width="90" height="0" fill="url(#water-grad)" filter="drop-shadow(0 0 10px #00f2fe)"/>
+                </g>
+
+                <!-- ขอบตัวถังกระจก -->
+                <rect x="55" y="25" width="90" height="135" rx="18" fill="none" stroke="#38bdf8" stroke-width="3" opacity="0.6"/>
+                <!-- แถบสะท้อนแสงผิวกระจก -->
+                <rect x="62" y="32" width="6" height="120" rx="3" fill="#ffffff" opacity="0.15"/>
+
+                <!-- ขีดวัดระดับ 0 - 100% -->
+                <line x1="150" y1="25" x2="160" y2="25" stroke="#94a3b8" stroke-width="2"/>
+                <text x="168" y="29" fill="#94a3b8" font-size="11" font-family="'Orbitron', sans-serif">100%</text>
+
+                <line x1="150" y1="59" x2="157" y2="59" stroke="#64748b" stroke-width="1.5"/>
+                <text x="168" y="63" fill="#64748b" font-size="10" font-family="'Orbitron', sans-serif">75%</text>
+
+                <line x1="150" y1="92" x2="160" y2="92" stroke="#94a3b8" stroke-width="2"/>
+                <text x="168" y="96" fill="#94a3b8" font-size="11" font-family="'Orbitron', sans-serif">50%</text>
+
+                <line x1="150" y1="126" x2="157" y2="126" stroke="#64748b" stroke-width="1.5"/>
+                <text x="168" y="130" fill="#64748b" font-size="10" font-family="'Orbitron', sans-serif">25%</text>
+
+                <line x1="150" y1="160" x2="160" y2="160" stroke="#94a3b8" stroke-width="2"/>
+                <text x="168" y="164" fill="#94a3b8" font-size="11" font-family="'Orbitron', sans-serif">0%</text>
+
+                <!-- ตัวเลขใต้ถัง -->
+                <text x="100" y="195" text-anchor="middle" fill="#64748b" font-size="11" font-family="'Orbitron', sans-serif" letter-spacing="1">POTENTIOMETER LEVEL</text>
+            </svg>
+        </div>
+
+        <div class="metric-banner" id="disp-tank-pct">0.0%</div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">RAW ADC (12-BIT)</div>
+                <div class="metric-val" id="disp-tank-raw">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">VOLTAGE</div>
+                <div class="metric-val" id="disp-tank-volt">0.00 V</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- แผงขวา: CH-B (เกจ์ที่ 2: Audio VU Meter ตามรหัส 67030183)           -->
+    <!-- แสดงผลสัญญาณคลื่นเสียงจำลอง (Simulation Channel B)                -->
+    <!-- ================================================================= -->
+    <div class="widget-panel" id="panel-right">
+        <div class="panel-header">
+            <span class="panel-channel-tag tag-chb">CHANNEL B</span>
+            <span class="panel-title">Audio VU Meter</span>
+            <span style="font-size: 0.75rem; color: #10b981;">● HARDWARE LDR (GPIO 32)</span>
+        </div>
+
+        <div class="svg-container" style="flex-direction: column;">
+            <!-- แถบหลอดไฟ VU Meter แนวตั้ง หรือ แนวนอน 10 หลอด -->
+            <svg width="280" height="60" viewBox="0 0 280 60" id="vumeter">
+                <!-- 6 เขียว, 2 เหลือง, 2 แดง -->
+                <rect class="led" x="5" y="10" width="22" height="40" rx="5" fill="#10b981" opacity="0.15"/>
+                <rect class="led" x="32" y="10" width="22" height="40" rx="5" fill="#10b981" opacity="0.15"/>
+                <rect class="led" x="59" y="10" width="22" height="40" rx="5" fill="#10b981" opacity="0.15"/>
+                <rect class="led" x="86" y="10" width="22" height="40" rx="5" fill="#10b981" opacity="0.15"/>
+                <rect class="led" x="113" y="10" width="22" height="40" rx="5" fill="#10b981" opacity="0.15"/>
+                <rect class="led" x="140" y="10" width="22" height="40" rx="5" fill="#10b981" opacity="0.15"/>
+                <rect class="led" x="167" y="10" width="22" height="40" rx="5" fill="#f59e0b" opacity="0.15"/>
+                <rect class="led" x="194" y="10" width="22" height="40" rx="5" fill="#f59e0b" opacity="0.15"/>
+                <rect class="led" x="221" y="10" width="22" height="40" rx="5" fill="#ff0055" opacity="0.15"/>
+                <rect class="led" x="248" y="10" width="22" height="40" rx="5" fill="#ff0055" opacity="0.15"/>
+            </svg>
+            <div style="font-size: 0.75rem; color: #64748b; font-family: 'Orbitron'; margin-top: 15px; letter-spacing: 1px;">
+                DECIBEL SIGNAL INTENSITY (-20dB to +3dB)
+            </div>
+        </div>
+
+        <div class="metric-banner" id="disp-vu-pct" style="color: #10b981; filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.4));">0.0%</div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">RAW (12-BIT)</div>
+                <div class="metric-val" id="disp-vu-raw">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">VOLTAGE</div>
+                <div class="metric-val" id="disp-vu-volt">0.00 V</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="footer-status">
+    <div class="source-badge" id="disp-source">📡 Initializing Kestrel Dual-Channel Gateway...</div>
+</div>
+
+<script>
+    // 1. ฟังก์ชันอัปเดต Liquid Tank (Channel A)
+    function updateLiquidTank(percentage) {
+        const maxHeight = 135;
+        const tankBottomY = 160;
+        const clampedPct = Math.min(100, Math.max(0, percentage));
+
+        const fillHeight = (clampedPct / 100.0) * maxHeight;
+        const fillY = tankBottomY - fillHeight;
+
+        const water = document.getElementById('water-fill');
+        if (water) {
+            water.setAttribute('height', fillHeight);
+            water.setAttribute('y', fillY);
+        }
+
+        document.getElementById('disp-tank-pct').textContent = clampedPct.toFixed(1) + '%';
+    }
+
+    // 2. ฟังก์ชันอัปเดต Audio VU Meter 10 หลอด (Channel B)
+    function updateVuMeter(percentage) {
+        const leds = document.querySelectorAll('#vumeter .led');
+        const activeCount = Math.round((percentage / 100.0) * leds.length);
+
+        leds.forEach((led, index) => {
+            if (index < activeCount) {
+                led.style.opacity = '1.0';
+                const color = led.getAttribute('fill');
+                led.style.filter = `drop-shadow(0 0 8px ${color})`;
+            } else {
+                led.style.opacity = '0.15';
+                led.style.filter = 'none';
+            }
+        });
+
+        document.getElementById('disp-vu-pct').textContent = percentage.toFixed(1) + '%';
+    }
+
+    // 3. ฟังก์ชัน Polling รับข้อมูล 2 ช่องสัญญาณ
+    async function pollTelemetry() {
+        try {
+            const res = await fetch('/api/telemetry');
+            if (!res.ok) return;
+            const data = await res.json();
+
+            // อัปเดต Channel A (Liquid Tank - Hardware)
+            updateLiquidTank(data.channelA.percentage);
+            document.getElementById('disp-tank-raw').textContent = data.channelA.rawValue;
+            document.getElementById('disp-tank-volt').textContent = data.channelA.voltage.toFixed(2) + ' V';
+
+            // อัปเดต Channel B (Audio VU Meter - Simulated)
+            updateVuMeter(data.channelB.percentage);
+            document.getElementById('disp-vu-raw').textContent = data.channelB.rawValue;
+            document.getElementById('disp-vu-volt').textContent = data.channelB.voltage.toFixed(2) + ' V';
+
+            // แหล่งข้อมูล
+            document.getElementById('disp-source').textContent = '📡 ' + data.dataSource;
+
+        } catch (err) {
+            console.error('Polling error:', err);
+            document.getElementById('disp-source').textContent = '⚠️ Disconnected from Kestrel Gateway';
+        }
+    }
+
+    // Polling ทุกๆ 100ms เพื่อความลื่นไหลระดับ 10 FPS
+    setInterval(pollTelemetry, 100);
+</script>
+
+</body>
+</html>
