@@ -1,5 +1,5 @@
 # ⚡ คู่มือรวมคำสั่งรันทุกโปรเจกต์ (Run Commands Master Cheat Sheet)
-## วิชา IoT-App-2569 ครบทั้ง 12 สัปดาห์ (Week 01 – Week 12)
+## วิชา IoT-App-2569 ครบทั้ง 13 สัปดาห์ (Week 01 – Week 13)
 
 เอกสารนี้รวบรวม **คำสั่งที่ใช้รันจริงทุกสัปดาห์** ทั้งคำสั่งแฟลชบอร์ด ESP-IDF, คำสั่งรัน Kestrel Server (.NET C#), คำสั่งรัน Python Script / Benchmark, คำสั่งรัน MQTT Mosquitto mTLS, และคำสั่งรันแอปพลิเคชันมือถือ Flutter สามารถคัดลอกไปวางใน Terminal ได้ทันที
 
@@ -36,7 +36,7 @@
 
 ---
 
-## 🚀 สรุปคำสั่งรันแยกตามสัปดาห์ (Week 01 – Week 12)
+## 🚀 สรุปคำสั่งรันแยกตามสัปดาห์ (Week 01 – Week 13)
 
 ---
 
@@ -336,6 +336,293 @@ flutter run -d windows    # รันเป็นโปรแกรม Desktop �
 
 ---
 
+
+---
+
+### 🟢 Week 13: The Ultimate Converged Edge Gateway (.NET 8 Kestrel & MQTTnet) (ทำเดี่ยว)
+* **โฟลเดอร์หลัก:** `Week13_Kestrel_Edge_Gateway/67030183_template/`
+* **อุปกรณ์:** บอร์ด ESP32 รันโปรเจกต์สตรีมเซนเซอร์ + คอมพิวเตอร์รัน Kestrel Converged Gateway
+
+#### 1. Lab 13.1: รัน Embedded MQTT Broker (MQTTnet 4.x)
+```bash
+cd Week13_Kestrel_Edge_Gateway/67030183_template/Lab13-1-Embedded-Broker
+dotnet restore
+dotnet run
+# ทดสอบเชื่อมต่อที่: mqtt://localhost:1883
+```
+
+#### 2. Lab 13.2: รัน Hardware Serial to MQTT Bridge
+```bash
+cd Week13_Kestrel_Edge_Gateway/67030183_template/Lab13-2-Serial-Bridge
+dotnet run -- --port <PORT> --baud 115200
+```
+
+#### 3. Lab 13.3: รัน Realtime SignalR Hub & Web Dashboard
+```bash
+cd Week13_Kestrel_Edge_Gateway/67030183_template/Lab13-3-SignalR-Hub
+dotnet run --urls="http://0.0.0.0:5123"
+# เปิดแดชบอร์ดดูสด: http://localhost:5123
+```
+
+#### 4. Lab 13.4: The Grand Finale (All-in-One Converged Gateway)
+```bash
+cd Week13_Kestrel_Edge_Gateway/67030183_template/Lab13-4-Grand-Finale
+dotnet run --urls="http://0.0.0.0:5123"
+```
+
+---
+
+## 🛠️ คลินิกแก้ปัญหาและคำสั่งกู้คืน Environment ทั้งหมด (Troubleshooting Master Guide)
+
+รวบรวมข้อผิดพลาด (Errors) ที่พบบ่อยที่สุดของนักศึกษา พร้อมสาเหตุ คำสั่งแก้ปัญหาสำหรับ Windows และ macOS/Linux ครบถ้วน:
+
+---
+
+### 🔴 Case 1: ESP-IDF Environment หาไม่เจอ / `idf.py: command not found`
+* **อาการที่พบ:**
+  * Windows: `The term 'idf.py' is not recognized as the name of a cmdlet...`
+  * macOS / Linux: `zsh: command not found: idf.py` หรือ `bash: idf.py: command not found`
+* **สาเหตุ:** เปิด Terminal ปกติที่ยังไม่ได้โหลดตัวแปร Environment ของ ESP-IDF
+* **วิธีแก้ไข:**
+  * **วิธีที่ 1 (Windows - แนะนำที่สุด):**
+    * ปิด Terminal เดิม แล้วเปิดโปรแกรม **ESP-IDF 5.x PowerShell** หรือ **ESP-IDF 5.x CMD** จาก Start Menu โดยตรง (โปรแกรมนี้จะโหลด Environment ครบถ้วนตั้งแต่เปิด)
+  * **วิธีที่ 2 (Windows - รันผ่าน PowerShell เดิม):**
+    ```powershell
+    # กรณีติดตั้งไว้ที่ User Profile มาตรฐาน:
+    & "$env:USERPROFILE\esp\esp-idf\export.ps1"
+
+    # กรณีติดตั้งไว้ที่โฟลเดอร์ Espressif:
+    & "C:\Espressif\frameworks\esp-idf-v5.3\export.ps1"
+    ```
+  * **วิธีที่ 3 (macOS / Linux - Terminal):**
+    ```bash
+    # โหลด Environment ในเซสชันปัจจุบัน:
+    . $HOME/esp/esp-idf/export.sh
+
+    # เพิ่มเป็นคำสั่งถาวร (พิมพ์ get_idf เมื่อไหร่ก็พร้อมใช้ทันที):
+    echo 'alias get_idf=". $HOME/esp/esp-idf/export.sh"' >> ~/.zshrc
+    source ~/.zshrc
+    get_idf
+    ```
+* **วิธีตรวจสอบ:**
+  ```bash
+  idf.py --version
+  # ต้องแสดง: ESP-IDF v5.x.x
+  ```
+
+---
+
+### 🔴 Case 2: Python / venv หาไม่เจอ หรือ `ModuleNotFoundError`
+* **อาการที่พบ:**
+  * `ModuleNotFoundError: No module named 'serial'` (ขาด pyserial)
+  * `ModuleNotFoundError: No module named 'paho'` (ขาด paho-mqtt)
+  * `error: externally-managed-environment` (บน macOS Homebrew หรือ Ubuntu 23+)
+* **สาเหตุ:** ยังไม่ได้ติดตั้ง Python หรือรันข้าม Environment
+* **วิธีแก้ไข:**
+  * **ติดตั้งแพ็กเกจที่จำเป็นทั้งหมดในคำสั่งเดียว:**
+    * **Windows (PowerShell/CMD):**
+      ```powershell
+      python -m pip install --upgrade pip
+      python -m pip install pyserial paho-mqtt requests rich
+      ```
+    * **macOS / Linux:**
+      ```bash
+      python3 -m pip install --upgrade pip
+      python3 -m pip install pyserial paho-mqtt requests rich
+      ```
+  * **กรณีติดปัญหา `externally-managed-environment` (สร้าง Virtual Environment):**
+    ```bash
+    python3 -m venv ~/iot-env
+    source ~/iot-env/bin/activate
+    pip install pyserial paho-mqtt requests rich
+    ```
+* **วิธีตรวจสอบ:**
+  ```bash
+  python3 -c "import serial, paho.mqtt.client, requests; print('✅ All Modules Ready!')"
+  ```
+
+---
+
+### 🔴 Case 3: หาพอร์ตบอร์ด ESP32 ไม่เจอ / Port Busy / Access Denied
+* **อาการที่พบ:**
+  * `A fatal error occurred: Could not open port COMx: [Errno 13] Permission denied`
+  * เสียบบอร์ดเข้าคอมแล้ว รัน `find_serial_ports` แต่ไม่ขึ้นชื่อพอร์ตใดๆ
+* **สาเหตุ:**
+  1. พอร์ตถูกโปรแกรมอื่นค้างเปิดใช้งานอยู่ (เช่น Serial Monitor ใน VS Code, Arduino IDE, PuTTY)
+  2. สาย USB เป็นสายชาร์จอย่างเดียว (ไม่มีสายส่งข้อมูล Data)
+  3. ยังไม่ได้ลงไดรเวอร์ชิป USB-to-UART (CP2102, CH340, หรือ CH9102)
+* **วิธีแก้ไข:**
+  * **ขั้นตอนที่ 1: ตรวจสอบและเคลียร์โปรเซสที่ค้างล็อกพอร์ต:**
+    ```bash
+    # รันสคริปต์หมอประจำโปรเจกต์เพื่อเคลียร์พอร์ตอัตโนมัติ:
+    python3 remote_doctor.py --fix-ports
+    ```
+  * **ขั้นตอนที่ 2: ตรวจหาชื่อพอร์ตจริง:**
+    * **Windows (PowerShell):**
+      ```powershell
+      Get-CimInstance Win32_SerialPort | Select-Object DeviceID, Description
+      ```
+    * **macOS:**
+      ```bash
+      ls /dev/cu.usbserial* /dev/cu.SLAB* /dev/cu.wch* 2>/dev/null
+      ```
+    * **Linux:**
+      ```bash
+      ls /dev/ttyUSB* /dev/ttyACM* 2>/dev/null
+      ```
+  * **ขั้นตอนที่ 3: หากพอร์ตไม่ขึ้นเลย (ลงไดรเวอร์):**
+    * ชิป CP2102 (บอร์ด NodeMCU/ESP32 ดำทั่วไป): [Silabs CP210x Driver](https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers)
+    * ชิป CH340/CH341: [WCH CH341SER Driver](http://www.wch-ic.com/downloads/CH341SER_ZIP.html)
+
+---
+
+### 🔴 Case 4: แฟลชไม่เข้า ค้าง `Connecting........_____.....` Timeout
+* **อาการที่พบ:**
+  * `Connecting........_____.....`
+  * `A fatal error occurred: Failed to connect to ESP32: Timed out waiting for packet header`
+* **สาเหตุ:** วงจร Auto-Reset ของบอร์ด ESP32 บางตัวไม่ดึงขา IO0 ลงกราวด์ ทำให้ชิปไม่เข้าสู่โหมด Bootloader
+* **วิธีแก้ไข:**
+  * **วิธี Manual (กดปุ่ม BOOT):**
+    1. รันคำสั่งแฟลชตามปกติ `idf.py -p <PORT> flash monitor`
+    2. ทันทีที่หน้าจอขึ้น `Connecting........` ให้ **กดปุ่ม `BOOT` (หรือ `IO0`) บนบอร์ด ESP32 ค้างไว้ 1-2 วินาที** แล้วปล่อย
+    3. เมื่อเห็นข้อความ `Chip is ESP32... Writing at 0x00010000...` แสดงว่าแฟลชสำเร็จ
+  * **วิธีลด Baud Rate เพื่อความเสถียร:**
+    ```bash
+    idf.py -p <PORT> -b 115200 flash monitor
+    ```
+  * **วิธีล้าง Flash ทั้งชิป (กรณี Memory เสียหรือขยะค้าง):**
+    ```bash
+    idf.py -p <PORT> erase-flash
+    idf.py -p <PORT> flash monitor
+    ```
+
+---
+
+### 🔴 Case 5: แฟลชผ่านแต่บอร์ดค้าง / Crash Loop (Guru Meditation Error)
+* **อาการที่พบ:**
+  * `Guru Meditation Error: Core 0 panic'ed`
+  * บอร์ดรีสตาร์ทวนลูปเรื่อยๆ พร้อมข้อความ `rst:0x10 (RTCWDT_RTC_RESET)`
+* **สาเหตุ:** ไฟเลี้ยงบอร์ดไม่พอ (USB จ่ายกระแสไม่ถึง 500mA โดยเฉพาะตอนเปิด Wi-Fi) หรือ NVS Flash เก็บค่า Wi-Fi เดิมที่ขัดแย้งกัน
+* **วิธีแก้ไข:**
+  * **วิธีที่ 1: ล้าง NVS Flash และ Erase ชิป:**
+    ```bash
+    idf.py -p <PORT> erase-flash
+    idf.py -p <PORT> flash monitor
+    ```
+  * **วิธีที่ 2: เช็กสายไฟและพอร์ต USB:**
+    * เสียบเข้าพอร์ต USB ด้านหลังของเครื่องคอมพิวเตอร์โดยตรง (หลีกเลี่ยง USB Hub ที่ไม่มีไฟเลี้ยง)
+    * ปลดสายไฟที่ต่อกับขา GPIO 0, 2, 12, 15 ชั่วคราวขณะแฟลช (ขากลุ่มนี้เป็น Strapping Pins มีผลต่อการบูต)
+
+---
+
+### 🔴 Case 6: .NET 8 SDK / Kestrel หาไม่เจอ หรือพอร์ต 5000/5123 ชน
+* **อาการที่พบ:**
+  * `zsh: command not found: dotnet` หรือ `'dotnet' is not recognized...`
+  * `System.IO.IOException: Failed to bind to address http://0.0.0.0:5000: address already in use.`
+* **สาเหตุ:** ยังไม่ได้ติดตั้ง .NET SDK หรือมี Kestrel Server ตัวเก่ารันค้างอยู่
+* **วิธีแก้ไข:**
+  * **ติดตั้ง .NET 8 SDK:**
+    * ดาวน์โหลดฟรี: [https://dotnet.microsoft.com/download/dotnet/8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
+    * ตรวจสอบ: `dotnet --version` (ต้องขึ้น 8.0.x)
+  * **สั่งหยุดโปรเซสที่แย่งพอร์ต:**
+    * **Windows (PowerShell):**
+      ```powershell
+      Get-Process -Name "dotnet", "*Kestrel*" -ErrorAction SilentlyContinue | Stop-Process -Force
+      ```
+    * **macOS / Linux:**
+      ```bash
+      pkill -f dotnet || sudo lsof -ti:5000,5117,5123 | xargs kill -9 2>/dev/null
+      ```
+  * **รัน Kestrel แบบระบุ Port เฉพาะกิจ:**
+    ```bash
+    dotnet run --urls="http://0.0.0.0:5999"
+    ```
+
+---
+
+### 🔴 Case 7: Flutter หาไม่เจอ / รันบนเครื่องไม่ได้ (Week 12)
+* **อาการที่พบ:**
+  * `flutter: command not found`
+  * `No connected devices found`
+* **สาเหตุ:** ยังไม่ได้เพิ่ม Flutter ลง PATH หรือยังไม่ได้ติดตั้ง Android Emulator
+* **วิธีแก้ไข:**
+  * **วิธีที่ 1: เพิ่ม Flutter เข้า PATH:**
+    * macOS/Linux: `export PATH="$PATH:$HOME/flutter/bin"`
+    * Windows: เพิ่มโฟลเดอร์ `C:\src\flutter\bin` ใน Environment Variables
+  * **วิธีที่ 2: รันบนเว็บเบราว์เซอร์ Chrome (แนะนำที่สุด — เร็ว ไม่ต้องลง Emulator):**
+    ```bash
+    cd Week12_Flutter_MQTT_App/67030183_template/Lab12-4
+    flutter run -d chrome --web-port=8080
+    ```
+* **วิธีตรวจสอบ:**
+  ```bash
+  flutter doctor
+  ```
+
+---
+
+### 🔴 Case 8: Mosquitto Broker รันไม่ขึ้น / Port 1883 ชน (Week 11)
+* **อาการที่พบ:**
+  * `Error: Address already in use` บนพอร์ต 1883 หรือ 8883
+* **สาเหตุ:** Mosquitto Background Service ของ Windows หรือ Homebrew รันอยู่แล้ว
+* **วิธีแก้ไข:**
+  * **Windows (PowerShell):**
+    ```powershell
+    Stop-Service mosquitto
+    taskkill /F /IM mosquitto.exe
+    # รันพร้อมไฟล์ config ของวิชานี้:
+    cd Week11_MQTT_and_RainMaker
+    mosquitto -c mosquitto.conf -v
+    ```
+  * **macOS:**
+    ```bash
+    brew services stop mosquitto
+    sudo lsof -ti:1883,8883 | xargs kill -9 2>/dev/null
+    cd Week11_MQTT_and_RainMaker
+    mosquitto -c mosquitto.conf -v
+    ```
+  * **Linux:**
+    ```bash
+    sudo systemctl stop mosquitto
+    cd Week11_MQTT_and_RainMaker
+    mosquitto -c mosquitto.conf -v
+    ```
+
+---
+
+### 🔴 Case 9: สิทธิ์เปิดพอร์ตบน Linux ถูกปฏิเสธ (`Permission Denied: /dev/ttyUSB0`)
+* **อาการที่พบ:**
+  * `serial.serialutil.SerialException: [Errno 13] could not open port /dev/ttyUSB0: [Errno 13] Permission denied`
+* **สาเหตุ:** บัญชีผู้ใช้บน Linux (Ubuntu/Debian) ยังไม่ได้อยู่ในกลุ่ม `dialout`
+* **วิธีแก้ไข:**
+  ```bash
+  # 1. เพิ่ม User ปัจจุบันเข้ากลุ่ม dialout
+  sudo usermod -a -G dialout $USER
+
+  # 2. ปรับสิทธิ์พอร์ตชั่วคราวให้เขียนได้ทันที
+  sudo chmod 666 /dev/ttyUSB0 /dev/ttyACM0 2>/dev/null || true
+
+  # 3. โหลดสิทธิ์ใหม่ (หรือ Logout แล้ว Login ใหม่)
+  newgrp dialout
+  ```
+
+---
+
+### 🔴 Case 10: เชื่อมต่อ Wi-Fi SoftAP หรือเปิดเว็บข้ามเครื่องไม่ได้
+* **อาการที่พบ:**
+  * ปิงหา IP บอร์ด หรือ IP เครื่องเพื่อนไม่เจอ (`Request timed out`)
+  * เปิดหน้าเว็บ Kestrel ข้ามเครื่องไม่ได้
+* **สาเหตุ:** Firewall ของระบบปฏิบัติการปิดกั้น Inbound Traffic หรือเราเตอร์ของหอพัก/มหาวิทยาลัยเปิดโหมด **AP Client Isolation** (ไม่อนุญาตให้อุปกรณ์คุยกันเอง)
+* **วิธีแก้ไข:**
+  * **วิธีที่ 1 (แนะนำที่สุด): ให้คอมพิวเตอร์และมือถือต่อ Hotspot ส่วนตัวเดียวกัน** (แชร์จากมือถือ 1 เครื่อง จะไม่มีการบล็อกพอร์ตข้ามเครื่อง)
+  * **วิธีที่ 2 (ปิด Firewall ชั่วคราวขณะทดสอบ):**
+    * **Windows:** ตรวจสอบว่าประเภทเครือข่ายเป็น Private Network หรือสั่งอนุญาตพอร์ต:
+      ```powershell
+      New-NetFirewallRule -DisplayName "IoT Lab Ports" -Direction Inbound -LocalPort 1883,8883,5000,5117,5123 -Protocol TCP -Action Allow
+      ```
+    * **macOS:** System Settings -> Network -> Firewall -> อนุญาตโปรแกรม `dotnet` และ `mosquitto`
+
+---
 ## 🛠️ สรุปเครื่องมือช่วยรันของ Master Kit
 
 ```bash

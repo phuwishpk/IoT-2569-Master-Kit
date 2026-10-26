@@ -154,7 +154,7 @@
           <span>🔌</span> ผังวงจรฮาร์ดแวร์ ESP32 (38 ขา)
         </button>
         <button onclick="switchNav('diagnostics')" id="nav-diagnostics-btn" class="nav-tab px-3 py-1.5 rounded-lg font-medium border border-transparent hover:text-sky-300 transition whitespace-nowrap flex items-center gap-1.5">
-          <span>🛠️</span> ตรวจพอร์ต & รีโมต SSH
+          <span>🛠️</span> คลินิกแก้ปัญหา & Environment
         </button>
       </nav>
 
@@ -820,30 +820,501 @@
     </section>
 
     <!-- TAB 5: DIAGNOSTICS & REMOTE SSH -->
-    <section id="view-diagnostics" class="nav-view hidden space-y-4">
-      <div class="bg-card border border-border rounded-2xl p-5 md:p-6 shadow-xl space-y-4">
-        <h2 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
-          <span>🛠️</span> เครื่องมือช่วยเหลือตรวจพอร์ต COM & เชื่อมต่อผ่าน SSH
-        </h2>
+    <section id="view-diagnostics" class="nav-view hidden space-y-6">
+      
+      <!-- HERO & QUICK DIAGNOSIS BAR -->
+      <div class="bg-gradient-to-r from-slate-900 via-card to-slate-900 border border-sky-500/30 rounded-2xl p-5 md:p-6 shadow-xl space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-border/60">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-2xl">🛠️</span>
+              <h2 class="text-lg md:text-xl font-bold text-white tracking-wide">
+                คลินิกแก้ปัญหา & ซ่อมแซม Environment (Troubleshooting Master Clinic)
+              </h2>
+            </div>
+            <p class="text-xs text-muted mt-1 leading-relaxed">
+              รวมเคสข้อผิดพลาด (Errors) ที่พบบ่อยที่สุดของนักศึกษา พร้อมสาเหตุ คำสั่งแก้ปัญหาสำหรับ <b>Windows (PowerShell/CMD)</b> และ <b>macOS / Linux</b> ครบถ้วน สามารถคัดลอกคำสั่งไปวางแก้ปัญหาได้ทันที
+            </p>
+          </div>
 
-        <div class="p-4 bg-background rounded-xl border border-border space-y-3">
-          <div class="font-bold text-sm text-sky-400">1. สคริปต์ตรวจพอร์ต ESP32 และเครือข่ายอัตโนมัติ (remote_doctor.py)</div>
-          <p class="text-xs text-muted">ใช้เมื่อเสียบบอร์ดแล้วหาพอร์ต COM ไม่เจอ หรือพอร์ตถูกโปรแกรมอื่นจองค้างอยู่:</p>
-          <pre class="bg-black/40 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto">python remote_doctor.py --clear-port</pre>
+          <!-- Quick Actions -->
+          <div class="flex items-center gap-2 shrink-0">
+            <a href="RUN_COMMANDS_GUIDE.md" target="_blank" class="px-3 py-1.5 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 text-xs font-semibold flex items-center gap-1.5 transition">
+              <span>📖</span> เปิดคู่มือฉบับเต็ม ↗️
+            </a>
+          </div>
         </div>
 
-        <div class="p-4 bg-background rounded-xl border border-border space-y-3">
-          <div class="font-bold text-sm text-sky-400">2. รีโมตเข้าเครื่องเพื่อนผ่าน SSH ข้ามวงแลน (ssh_deploy.sh)</div>
-          <p class="text-xs text-muted">ใช้ส่งโค้ดหรือล็อกอินเข้าเครื่องเพื่อนเพื่อรันคำสั่งพร้อมกัน:</p>
-          <pre class="bg-black/40 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto">chmod +x ssh_deploy.sh
-./ssh_deploy.sh -u &lt;USERNAME&gt; -h &lt;IP_ADDRESS&gt;</pre>
+        <!-- DOCTOR SCRIPT QUICK CARDS -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+          <div class="bg-background/80 rounded-xl p-3.5 border border-emerald-500/30 space-y-2 shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                <span>🩺</span> สคริปต์ตรวจความพร้อม & เช็กพอร์ตทุกระบบ (remote_doctor.py)
+              </span>
+              <button onclick="copyPreCodeById('doc-cmd-1', this)" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-0.5 rounded border border-border transition">
+                📋 Copy
+              </button>
+            </div>
+            <p class="text-[11px] text-muted leading-relaxed">รันคำสั่งเดียว วินิจฉัยทั้ง ESP-IDF, พอร์ตบอร์ด ESP32, Python packages, IP วงแลน, .NET, และ Flutter พร้อมชี้เป้าวิธีแก้:</p>
+            <pre id="doc-cmd-1" class="bg-black/60 p-2 rounded-lg text-xs font-mono text-emerald-300 overflow-x-auto border border-emerald-950">python3 remote_doctor.py</pre>
+          </div>
+
+          <div class="bg-background/80 rounded-xl p-3.5 border border-rose-500/30 space-y-2 shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-rose-400 flex items-center gap-1.5">
+                <span>🧹</span> คำสั่งล้างพอร์ตและโปรเซสที่ค้างล็อกอัตโนมัติ (--fix-ports)
+              </span>
+              <button onclick="copyPreCodeById('doc-cmd-2', this)" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-0.5 rounded border border-border transition">
+                📋 Copy
+              </button>
+            </div>
+            <p class="text-[11px] text-muted leading-relaxed">ใช้เมื่อพอร์ต 1883 (MQTT), 5000/5123 (Kestrel), หรือพอร์ต Serial COM ติดสถานะ Address already in use หรือถูกโปรเซสเก่าล็อกค้าง:</p>
+            <pre id="doc-cmd-2" class="bg-black/60 p-2 rounded-lg text-xs font-mono text-rose-300 overflow-x-auto border border-rose-950">python3 remote_doctor.py --fix-ports</pre>
+          </div>
+        </div>
+
+        <!-- SEARCH & CATEGORY FILTER BAR -->
+        <div class="pt-3 border-t border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="relative flex-1">
+            <span class="absolute left-3 top-2.5 text-xs text-muted">🔍</span>
+            <input type="text"
+                   id="tb-search-input"
+                   oninput="filterTroubleshootCases(this.value)"
+                   placeholder="ค้นหาข้อความ Error หรืออาการ เช่น idf.py, serial, port, dotnet, timeout, permission, flutter..."
+                   class="w-full pl-8 pr-4 py-2 bg-background/90 border border-border rounded-xl text-xs text-slate-200 focus:border-sky-400 focus:outline-none placeholder-slate-500">
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5" id="tb-filter-buttons">
+            <button onclick="setTroubleshootFilter('all')" class="tb-filter-btn active px-2.5 py-1 rounded-lg text-xs font-medium border border-border bg-sky-500/20 text-sky-300 border-sky-500/40" id="tb-btn-all">🌟 ทั้งหมด (10 เคส)</button>
+            <button onclick="setTroubleshootFilter('espidf')" class="tb-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium border border-border bg-sidebar hover:border-sky-400 text-slate-300 transition" id="tb-btn-espidf">⚡ ESP-IDF / Flash</button>
+            <button onclick="setTroubleshootFilter('python')" class="tb-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium border border-border bg-sidebar hover:border-sky-400 text-slate-300 transition" id="tb-btn-python">🐍 Python / venv</button>
+            <button onclick="setTroubleshootFilter('port')" class="tb-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium border border-border bg-sidebar hover:border-sky-400 text-slate-300 transition" id="tb-btn-port">🔌 พอร์ต USB / COM</button>
+            <button onclick="setTroubleshootFilter('dotnet')" class="tb-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium border border-border bg-sidebar hover:border-sky-400 text-slate-300 transition" id="tb-btn-dotnet">💻 Kestrel & Flutter</button>
+            <button onclick="setTroubleshootFilter('network')" class="tb-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium border border-border bg-sidebar hover:border-sky-400 text-slate-300 transition" id="tb-btn-network">🌐 Network & MQTT</button>
+          </div>
         </div>
       </div>
+
+      <!-- TROUBLESHOOTING CASES CONTAINER -->
+      <div id="troubleshoot-cases-container" class="space-y-4">
+        
+        <!-- CASE 1: ESP-IDF Environment Missing -->
+        <div class="tb-card border border-border rounded-2xl bg-card p-5 space-y-3.5 shadow-md" data-category="espidf" data-keywords="idf.py command not found environment export export.ps1 export.sh esp-idf espressif unrecognized cmdlet">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-sky-500/20 text-sky-400 font-bold flex items-center justify-center text-xs border border-sky-500/30">1</span>
+              <h3 class="font-bold text-sm md:text-base text-white">ESP-IDF Environment หาไม่เจอ / idf.py: command not found</h3>
+            </div>
+            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-sky-500/15 text-sky-400 border border-sky-500/30 font-medium">⚡ ESP-IDF Toolchain</span>
+          </div>
+
+          <div class="bg-rose-950/30 border border-rose-500/40 rounded-xl p-3 text-xs space-y-1">
+            <span class="text-rose-400 font-bold block">🚨 ข้อความ Error ที่พบ:</span>
+            <code class="text-rose-200 font-mono text-[11px] block">Windows: The term 'idf.py' is not recognized as the name of a cmdlet, function, or operable program.</code>
+            <code class="text-rose-200 font-mono text-[11px] block">macOS / Linux: zsh: command not found: idf.py หรือ bash: idf.py: command not found</code>
+          </div>
+
+          <p class="text-xs text-slate-300 leading-relaxed">
+            <b class="text-amber-400">💡 สาเหตุ:</b> คุณกำลังเปิด Terminal ทั่วไปที่ยังไม่ได้โหลดชุดตัวแปร PATH ของ ESP-IDF เข้าสู่เซสชัน
+          </p>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 pt-1">
+            <!-- Windows Fix -->
+            <div class="bg-sidebar p-3.5 rounded-xl border border-border space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-sky-300 flex items-center gap-1.5">
+                  <span>🪟</span> วิธีแก้บน Windows (PowerShell / CMD)
+                </span>
+                <button onclick="copyPreCodeById('tb-c1-win', this)" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-border">📋 Copy</button>
+              </div>
+              <p class="text-[11px] text-muted">วิธีดีที่สุด: เปิดโปรแกรม <b>ESP-IDF 5.x PowerShell</b> จาก Start Menu หรือรันสคริปต์ export:</p>
+              <pre id="tb-c1-win" class="bg-black/60 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto border border-border">& "$env:USERPROFILE\esp\esp-idf\export.ps1"
+# หรือหากลงที่ Espressif:
+& "C:\Espressiframeworks\esp-idf-v5.3\export.ps1"</pre>
+            </div>
+
+            <!-- macOS / Linux Fix -->
+            <div class="bg-sidebar p-3.5 rounded-xl border border-border space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-sky-300 flex items-center gap-1.5">
+                  <span>🍎🐧</span> วิธีแก้บน macOS / Linux (Terminal)
+                </span>
+                <button onclick="copyPreCodeById('tb-c1-mac', this)" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-border">📋 Copy</button>
+              </div>
+              <p class="text-[11px] text-muted">รัน export หรือเพิ่ม alias คำสั่ง <code>get_idf</code> ให้เรียกใช้ง่ายตลอดไป:</p>
+              <pre id="tb-c1-mac" class="bg-black/60 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto border border-border">. $HOME/esp/esp-idf/export.sh
+# หรือสร้าง shortcut ถาวรใน ~/.zshrc:
+echo 'alias get_idf=". $HOME/esp/esp-idf/export.sh"' >> ~/.zshrc && source ~/.zshrc
+get_idf</pre>
+            </div>
+          </div>
+
+          <div class="text-[11px] font-mono text-slate-400 pt-1">
+            ✅ ตรวจสอบผล: <code class="text-sky-300">idf.py --version</code> (ต้องแสดง ESP-IDF v5.x.x)
+          </div>
+        </div>
+
+        <!-- CASE 2: Python / venv missing modules -->
+        <div class="tb-card border border-border rounded-2xl bg-card p-5 space-y-3.5 shadow-md" data-category="python" data-keywords="python pip pyserial paho-mqtt requests serial ModuleNotFoundError venv virtualenv externally-managed-environment">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-xs border border-emerald-500/30">2</span>
+              <h3 class="font-bold text-sm md:text-base text-white">Python แพ็กเกจไม่ครบ / ModuleNotFoundError ('serial', 'paho', 'requests')</h3>
+            </div>
+            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-medium">🐍 Python Environment</span>
+          </div>
+
+          <div class="bg-rose-950/30 border border-rose-500/40 rounded-xl p-3 text-xs space-y-1">
+            <span class="text-rose-400 font-bold block">🚨 ข้อความ Error ที่พบ:</span>
+            <code class="text-rose-200 font-mono text-[11px] block">ModuleNotFoundError: No module named 'serial' (เกิดเมื่อรัน monitor.py หรือ Kestrel Serial Gateway)</code>
+            <code class="text-rose-200 font-mono text-[11px] block">ModuleNotFoundError: No module named 'paho' หรือ error: externally-managed-environment</code>
+          </div>
+
+          <p class="text-xs text-slate-300 leading-relaxed">
+            <b class="text-amber-400">💡 สาเหตุ:</b> คุณยังไม่ได้ติดตั้งไลบรารี Python สำหรับส่งข้อมูลหรือรันข้าม Python Environment คนละเวอร์ชัน
+          </p>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 pt-1">
+            <div class="bg-sidebar p-3.5 rounded-xl border border-border space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+                  <span>⚡</span> ติดตั้งไลบรารีครบทุกตัวในคำสั่งเดียว (Windows / macOS / Linux)
+                </span>
+                <button onclick="copyPreCodeById('tb-c2-all', this)" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-border">📋 Copy</button>
+              </div>
+              <pre id="tb-c2-all" class="bg-black/60 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto border border-border">python3 -m pip install --upgrade pip
+python3 -m pip install pyserial paho-mqtt requests rich</pre>
+            </div>
+
+            <div class="bg-sidebar p-3.5 rounded-xl border border-border space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                  <span>📦</span> กรณีติดปัญหา externally-managed-environment (สร้าง venv)
+                </span>
+                <button onclick="copyPreCodeById('tb-c2-venv', this)" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-border">📋 Copy</button>
+              </div>
+              <pre id="tb-c2-venv" class="bg-black/60 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto border border-border">python3 -m venv ~/iot-env
+source ~/iot-env/bin/activate
+pip install pyserial paho-mqtt requests rich</pre>
+            </div>
+          </div>
+
+          <div class="text-[11px] font-mono text-slate-400 pt-1">
+            ✅ ตรวจสอบผล: <code class="text-sky-300">python3 -c "import serial, paho.mqtt.client, requests; print('OK')"</code>
+          </div>
+        </div>
+
+        <!-- CASE 3: Port COM Not Found or Busy -->
+        <div class="tb-card border border-border rounded-2xl bg-card p-5 space-y-3.5 shadow-md" data-category="port" data-keywords="port com com3 com4 busy permission denied access denied cp2102 ch340 driver usb serial cannot open port">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 font-bold flex items-center justify-center text-xs border border-amber-500/30">3</span>
+              <h3 class="font-bold text-sm md:text-base text-white">เสียบบอร์ดแล้วหาพอร์ต COM ไม่เจอ หรือ Port Busy / Permission Denied</h3>
+            </div>
+            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30 font-medium">🔌 พอร์ต USB / Drivers</span>
+          </div>
+
+          <div class="bg-rose-950/30 border border-rose-500/40 rounded-xl p-3 text-xs space-y-1">
+            <span class="text-rose-400 font-bold block">🚨 ข้อความ Error ที่พบ:</span>
+            <code class="text-rose-200 font-mono text-[11px] block">A fatal error occurred: Could not open port COMx: [Errno 13] Permission denied</code>
+            <code class="text-rose-200 font-mono text-[11px] block">serial.serialutil.SerialException: could not open port '/dev/ttyUSB0': Permission denied</code>
+          </div>
+
+          <p class="text-xs text-slate-300 leading-relaxed">
+            <b class="text-amber-400">💡 สาเหตุ:</b> พอร์ตถูกโปรแกรมอื่นล็อกค้างอยู่ (เช่น VS Code Serial Monitor, Arduino IDE, PuTTY) หรือยังไม่ได้ลงไดรเวอร์ หรือสาย USB เป็นสายชาร์จอย่างเดียวไม่มีสาย Data
+          </p>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 pt-1">
+            <div class="bg-sidebar p-3.5 rounded-xl border border-border space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-sky-300">1. สั่งเคลียร์และปลดล็อกพอร์ตอัตโนมัติ</span>
+                <button onclick="copyPreCodeById('tb-c3-fix', this)" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-border">📋 Copy</button>
+              </div>
+              <pre id="tb-c3-fix" class="bg-black/60 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto border border-border">python3 remote_doctor.py --fix-ports</pre>
+            </div>
+
+            <div class="bg-sidebar p-3.5 rounded-xl border border-border space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-sky-300">2. เช็กชื่อพอร์ตจริงของบอร์ด</span>
+                <button onclick="copyPreCodeById('tb-c3-chk', this)" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-border">📋 Copy</button>
+              </div>
+              <pre id="tb-c3-chk" class="bg-black/60 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto border border-border"># Windows (PowerShell):
+Get-CimInstance Win32_SerialPort | Select-Object DeviceID, Description
+
+# macOS:
+ls /dev/cu.usbserial* /dev/cu.SLAB* 2>/dev/null
+
+# Linux:
+sudo usermod -a -G dialout $USER && newgrp dialout</pre>
+            </div>
+          </div>
+
+          <div class="p-2.5 bg-background rounded-xl border border-border flex items-center justify-between text-xs text-muted">
+            <span>ลิงก์ดาวน์โหลดไดรเวอร์:</span>
+            <div class="flex items-center gap-2">
+              <a href="https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers" target="_blank" class="text-sky-400 hover:underline">Silicon Labs CP210x Driver ↗️</a>
+              <span>•</span>
+              <a href="http://www.wch-ic.com/downloads/CH341SER_ZIP.html" target="_blank" class="text-sky-400 hover:underline">WCH CH340 Driver ↗️</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- CASE 4: Connecting........ Timeout -->
+        <div class="tb-card border border-border rounded-2xl bg-card p-5 space-y-3.5 shadow-md" data-category="espidf" data-keywords="connecting timeout boot io0 flash failed to connect packet header download bootloader">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-rose-500/20 text-rose-400 font-bold flex items-center justify-center text-xs border border-rose-500/30">4</span>
+              <h3 class="font-bold text-sm md:text-base text-white">แฟลชไม่เข้า ค้าง `Connecting........_____.....` Timeout</h3>
+            </div>
+            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/30 font-medium">⚡ Flashing / Hardware Boot</span>
+          </div>
+
+          <div class="bg-rose-950/30 border border-rose-500/40 rounded-xl p-3 text-xs space-y-1">
+            <span class="text-rose-400 font-bold block">🚨 ข้อความ Error ที่พบ:</span>
+            <code class="text-rose-200 font-mono text-[11px] block">Connecting........_____....._____....._____.....</code>
+            <code class="text-rose-200 font-mono text-[11px] block">A fatal error occurred: Failed to connect to ESP32: Timed out waiting for packet header</code>
+          </div>
+
+          <div class="bg-background/80 p-3 rounded-xl border border-amber-500/40 space-y-2 text-xs">
+            <div class="flex items-center gap-2 text-amber-300 font-bold">
+              <span>👉</span> วิธีกดปุ่มบังคับบอร์ดเข้า Download Mode (แก้ได้ 100%):
+            </div>
+            <ol class="list-decimal pl-5 space-y-1 text-slate-300 text-[11px] leading-relaxed">
+              <li>กดรันคำสั่งแฟลชตามปกติ: <code>idf.py -p &lt;PORT&gt; flash monitor</code></li>
+              <li>ทันทีที่ Terminal แสดงจุด <b>Connecting........</b> ให้ใช้ปลายนิ้ว <b>กดปุ่ม `BOOT` (หรือ `IO0`) บนบอร์ดค้างไว้ 1-2 วินาที</b> แล้วปล่อย</li>
+              <li>Terminal จะตรวจพบชิปทันทีและเริ่มเขียนข้อมูลลงชิป (Writing at 0x00010000...)</li>
+            </ol>
+          </div>
+
+          <div class="bg-sidebar p-3.5 rounded-xl border border-border space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-sky-300">ลด Baud Rate หรือล้างชิปเมื่อเกิดข้อผิดพลาดในการเขียน:</span>
+              <button onclick="copyPreCodeById('tb-c4-erase', this)" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-border">📋 Copy</button>
+            </div>
+            <pre id="tb-c4-erase" class="bg-black/60 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto border border-border"># ลดความเร็ว Baud Rate เพื่อให้สาย USB เสถียรขึ้น:
+idf.py -p &lt;PORT&gt; -b 115200 flash monitor
+
+# สั่งล้าง Flash ทั้งชิปเพื่อลบค่าขยะ:
+idf.py -p &lt;PORT&gt; erase-flash</pre>
+          </div>
+        </div>
+
+        <!-- CASE 5: Board Crash Loop / Guru Meditation Error -->
+        <div class="tb-card border border-border rounded-2xl bg-card p-5 space-y-3.5 shadow-md" data-category="espidf" data-keywords="crash bootloop guru meditation panic wdt watchdog reset brownout nvs">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-400 font-bold flex items-center justify-center text-xs border border-purple-500/30">5</span>
+              <h3 class="font-bold text-sm md:text-base text-white">แฟลชผ่านแต่บอร์ดรีสตาร์ทวนลูป / Guru Meditation Error / Brownout Detector</h3>
+            </div>
+            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/30 font-medium">⚡ Runtime Firmware Crash</span>
+          </div>
+
+          <div class="bg-rose-950/30 border border-rose-500/40 rounded-xl p-3 text-xs space-y-1">
+            <span class="text-rose-400 font-bold block">🚨 ข้อความ Error ที่พบ:</span>
+            <code class="text-rose-200 font-mono text-[11px] block">Guru Meditation Error: Core 0 panic'ed (LoadProhibited) หรือ Brownout detector was triggered</code>
+            <code class="text-rose-200 font-mono text-[11px] block">rst:0x10 (RTCWDT_RTC_RESET) รีบูตซ้ำทุก 2 วินาที</code>
+          </div>
+
+          <p class="text-xs text-slate-300 leading-relaxed">
+            <b class="text-amber-400">💡 สาเหตุ:</b> <b>Brownout</b> เกิดจากไฟเลี้ยงบอร์ดตก (กระแสไม่พอขณะเปิด Wi-Fi) หรือ NVS Flash เก็บค่า Wi-Fi เดิมที่ชนกัน หรือต่อสายที่ขา Strapping Pins (GPIO 0, 2, 12, 15)
+          </p>
+
+          <div class="bg-sidebar p-3.5 rounded-xl border border-border space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-sky-300">วิธีแก้ไข: ล้าง NVS และ Flash ใหม่</span>
+              <button onclick="copyPreCodeById('tb-c5-cmd', this)" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-border">📋 Copy</button>
+            </div>
+            <pre id="tb-c5-cmd" class="bg-black/60 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto border border-border"># 1. เสียบสาย USB เข้าพอร์ตตรงด้านหลังเครื่องคอม (ไม่ผ่าน Hub)
+# 2. ปลดสายไฟที่ขา GPIO 0, 2, 12, 15 ชั่วคราว
+# 3. ล้าง Flash และเบิร์นใหม่:
+idf.py -p &lt;PORT&gt; erase-flash
+idf.py -p &lt;PORT&gt; flash monitor</pre>
+          </div>
+        </div>
+
+        <!-- CASE 6: .NET Kestrel Port Conflict & Command Not Found -->
+        <div class="tb-card border border-border rounded-2xl bg-card p-5 space-y-3.5 shadow-md" data-category="dotnet" data-keywords="dotnet kestrel c# port 5000 5117 5123 address already in use sdk not found">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center text-xs border border-indigo-500/30">6</span>
+              <h3 class="font-bold text-sm md:text-base text-white">.NET 8 SDK หาไม่เจอ หรือพอร์ต Kestrel 5000/5123 ชน (Address already in use)</h3>
+            </div>
+            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-indigo-500/15 text-indigo-400 border border-indigo-500/30 font-medium">💻 Kestrel Server (Week 8, 9, 13)</span>
+          </div>
+
+          <div class="bg-rose-950/30 border border-rose-500/40 rounded-xl p-3 text-xs space-y-1">
+            <span class="text-rose-400 font-bold block">🚨 ข้อความ Error ที่พบ:</span>
+            <code class="text-rose-200 font-mono text-[11px] block">System.IO.IOException: Failed to bind to address http://0.0.0.0:5000: address already in use.</code>
+            <code class="text-rose-200 font-mono text-[11px] block">zsh: command not found: dotnet หรือ 'dotnet' is not recognized...</code>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 pt-1">
+            <div class="bg-sidebar p-3.5 rounded-xl border border-border space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-sky-300">1. สั่ง Kill โปรเซส dotnet ที่ค้าง</span>
+                <button onclick="copyPreCodeById('tb-c6-kill', this)" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-border">📋 Copy</button>
+              </div>
+              <pre id="tb-c6-kill" class="bg-black/60 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto border border-border"># Windows (PowerShell):
+Get-Process -Name "dotnet", "*Kestrel*" -ErrorAction SilentlyContinue | Stop-Process -Force
+
+# macOS / Linux:
+pkill -f dotnet || sudo lsof -ti:5000,5117,5123 | xargs kill -9 2>/dev/null</pre>
+            </div>
+
+            <div class="bg-sidebar p-3.5 rounded-xl border border-border space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-sky-300">2. รัน Kestrel แบบเปลี่ยนพอร์ตไม่ให้ชน</span>
+                <button onclick="copyPreCodeById('tb-c6-run', this)" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-border">📋 Copy</button>
+              </div>
+              <pre id="tb-c6-run" class="bg-black/60 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto border border-border"># รันบนพอร์ต 5999 แทนพอร์ตเดิม:
+dotnet run --urls="http://0.0.0.0:5999"
+
+# ดาวน์โหลด .NET 8 SDK ฟรี:
+# https://dotnet.microsoft.com/download/dotnet/8.0</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- CASE 7: Flutter Missing or Device Not Found -->
+        <div class="tb-card border border-border rounded-2xl bg-card p-5 space-y-3.5 shadow-md" data-category="dotnet" data-keywords="flutter dart mobile emulator chrome web device not found week 12 pub get">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-sky-500/20 text-sky-400 font-bold flex items-center justify-center text-xs border border-sky-500/30">7</span>
+              <h3 class="font-bold text-sm md:text-base text-white">Flutter หาไม่เจอ หรือไม่มีเครื่องรันแอป (Week 12 Mobile Dashboard)</h3>
+            </div>
+            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-sky-500/15 text-sky-400 border border-sky-500/30 font-medium">📱 Flutter Mobile App (Week 12)</span>
+          </div>
+
+          <div class="bg-rose-950/30 border border-rose-500/40 rounded-xl p-3 text-xs space-y-1">
+            <span class="text-rose-400 font-bold block">🚨 ข้อความ Error ที่พบ:</span>
+            <code class="text-rose-200 font-mono text-[11px] block">No connected devices found; please connect a device or start an emulator.</code>
+            <code class="text-rose-200 font-mono text-[11px] block">flutter: command not found</code>
+          </div>
+
+          <div class="bg-sidebar p-3.5 rounded-xl border border-border space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-emerald-300">💡 วิธีแก้ที่ดีที่สุด: สั่งรันบน Web Browser Chrome (เร็วสุด ไม่ต้องลง Android Emulator)</span>
+              <button onclick="copyPreCodeById('tb-c7-chrome', this)" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-border">📋 Copy</button>
+            </div>
+            <pre id="tb-c7-chrome" class="bg-black/60 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto border border-border">cd Week12_Flutter_MQTT_App/67030183_template/Lab12-4
+flutter pub get
+# รันบน Google Chrome ได้ทันทีทุกเครื่อง:
+flutter run -d chrome --web-port=8080</pre>
+          </div>
+        </div>
+
+        <!-- CASE 8: Mosquitto Broker Port 1883/8883 Conflict -->
+        <div class="tb-card border border-border rounded-2xl bg-card p-5 space-y-3.5 shadow-md" data-category="network" data-keywords="mosquitto mqtt broker port 1883 8883 address already in use tls mtls week 11">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-pink-500/20 text-pink-400 font-bold flex items-center justify-center text-xs border border-pink-500/30">8</span>
+              <h3 class="font-bold text-sm md:text-base text-white">Mosquitto MQTT Broker รันไม่ขึ้น / Port 1883 หรือ 8883 ชน (Week 11)</h3>
+            </div>
+            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-pink-500/15 text-pink-400 border border-pink-500/30 font-medium">🌐 MQTT Broker Service</span>
+          </div>
+
+          <div class="bg-rose-950/30 border border-rose-500/40 rounded-xl p-3 text-xs space-y-1">
+            <span class="text-rose-400 font-bold block">🚨 ข้อความ Error ที่พบ:</span>
+            <code class="text-rose-200 font-mono text-[11px] block">1680000000: Error: Address already in use (เกิดเมื่อ Mosquitto Service ของระบบเปิดทับอยู่)</code>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 pt-1">
+            <div class="bg-sidebar p-3.5 rounded-xl border border-border space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-sky-300">Windows: สั่งหยุด Service แล้วรันพร้อม config</span>
+                <button onclick="copyPreCodeById('tb-c8-win', this)" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-border">📋 Copy</button>
+              </div>
+              <pre id="tb-c8-win" class="bg-black/60 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto border border-border">Stop-Service mosquitto
+taskkill /F /IM mosquitto.exe
+cd Week11_MQTT_and_RainMaker
+mosquitto -c mosquitto.conf -v</pre>
+            </div>
+
+            <div class="bg-sidebar p-3.5 rounded-xl border border-border space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-sky-300">macOS / Linux: เคลียร์พอร์ตและรัน</span>
+                <button onclick="copyPreCodeById('tb-c8-mac', this)" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-border">📋 Copy</button>
+              </div>
+              <pre id="tb-c8-mac" class="bg-black/60 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto border border-border">brew services stop mosquitto || sudo systemctl stop mosquitto
+sudo lsof -ti:1883,8883 | xargs kill -9 2>/dev/null
+cd Week11_MQTT_and_RainMaker
+mosquitto -c mosquitto.conf -v</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- CASE 9: Linux Serial Permission Denied -->
+        <div class="tb-card border border-border rounded-2xl bg-card p-5 space-y-3.5 shadow-md" data-category="port" data-keywords="linux ubuntu debian dialout ttyusb0 ttyacm0 permission denied errno 13">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-teal-500/20 text-teal-400 font-bold flex items-center justify-center text-xs border border-teal-500/30">9</span>
+              <h3 class="font-bold text-sm md:text-base text-white">สิทธิ์เปิดพอร์ตบน Linux ถูกปฏิเสธ (Permission denied: '/dev/ttyUSB0')</h3>
+            </div>
+            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-teal-500/15 text-teal-400 border border-teal-500/30 font-medium">🐧 Linux Serial Permissions</span>
+          </div>
+
+          <div class="bg-sidebar p-3.5 rounded-xl border border-border space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-teal-300">คำสั่งให้สิทธิ์ User ถาวรบน Ubuntu / Linux:</span>
+              <button onclick="copyPreCodeById('tb-c9-cmd', this)" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-border">📋 Copy</button>
+            </div>
+            <pre id="tb-c9-cmd" class="bg-black/60 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto border border-border"># 1. เพิ่ม User ปัจจุบันเข้ากลุ่ม dialout
+sudo usermod -a -G dialout $USER
+
+# 2. ปรับสิทธิ์พอร์ตชั่วคราวให้เขียนได้ทันที
+sudo chmod 666 /dev/ttyUSB0 /dev/ttyACM0 2>/dev/null || true
+
+# 3. โหลดสิทธิ์ใหม่ (หรือ Logout แล้ว Login ใหม่)
+newgrp dialout</pre>
+          </div>
+        </div>
+
+        <!-- CASE 10: Cross-Device Connection / AP Client Isolation -->
+        <div class="tb-card border border-border rounded-2xl bg-card p-5 space-y-3.5 shadow-md" data-category="network" data-keywords="network firewall wifi hotspot ap isolation ping timeout cross machine connect">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 font-bold flex items-center justify-center text-xs border border-blue-500/30">10</span>
+              <h3 class="font-bold text-sm md:text-base text-white">เชื่อมต่อ Wi-Fi SoftAP หรือเปิดหน้าเว็บข้ามเครื่องเพื่อนไม่ได้</h3>
+            </div>
+            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/30 font-medium">🌐 Wi-Fi & Firewall Security</span>
+          </div>
+
+          <p class="text-xs text-slate-300 leading-relaxed">
+            <b class="text-amber-400">💡 สาเหตุ:</b> Wi-Fi ของหอพักหรือมหาวิทยาลัยเปิดโหมด <b>AP Client Isolation</b> (ป้องกันไม่ให้อุปกรณ์คุยกันเอง) หรือ Firewall ของ Windows/Mac บล็อกพอร์ตภายนอก
+          </p>
+
+          <div class="bg-background/80 p-3 rounded-xl border border-sky-500/40 space-y-2 text-xs">
+            <div class="flex items-center gap-2 text-sky-300 font-bold">
+              <span>👉</span> วิธีแก้ปัญหาที่เร็วและชัวร์ที่สุด:
+            </div>
+            <ul class="list-disc pl-5 space-y-1 text-slate-300 text-[11px] leading-relaxed">
+              <li><b>ใช้ Mobile Hotspot จากมือถือเครื่องเดียวกัน:</b> ให้โน้ตบุ๊กของคุณ บอร์ด ESP32 และโน้ตบุ๊กของเพื่อนต่อ Hotspot ชื่อเดียวกัน จะสามารถปิงหากันและยิง MQTT / Kestrel ได้ 100% โดยไม่มีข้อจำกัด</li>
+              <li><b>บน Windows:</b> เปิด PowerShell (Admin) อนุญาตพอร์ตแล็บ:
+                <code class="text-emerald-300 block mt-1 font-mono text-[10px]">New-NetFirewallRule -DisplayName "IoT Lab" -Direction Inbound -LocalPort 1883,8883,5000,5117,5123 -Protocol TCP -Action Allow</code>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SSH REMOTE HELPER BOX -->
+      <div class="bg-sidebar border border-border rounded-2xl p-5 shadow-lg space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">📡</span>
+            <h3 class="font-bold text-white text-sm">สคริปต์รีโมตเข้าเครื่องเพื่อนผ่าน SSH ข้ามวงแลน (ssh_deploy.sh)</h3>
+          </div>
+          <button onclick="copyPreCodeById('ssh-cmd-pre', this)" class="text-xs bg-slate-800 text-slate-300 px-2.5 py-1 rounded border border-border">📋 Copy</button>
+        </div>
+        <p class="text-xs text-muted">ใช้เมื่อต้องการส่งโค้ดโปรเจกต์ Master Kit ไปติดตั้งในเครื่องเพื่อน หรือล็อกอิน Terminal เข้าเครื่องเพื่อนเพื่อรันคำสั่งแล็บคู่พร้อมกัน:</p>
+        <pre id="ssh-cmd-pre" class="bg-black/60 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto border border-border">chmod +x ssh_deploy.sh
+./ssh_deploy.sh &lt;ชื่อผู้ใช้เพื่อน&gt; &lt;IP_เครื่องเพื่อน&gt;</pre>
+      </div>
+
     </section>
 
-  </div>
-
-  <!-- MODAL 1: CONSOLIDATED LAB REPORT (PRINT & EXPORT PREVIEW) -->
+  </div><!-- MODAL 1: CONSOLIDATED LAB REPORT (PRINT & EXPORT PREVIEW) -->
   <div id="report-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
     <div class="bg-card border border-border rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
       
@@ -3583,6 +4054,45 @@
     }
 
     window.onload = init;
-  </script>
+  
+    
+    function setTroubleshootFilter(cat) {
+      document.querySelectorAll('.tb-filter-btn').forEach(b => {
+        b.classList.remove('active', 'bg-sky-500/20', 'text-sky-300', 'border-sky-500/40');
+        b.classList.add('bg-sidebar', 'text-slate-300');
+      });
+      const activeBtn = document.getElementById('tb-btn-' + cat);
+      if (activeBtn) {
+        activeBtn.classList.add('active', 'bg-sky-500/20', 'text-sky-300', 'border-sky-500/40');
+        activeBtn.classList.remove('bg-sidebar', 'text-slate-300');
+      }
+      applyTroubleshootFilters();
+    }
+
+    function filterTroubleshootCases(query) {
+      applyTroubleshootFilters();
+    }
+
+    function applyTroubleshootFilters() {
+      const activeBtn = document.querySelector('.tb-filter-btn.active');
+      const activeCat = activeBtn ? activeBtn.id.replace('tb-btn-', '') : 'all';
+      const qInput = document.getElementById('tb-search-input');
+      const query = qInput ? qInput.value.trim().toLowerCase() : '';
+
+      document.querySelectorAll('.tb-card').forEach(card => {
+        const cat = card.getAttribute('data-category') || '';
+        const keywords = (card.getAttribute('data-keywords') || '') + ' ' + card.innerText.toLowerCase();
+
+        const matchCat = (activeCat === 'all' || cat === activeCat);
+        const matchQuery = (!query || keywords.includes(query));
+
+        if (matchCat && matchQuery) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    }
+</script>
 </body>
 </html>
