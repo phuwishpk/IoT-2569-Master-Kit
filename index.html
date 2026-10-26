@@ -443,10 +443,10 @@
           <div class="space-y-1">
             <div class="flex items-center gap-2">
               <span class="text-base">💡</span>
-              <span class="text-sm font-bold text-sky-300">กลยุทธ์ทำแล็บให้เร็วที่สุด: ต่อวงจรที่ 7 ครั้งเดียว ใช้ซ้ำได้ถึง 4 สัปดาห์!</span>
+              <span class="text-sm font-bold text-sky-300">กลยุทธ์ทำแล็บให้เร็วที่สุด: ต่อวงจรที่ 7 ครั้งเดียว ใช้ซ้ำได้ถึง 5 สัปดาห์ (Week 02, 10, 11, 12, 13)!</span>
             </div>
             <p class="text-xs text-slate-300">
-              ต่อ POT 10k (GPIO 34) และ LED 220Ω (GPIO 2) บน Breadboard ตอนทำ <b>Week 02 (Lab 2.3)</b> แล้วปล่อยวงจรทิ้งไว้เลย เมื่อถึง <b>Week 10, Week 11, Week 12</b> เสียบสาย USB แฟลชโค้ดได้ทันที ไม่ต้องรื้อวงจรใหม่!
+              ต่อ POT 10k (GPIO 34) และ LED 220Ω (GPIO 2) บน Breadboard ตอนทำ <b>Week 02 (Lab 2.3)</b> แล้วปล่อยวงจรทิ้งไว้เลย เมื่อถึง <b>Week 10, Week 11, Week 12, Week 13 (The Grand Finale)</b> เสียบสาย USB แฟลชโค้ดได้ทันที ไม่ต้องรื้อวงจรใหม่!
             </p>
           </div>
         </div>
@@ -466,8 +466,8 @@
               <tr class="bg-sky-950/20 hover:bg-sky-950/40 transition">
                 <td class="p-3 font-bold text-sky-400">⭐ วงจรที่ 7 (Master)</td>
                 <td class="p-3">Standard IoT Station: POT 10k (GPIO 34) + LED (GPIO 2)</td>
-                <td class="p-3 font-semibold text-emerald-400">Week 02, Week 10, Week 11, Week 12</td>
-                <td class="p-3 text-emerald-400 font-bold">⭐ ต่อครั้งเดียว ใช้ซ้ำได้ 4 สัปดาห์!</td>
+                <td class="p-3 font-semibold text-emerald-400">Week 02, Week 10, Week 11, Week 12, Week 13</td>
+                <td class="p-3 text-emerald-400 font-bold">⭐ ต่อครั้งเดียว ใช้ซ้ำได้ 5 สัปดาห์ (รวม Grand Finale)!</td>
               </tr>
               <tr class="hover:bg-slate-800/40 transition">
                 <td class="p-3 font-bold text-purple-400">วงจรที่ 6</td>
@@ -512,6 +512,102 @@
         <!-- DETAILED CIRCUITS CARDS -->
         <div class="space-y-6 pt-2">
 
+          <!-- 0. WEEK 13: THE GRAND FINALE CONVERGED EDGE GATEWAY ARCHITECTURE & CIRCUIT -->
+          <div class="border-2 border-indigo-500/50 rounded-2xl bg-card overflow-hidden shadow-2xl ring-1 ring-indigo-500/30 mb-6">
+            <div class="p-4 bg-gradient-to-r from-indigo-950/80 via-purple-950/70 to-slate-900 border-b border-border flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center justify-center font-bold text-sm">👑</span>
+                <div>
+                  <h3 class="font-bold text-base text-white">สัปดาห์ที่ 13: The Grand Finale - ผังวงจรและการเชื่อมโยงระบบสมบูรณ์ (Converged Multi-Protocol Edge Gateway)</h3>
+                  <p class="text-xs text-indigo-200/80">ระบบนิเวศไอโอทีแบบบูรณาการ 4 โปรโตคอล • ESP32 Hardware + Kestrel .NET 8 Gateway + Flutter Mobile + Web Command Center</p>
+                </div>
+              </div>
+              <span class="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-xs font-bold flex items-center gap-1.5 shadow-sm">
+                <span class="w-2 h-2 rounded-full bg-indigo-400 animate-ping"></span> สัปดาห์ที่ 13 (The Grand Finale)
+              </span>
+            </div>
+
+            <div class="p-5 space-y-5">
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 items-center">
+                
+                <!-- Topology Diagram -->
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-sky-400 flex items-center gap-1">
+                      <span>🌐</span> แผนผังสถาปัตยกรรม 4 โปรโตคอล (Ecosystem Topology):
+                    </span>
+                    <a href="circuits/circuit_13_converged_gateway_topology.svg" target="_blank"
+                       class="text-[11px] text-sky-400 hover:text-sky-300 font-semibold flex items-center gap-1">
+                      🔍 เปิด SVG ความละเอียดสูง ↗️
+                    </a>
+                  </div>
+                  <div class="rounded-xl overflow-hidden border border-border bg-black/80 relative group cursor-pointer shadow-lg p-2"
+                       onclick="openImageModal('circuits/circuit_13_converged_gateway_topology.svg', 'สัปดาห์ที่ 13: ผังการเชื่อมโยงระบบสมบูรณ์ (The Grand Finale Topology)')">
+                    <img src="circuits/circuit_13_converged_gateway_topology.svg" alt="Week 13 Ecosystem Topology" class="w-full max-h-72 object-contain bg-white/5 rounded-lg p-1">
+                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-xs text-white font-semibold transition">
+                      🔍 คลิกเพื่อดูผังสถาปัตยกรรมขนาดใหญ่
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Hardware Setup Photo -->
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-emerald-400 flex items-center gap-1">
+                      <span>🔌</span> การเชื่อมต่อฮาร์ดแวร์จริง (ใช้วงจรที่ 7 + สาย USB-UART เข้า PC):
+                    </span>
+                    <a href="circuits/circuit_13_hardware_setup.jpg" target="_blank"
+                       class="text-[11px] text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1">
+                      🔍 ดูรูปถ่ายจริง ↗️
+                    </a>
+                  </div>
+                  <div class="rounded-xl overflow-hidden border border-border bg-black/80 relative group cursor-pointer shadow-lg p-2"
+                       onclick="openImageModal('circuits/circuit_13_hardware_setup.jpg', 'สัปดาห์ที่ 13: การต่อฮาร์ดแวร์จริงเข้ากับ PC')">
+                    <img src="circuits/circuit_13_hardware_setup.jpg" alt="Week 13 Hardware Setup" class="w-full max-h-72 object-contain rounded-lg">
+                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-xs text-white font-semibold transition">
+                      🔍 คลิกเพื่อดูภาพถ่ายอุปกรณ์จริง
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Pinout & 4 Protocols Description -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                <div class="bg-sidebar p-4 rounded-xl border border-border space-y-2">
+                  <span class="text-sky-300 font-bold block mb-1">📌 การเชื่อมต่อฮาร์ดแวร์ในสัปดาห์ที่ 13 (ใช้วงจรที่ 7 ซ้ำ):</span>
+                  <div class="text-slate-300"><b class="text-rose-400">• ขา 3V3 (ซ้ายแถว 1):</b> จ่ายไฟเลี้ยง 3.3V เข้าขา 1 ของ Potentiometer 10k</div>
+                  <div class="text-slate-300"><b class="text-sky-400">• ขา GPIO 34 (ซ้ายแถว 5):</b> รับสัญญาณแอนะล็อก ADC1_CH6 จากขากลาง Wiper POT</div>
+                  <div class="text-slate-300"><b class="text-slate-400">• ขา GND (ซ้ายแถว 14 & ขวาแถว 1):</b> กราวด์ร่วมของ POT และหลอดไฟ LED</div>
+                  <div class="text-slate-300"><b class="text-amber-400">• ขา GPIO 2 (ขวาแถว 14):</b> ผ่าน R 220Ω เข้า LED Anode (+) รับคำสั่งเปิด-ปิดไฟ</div>
+                  <div class="text-slate-300"><b class="text-emerald-400">• สาย USB Data Cable:</b> เสียบเข้าพอร์ต PC เพื่อสตรีมข้อมูล Serial (115200 bps) เข้าเกตเวย์ Kestrel</div>
+                </div>
+
+                <div class="bg-sidebar p-4 rounded-xl border border-border space-y-2">
+                  <span class="text-purple-300 font-bold block mb-1">⚡ สะพานเชื่อม 4 โปรโตคอล (Multi-Protocol Bridge):</span>
+                  <div class="text-slate-300"><b class="text-sky-400">1. Hardware Serial (UART):</b> ดักรับข้อมูลสตรีมดิบจากบอร์ด ESP32 ด้วย BackgroundService (&lt; 1ms)</div>
+                  <div class="text-slate-300"><b class="text-emerald-400">2. Embedded MQTT Broker (พอร์ต 1883):</b> กระจายข้อมูลเซนเซอร์เข้า Topic <code>iot/{ID}/telemetry</code> (2-10ms)</div>
+                  <div class="text-slate-300"><b class="text-amber-400">3. RESTful Minimal API (พอร์ต 5001):</b> ให้บริการ <code>GET /api/telemetry</code> และ <code>POST /api/led/on</code> (10-50ms)</div>
+                  <div class="text-slate-300"><b class="text-purple-400">4. Realtime SignalR Hub:</b> ผลักดันข้อมูลขึ้นเว็บแดชบอร์ดสดๆ ผ่าน WebSockets (1-5ms)</div>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-border/60 text-xs">
+                <span class="text-slate-400 font-mono">ฮาร์ดแวร์: NodeMCU-32S (38 Pins) • Kestrel Web & Protocol Engine (.NET 8)</span>
+                <div class="flex items-center gap-2">
+                  <a href="circuits/circuit_13_converged_gateway_topology.svg" target="_blank"
+                     class="px-3 py-1.5 rounded-lg bg-indigo-950 hover:bg-indigo-900 text-indigo-300 font-semibold border border-indigo-800 flex items-center gap-1.5 transition">
+                    <span>📐</span> ผังสถาปัตยกรรม (SVG) ↗️
+                  </a>
+                  <a href="circuits/circuit_07_standard_iot_station.svg" target="_blank"
+                     class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold border border-border flex items-center gap-1.5 transition">
+                    <span>⚡</span> ผังวงจร ESP32 (38 ขา) ↗️
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- 1. CIRCUIT 07: STANDARD IOT STATION -->
           <div class="border-2 border-sky-500/40 rounded-2xl bg-card overflow-hidden shadow-xl">
             <div class="p-4 bg-sidebar border-b border-border flex flex-wrap items-center justify-between gap-3">
@@ -523,7 +619,7 @@
                 </div>
               </div>
               <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold">
-                ⭐ ใช้ซ้ำ 4 สัปดาห์: Week 02, 10, 11, 12
+                ⭐ ใช้ซ้ำ 5 สัปดาห์: Week 02, 10, 11, 12, 13 (The Grand Finale)
               </span>
             </div>
 

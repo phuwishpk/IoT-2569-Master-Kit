@@ -8,7 +8,7 @@
 
 | รหัสผังวงจร | รายการอุปกรณ์ที่ต่อกับ ESP32 | สัปดาห์ที่ใช้วงจรนี้ (แล็บที่เกี่ยวข้อง) | สถานะการรื้อวงจร |
 | :---: | :--- | :--- | :---: |
-| ⭐ **วงจรที่ 7** | **Standard IoT Station: POT (GPIO 34) + LED (GPIO 2)** | **Week 02 (Lab 2.3), Week 10, Week 11, Week 12** | ⭐ **ต่อครั้งเดียว ใช้ซ้ำได้ถึง 4 สัปดาห์ ไม่ต้องรื้อวงจรเลย!** |
+| ⭐ **วงจรที่ 7** | **Standard IoT Station: POT (GPIO 34) + LED (GPIO 2)** | **Week 02 (Lab 2.3), Week 10, Week 11, Week 12, Week 13** | ⭐ **ต่อครั้งเดียว ใช้ซ้ำได้ถึง 5 สัปดาห์ (รวม Week 13 The Grand Finale) ไม่ต้องรื้อวงจรเลย!** |
 | **วงจรที่ 6** | **จอแสดงผล SPI OLED 7 ขา + POT (GPIO 34)** | **Week 09 (SPI OLED and Kestrel UI)** | วงจรเฉพาะ Week 09 |
 | **วงจรที่ 5** | **หลอดไฟ RGB LED (G4, G5, G23) + LDR (GPIO 34)** | **Week 04 (LED & RGB Color Sensing)** | วงจรเฉพาะ Week 04 |
 | **วงจรที่ 4** | **เซนเซอร์วัดแสง LDR + R 10kΩ (GPIO 34)** | **Week 03 (Sensors & Calibration II)** | วงจรเฉพาะ Week 03 |
@@ -19,6 +19,30 @@
 ---
 
 ## 🖼️ รายละเอียดผังวงจรจริง (แสดงขา ESP32 ครบทุกขา พร้อมเส้นโยง)
+
+---
+
+---
+
+### 👑 สัปดาห์ที่ 13: The Grand Finale - Converged Multi-Protocol Edge Gateway
+* **สัปดาห์ที่ใช้:** **Week 13 (The Ultimate Converged Edge Gateway & System Integration)**
+* **ผังวงจรฮาร์ดแวร์ที่ใช้:** **ใช้วงจรที่ 7 (Standard IoT Station: POT + LED) ซ้ำอย่างต่อเนื่อง!**
+* **การเชื่อมต่อเพิ่มเติม:** เสียบสาย **USB Data Cable** เชื่อมต่อระหว่างบอร์ด ESP32 เข้ากับคอมพิวเตอร์ (PC/Mac) ที่รันเกตเวย์ **ASP.NET Core Kestrel (.NET 8)** เพื่อทำหน้าที่เป็นสะพานแปลงโปรโตคอล 4 มิติ (UART Serial 115200 bps <-> Embedded MQTT Broker พอร์ต 1883 <-> REST API พอร์ต 5001 <-> SignalR WebSockets)
+
+![ผังสถาปัตยกรรมการเชื่อมโยงระบบสมบูรณ์สัปดาห์ที่ 13](circuits/circuit_13_converged_gateway_topology.svg)  
+🔍 [คลิกดูผังสถาปัตยกรรมระบบสมบูรณ์ (SVG Format)](circuits/circuit_13_converged_gateway_topology.svg)
+
+![ภาพถ่ายการต่อฮาร์ดแวร์จริงสัปดาห์ที่ 13](circuits/circuit_13_hardware_setup.jpg)
+
+#### 📌 ตารางการเชื่อมต่อขาใช้งานในสัปดาห์ที่ 13 (ครบ 38 ขา)
+| อุปกรณ์ | ขาบนอุปกรณ์ | ตำแหน่งขาบน ESP32 (38 ขา) | สีสายไฟ | หน้าที่การทำงาน |
+| :---: | :---: | :---: | :---: | :--- |
+| **Potentiometer 10k** | ขากลาง (Wiper) | **ขาซ้ายแถว 5 (`GPIO 34`)** | สีน้ำเงิน | อ่านค่า ADC1_CH6 แล้วสตรีม JSON ผ่าน Serial และ MQTT |
+| **Potentiometer 10k** | ขาริม 1 | **ขาซ้ายแถว 1 (`3V3`)** | สีแดง | แรงดันไฟเลี้ยง 3.3V |
+| **Potentiometer 10k** | ขาริม 2 | **ขาซ้ายแถว 14 (`GND`)** | สีดำ | กราวด์วงจร |
+| **หลอดไฟ LED** | ขายาว (Anode +) | **ขาขวาแถว 14 (`GPIO 2`)** ผ่าน R 220Ω | สีส้ม | หลอดไฟรับคำสั่งเปิด-ปิดจากทั้ง Serial, MQTT, REST และ SignalR |
+| **หลอดไฟ LED** | ขาสั้น (Cathode -) | **ขาขวาแถว 1 (`GND`)** | สีดำ | กราวด์หลอดไฟ |
+| **สาย USB Data** | พอร์ต USB | **เชื่อมต่อเข้า PC/Mac** | - | จ่ายไฟเลี้ยงบอร์ดและสื่อสารข้อมูล Hardware Serial (115200 bps) |
 
 ---
 
@@ -34,7 +58,7 @@
 ![วงจรที่ 7: Standard IoT Station (POT + LED)](circuits/circuit_07_standard_iot_station.png)  
 🔍 [คลิกดูไฟล์เวกเตอร์ SVG ความละเอียดสูง (SVG Format)](circuits/circuit_07_standard_iot_station.svg)
 
-> 💡 **กลยุทธ์ทำแล็บให้เร็วที่สุด:** ต่อวงจรที่ 7 นี้บน Breadboard ครั้งเดียวตอนทำ Week 02 (Lab 2.3) แล้ว **ปล่อยวงจรนี้ไว้เลย** เมื่อถึง Week 10, Week 11, และ Week 12 สามารถหยิบบอร์ดนี้มาเสียบสาย USB แล้วแฟลชโค้ดได้ทันทีโดยไม่ต้องต่อสายไฟใหม่แม้แต่เส้นเดียว!
+> 💡 **กลยุทธ์ทำแล็บให้เร็วที่สุด:** ต่อวงจรที่ 7 นี้บน Breadboard ครั้งเดียวตอนทำ Week 02 (Lab 2.3) แล้ว **ปล่อยวงจรนี้ไว้เลย** เมื่อถึง Week 10, Week 11, Week 12, และ Week 13 (The Grand Finale) สามารถหยิบบอร์ดนี้มาเสียบสาย USB แล้วแฟลชโค้ดได้ทันทีโดยไม่ต้องต่อสายไฟใหม่แม้แต่เส้นเดียว!
 
 ---
 
