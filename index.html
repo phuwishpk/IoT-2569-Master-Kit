@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IoT-2569 Master Kit & Student Audit Dashboard</title>
+  <!-- Tailwind CSS CDN for Universal Web Compatibility -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            background: '#0b1120',
+            card: '#151f32',
+            sidebar: '#0e1726',
+            border: '#22324d',
+            primary: '#0ea5e9',
+            'primary-hover': '#0284c7',
+            muted: '#94a3b8',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #0b1120;
+      color: #f1f5f9;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    .nav-tab.active {
+      background-color: #0ea5e9;
+      color: #ffffff;
+      font-weight: 600;
+    }
+    .filter-btn.active {
+      background-color: #0ea5e9;
+      color: #ffffff;
+      font-weight: 600;
+      border-color: #0ea5e9;
+    }
+    .student-pill.active {
+      border-color: #38bdf8;
+      background-color: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-weight: bold;
+    }
+    input[type="checkbox"]:checked + label {
+      text-decoration: line-through;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body class="min-h-screen p-3 md:p-6 antialiased">
+  <div class="max-w-6xl mx-auto space-y-6">
+    
+    <!-- Top Banner -->
+    <header class="bg-card border border-border rounded-2xl p-5 md:p-7 shadow-xl">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/20 mb-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            GitHub Pages Live Host • วิชา IoT-App-2569
+          </div>
+          <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
+            🚀 IoT-2569 Master Portal & Audit Hub
+          </h1>
+          <p class="text-xs md:text-sm text-muted mt-1.5">
+            ระบบตรวจสอบความสมบูรณ์งาน (Checklist), ดาวน์โหลดชุดคิทรายบุคคล (7 คน), ผังวงจร ESP32 (ครบ 38 ขา) และคำสั่งรันครบ 12 สัปดาห์
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2.5">
+          <a href="https://github.com/phuwishpk/IoT-2569-Master-Kit" target="_blank" 
+             class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 transition shadow-sm">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+            GitHub Repository
+          </a>
+        </div>
+      </div>
+
+      <!-- Main Navigation Tabs -->
+      <nav class="flex gap-2 p-1.5 mt-6 bg-sidebar rounded-xl border border-border overflow-x-auto text-sm">
+        <button onclick="switchNav('checklist')" id="nav-checklist-btn" class="nav-tab active px-4 py-2 rounded-lg transition whitespace-nowrap">
+          📋 Audit Checklist (ตรวจงาน/รูป/วิดีโอ/Terminal)
+        </button>
+        <button onclick="switchNav('students')" id="nav-students-btn" class="nav-tab px-4 py-2 rounded-lg transition whitespace-nowrap">
+          👥 ชุดคิทและไฟล์ ZIP (7 คน)
+        </button>
+        <button onclick="switchNav('commands')" id="nav-commands-btn" class="nav-tab px-4 py-2 rounded-lg transition whitespace-nowrap">
+          ⚡ คำสั่งรัน (Week 01 – 12)
+        </button>
+        <button onclick="switchNav('circuits')" id="nav-circuits-btn" class="nav-tab px-4 py-2 rounded-lg transition whitespace-nowrap">
+          🔌 ผังวงจร ESP32 (ครบ 38 ขา)
+        </button>
+        <button onclick="switchNav('tools')" id="nav-tools-btn" class="nav-tab px-4 py-2 rounded-lg transition whitespace-nowrap">
+          🛠️ รีโมทแพทย์ & สคริปต์ SSH
+        </button>
+      </nav>
+    </header>
+
+    <!-- TAB 1: AUDIT CHECKLIST -->
+    <main id="view-checklist" class="nav-view space-y-6">
+      <div class="bg-card border border-border rounded-2xl p-5 md:p-6 shadow-xl">
+        
+        <!-- Header Actions -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-border gap-3">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span>🔍</span> ตรวจสอบความพร้อมของผลงานแล็บ
+          </h2>
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="checkAllCurrentStudent(true)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition">
+              ✓ ติ๊กถูกทั้งหมด
+            </button>
+            <button onclick="checkAllCurrentStudent(false)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 border border-border text-slate-300 transition">
+              ✕ ล้างค่า
+            </button>
+            <button onclick="exportAuditReport()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-600 hover:bg-sky-500 text-white transition">
+              📄 คัดลอกสรุปผลส่งอาจารย์
+            </button>
+          </div>
+        </div>
+
+        <!-- Student Selector Bar -->
+        <div class="my-5">
+          <label class="block text-xs font-semibold uppercase tracking-wider text-muted mb-2">
+            👤 เลือกนักศึกษาที่ต้องการตรวจสอบ:
+          </label>
+          <div class="flex flex-wrap gap-2" id="student-selector">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <!-- Progress Stats Card -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 rounded-xl bg-background border border-border mb-6">
+          <div class="md:col-span-2 flex flex-col justify-center">
+            <div class="text-xs text-muted">กำลังตรวจสอบผลงานของ:</div>
+            <div class="text-lg font-bold text-white mt-0.5" id="st-name-display">-</div>
+            <div class="flex items-center gap-2 mt-1 text-xs text-muted font-mono">
+              <span>รหัส: <b id="st-id-display" class="text-sky-400">-</b></span>
+              <span>•</span>
+              <span>Topic: <code id="st-topic-display" class="text-emerald-400">-</code></span>
+            </div>
+          </div>
+
+          <div class="flex flex-col justify-center">
+            <div class="flex justify-between text-xs font-semibold mb-1">
+              <span>ความคืบหน้ารวม</span>
+              <span id="st-progress-pct" class="text-emerald-400 font-bold">0%</span>
+            </div>
+            <div class="w-full bg-sidebar h-3 rounded-full overflow-hidden border border-border">
+              <div id="st-progress-bar" class="bg-gradient-to-r from-sky-500 to-emerald-500 h-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <div class="text-[11px] text-muted mt-1.5 flex justify-between">
+              <span id="st-progress-count">0 / 0 รายการ</span>
+              <span id="st-progress-status" class="font-medium text-amber-400">ยังไม่ครบ</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 text-center text-xs">
+            <div class="p-2 rounded-lg bg-card border border-border">
+              <div class="text-[11px] text-muted">📷 รูปภาพ</div>
+              <div class="font-bold text-sky-400 mt-1" id="st-photo-stat">0/0</div>
+            </div>
+            <div class="p-2 rounded-lg bg-card border border-border">
+              <div class="text-[11px] text-muted">🎥 วิดีโอ</div>
+              <div class="font-bold text-purple-400 mt-1" id="st-video-stat">0/0</div>
+            </div>
+            <div class="p-2 rounded-lg bg-card border border-border">
+              <div class="text-[11px] text-muted">💻 Terminal</div>
+              <div class="font-bold text-emerald-400 mt-1" id="st-terminal-stat">0/0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Buttons -->
+        <div class="flex flex-wrap items-center gap-2 mb-5">
+          <span class="text-xs font-semibold text-muted mr-1">🔍 ตัวกรอง:</span>
+          <button onclick="setFilter('all')" id="filter-all" class="filter-btn active px-3 py-1.5 rounded-lg text-xs transition border border-border bg-sidebar">ทั้งหมด (All)</button>
+          <button onclick="setFilter('single')" id="filter-single" class="filter-btn px-3 py-1.5 rounded-lg text-xs transition border border-border bg-sidebar">👤 แล็บทำเดี่ยว (8 สัปดาห์)</button>
+          <button onclick="setFilter('pair')" id="filter-pair" class="filter-btn px-3 py-1.5 rounded-lg text-xs transition border border-border bg-sidebar">👥 แล็บทำคู่ (4 สัปดาห์)</button>
+          <button onclick="setFilter('photo')" id="filter-photo" class="filter-btn px-3 py-1.5 rounded-lg text-xs transition border border-border bg-sidebar">📷 รูปภาพ & แคปหน้าจอ</button>
+          <button onclick="setFilter('video')" id="filter-video" class="filter-btn px-3 py-1.5 rounded-lg text-xs transition border border-border bg-sidebar">🎥 คลิปวิดีโอสาธิต</button>
+          <button onclick="setFilter('terminal')" id="filter-terminal" class="filter-btn px-3 py-1.5 rounded-lg text-xs transition border border-border bg-sidebar">💻 ค่าใน Terminal</button>
+        </div>
+
+        <!-- Accordions -->
+        <div class="space-y-4" id="checklist-container">
+          <!-- Injected by JS -->
+        </div>
+
+      </div>
+    </main>
+
+    <!-- TAB 2: STUDENTS DOWNLOAD & KITS -->
+    <section id="view-students" class="nav-view hidden space-y-6">
+      <div class="bg-card border border-border rounded-2xl p-5 md:p-6 shadow-xl">
+        <h2 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
+          <span>👥</span> ชุดโปรเจกต์ประจำตัวฉบับสมบูรณ์ (Standalone Big Folders & ZIPs)
+        </h2>
+        <p class="text-xs text-muted mb-5">
+          บรรจุโค้ดทั้ง 12 สัปดาห์, ผังวงจร ESP32, รายงาน, และคำสั่งรันที่ผูกรหัสนักศึกษาและชื่อของเพื่อนแต่ละคนเรียบร้อยแล้ว
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="students-cards-container">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: RUN COMMANDS -->
+    <section id="view-commands" class="nav-view hidden space-y-4">
+      <div class="bg-card border border-border rounded-2xl p-5 md:p-6 shadow-xl space-y-4">
+        <h2 class="text-lg font-bold text-white mb-2 flex items-center gap-2">
+          <span>⚡</span> คู่มือรวมคำสั่งรันทุกแล็บ (Run Commands Cheat Sheet)
+        </h2>
+
+        <div class="p-3.5 bg-background rounded-xl border border-border">
+          <div class="font-bold text-sm text-sky-400 mb-1">🟢 Week 01: Introduction & Serial Boot Log</div>
+          <pre class="bg-black/40 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto">idf.py -p &lt;PORT&gt; monitor</pre>
+        </div>
+
+        <div class="p-3.5 bg-background rounded-xl border border-border">
+          <div class="font-bold text-sm text-sky-400 mb-1">🟢 Week 02: Sensors & Calibration I (POT 10k & LED PWM)</div>
+          <pre class="bg-black/40 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto">cd Week02_POT_and_LED/ESP32_Project/POT_ADC_Read && idf.py -p &lt;PORT&gt; flash monitor</pre>
+        </div>
+
+        <div class="p-3.5 bg-background rounded-xl border border-border">
+          <div class="font-bold text-sm text-sky-400 mb-1">👥 Week 06: Wi-Fi SoftAP & TCP Throughput (ทำคู่ 2 เครื่อง)</div>
+          <pre class="bg-black/40 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto"># เครื่อง 1 (ESP32):
+cd Week06_SoftAP_FreeRTOS/*_template/codes && idf.py -p &lt;PORT&gt; flash monitor
+
+# เครื่อง 2 (คอมพิวเตอร์เพื่อน): ต่อ Wi-Fi ESP32_AP_XXXX แล้วทดสอบ
+ping 192.168.4.1
+iperf -c 192.168.4.1 -i 1 -t 10</pre>
+        </div>
+
+        <div class="p-3.5 bg-background rounded-xl border border-border">
+          <div class="font-bold text-sm text-sky-400 mb-1">🟢 Week 08: Kestrel C# Web Server & Dual SVG Dashboard</div>
+          <pre class="bg-black/40 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto">cd Week08_Kestrel_and_SVG/Lab8-5/Kestrel_Dual_Dashboard && dotnet run
+# เปิดดูหน้าปัดเรียลไทม์: http://localhost:5000</pre>
+        </div>
+
+        <div class="p-3.5 bg-background rounded-xl border border-border">
+          <div class="font-bold text-sm text-sky-400 mb-1">🟢 Week 09: SPI OLED Display & API Messaging</div>
+          <pre class="bg-black/40 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto"># ส่งข้อความขึ้นจอ OLED ผ่าน API
+curl -X POST "http://localhost:5000/api/oled" -H "Content-Type: application/json" -d '{"line1":"67030XXX","line2":"HELLO IOT"}'</pre>
+        </div>
+
+        <div class="p-3.5 bg-background rounded-xl border border-border">
+          <div class="font-bold text-sm text-sky-400 mb-1">👥 Week 11: MQTT Broker mTLS (Port 8883) & RainMaker</div>
+          <pre class="bg-black/40 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto"># 1. เปิด Broker mTLS
+mosquitto -c Week11_MQTT_and_RainMaker/mqtt_certs/mosquitto_ssl.conf -v -p 8883
+
+# 2. เครื่องเพื่อน Sub/Pub:
+mosquitto_sub -h &lt;IP&gt; -p 8883 --cafile ca.crt --cert client.crt --key client.key -t "iot/67030XXX/telemetry" -v
+mosquitto_pub -h &lt;IP&gt; -p 8883 --cafile ca.crt --cert client.crt --key client.key -t "iot/67030XXX/command" -m '{"led":1}'</pre>
+        </div>
+
+        <div class="p-3.5 bg-background rounded-xl border border-border">
+          <div class="font-bold text-sm text-sky-400 mb-1">👥 Week 12: Flutter Mobile IoT App & MQTT Dashboard</div>
+          <pre class="bg-black/40 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto">cd Week12_Flutter_MQTT_App/*_template/Lab12-4 && flutter pub get && flutter run -d chrome</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: CIRCUITS -->
+    <section id="view-circuits" class="nav-view hidden space-y-4">
+      <div class="bg-card border border-border rounded-2xl p-5 md:p-6 shadow-xl space-y-5">
+        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+          <span>🔌</span> ผังวงจรฮาร์ดแวร์ ESP32 (NodeMCU-32S ครบ 38 ขา)
+        </h2>
+
+        <div class="p-4 bg-background rounded-xl border border-border space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-base text-sky-400">⭐ วงจรที่ 7: Standard IoT Station (POT 10k + LED)</h3>
+            <span class="text-xs bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-md border border-emerald-500/20 font-semibold">ใช้ซ้ำได้ถึง 4 สัปดาห์ (Week 02, 10, 11, 12)</span>
+          </div>
+          <p class="text-xs text-muted">ต่อครั้งเดียวบน Breadboard ปล่อยไว้เลย ไม่ต้องรื้อวงจรใหม่!</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs font-mono text-slate-300 bg-sidebar p-3 rounded-lg border border-border">
+            <div>• ขา 3V3 (ซ้ายแถว 1): สายสีแดง → ขา 1 ของ POT</div>
+            <div>• ขา G2 (ขวาแถว 14): สายสีส้ม → R 220Ω → Anode (+) LED</div>
+            <div>• ขา G34 (ซ้ายแถว 5): สายสีน้ำเงิน → ขากลาง Wiper ของ POT</div>
+            <div>• ขา GND (ขวาแถว 1): สายสีดำ → Cathode (-) LED</div>
+            <div>• ขา GND (ซ้ายแถว 14): สายสีดำ → ขา 3 ของ POT</div>
+          </div>
+        </div>
+
+        <div class="p-4 bg-background rounded-xl border border-border space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-base text-purple-400">🟣 วงจรที่ 6: จอแสดงผลกราฟิก SPI OLED SSD1306 (7 ขา) + POT</h3>
+            <span class="text-xs bg-purple-500/10 text-purple-400 px-2.5 py-1 rounded-md border border-purple-500/20 font-semibold">Week 09: SPI OLED & Kestrel UI</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs font-mono text-slate-300 bg-sidebar p-3 rounded-lg border border-border">
+            <div>• Pin 1 (GND): สายสีดำ → ขาขวาแถว 1 (GND)</div>
+            <div>• Pin 5 (RES): สายสีฟ้า → ขาขวาแถว 13 (GPIO 4)</div>
+            <div>• Pin 2 (VCC): สายสีแดง → ขาซ้ายแถว 1 (3.3V ห้ามต่อ 5V)</div>
+            <div>• Pin 6 (DC): สายสีชมพู → ขาขวาแถว 14 (GPIO 2)</div>
+            <div>• Pin 3 (D0/SCK): สายสีเขียว → ขาขวาแถว 9 (GPIO 18)</div>
+            <div>• Pin 7 (CS): สายสีส้ม → ขาขวาแถว 10 (GPIO 5)</div>
+            <div>• Pin 4 (D1/MOSI): สายสีม่วง → ขาขวาแถว 2 (GPIO 23)</div>
+            <div>• POT Wiper: สายสีน้ำเงิน → ขาซ้ายแถว 5 (GPIO 34)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: TOOLS & SSH -->
+    <section id="view-tools" class="nav-view hidden space-y-4">
+      <div class="bg-card border border-border rounded-2xl p-5 md:p-6 shadow-xl space-y-4">
+        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+          <span>🛠️</span> เครื่องมืออำนวยความสะดวก & สคริปต์ SSH Remote
+        </h2>
+
+        <div class="p-4 bg-background rounded-xl border border-border space-y-2">
+          <h3 class="font-bold text-sm text-sky-400">1. ให้เพื่อนรันคำสั่งเปิด SSH ครั้งเดียว (Admin)</h3>
+          <p class="text-xs text-muted">Windows (PowerShell Admin):</p>
+          <pre class="bg-black/40 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto">Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0; Start-Service sshd; Set-Service -Name sshd -StartupType 'Automatic'; New-NetFirewallRule -Name "IoT_SSH_Lab" -DisplayName "IoT Lab SSH & Ports" -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22,1883,8883,5000,5117; ipconfig | findstr /i "IPv4"</pre>
+          <p class="text-xs text-muted mt-2">macOS (Terminal):</p>
+          <pre class="bg-black/40 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto">sudo systemsetup -setremotelogin on && ifconfig | grep "inet " | grep -v 127.0.0.1</pre>
+        </div>
+
+        <div class="p-4 bg-background rounded-xl border border-border space-y-2">
+          <h3 class="font-bold text-sm text-sky-400">2. สคริปต์ตรวจพอร์ต COMx และแก้พอร์ตค้างอัตโนมัติ</h3>
+          <pre class="bg-black/40 p-2.5 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto">python3 remote_doctor.py --fix-ports</pre>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    const STUDENTS = [
+      { id: "67030248", name_th: "นายสุวิจักขณ์ ลาวัง", name_en: "Suwijak Lawang", folder: "67030248_Suwijak_Lawang", last4: "0248", gauge: "Speedometer + 7-Segment" },
+      { id: "67030249", name_th: "นางสาวสุวิมล ศรีประไหม", name_en: "Suwimon Sripramai", folder: "67030249_Suwimon_Sripramai", last4: "0249", gauge: "Audio VU + 7-Segment" },
+      { id: "67030268", name_th: "นายกร แดงทอง", name_en: "Korn Daengthong", folder: "67030268_Korn_Daengthong", last4: "0268", gauge: "Speedometer + Liquid Tank" },
+      { id: "67030270", name_th: "นายกฤษฏิณัช สำราญกิจ", name_en: "Kritsadinat Samrankit", folder: "67030270_Kritsadinat_Samrankit", last4: "0270", gauge: "7-Segment + Liquid Tank" },
+      { id: "67030299", name_th: "นางสาวธนพร พิศมัย", name_en: "Thanaporn Pitsamai", folder: "67030299_Thanaporn_Pitsamai", last4: "0299", gauge: "Liquid Tank + 7-Segment" },
+      { id: "67030359", name_th: "นายอัฐวุฒิ บัวเรียน", name_en: "Attawut Bualian", folder: "67030359_Attawut_Bualian", last4: "0359", gauge: "Liquid Tank + Audio VU" },
+      { id: "67030360", name_th: "นายอิทธิพัทธิ์ สุทธินวล", name_en: "Ittipat Sutthinuan", folder: "67030360_Ittipat_Sutthinuan", last4: "0360", gauge: "Speedometer + 7-Segment" },
+      { id: "67030183", name_th: "นายภูวิชญ์ ประกอบจิตร (Master)", name_en: "Phuwish Prakobchit", folder: "67030183", last4: "0183", gauge: "Full Suite Master" }
+    ];
+
+    const WEEKS_DATA = [
+      {
+        week: "01",
+        title: "Week 01: Introduction & IoT Architecture",
+        mode: "single",
+        badge: "👤 ทำเดี่ยว",
+        items: [
+          { id: "w01_1", type: "terminal", title: "Serial Boot Log", desc: "เปิด idf.py monitor ต้องเห็น Chip is ESP32-D0WDQ6, 240MHz, 4MB Flash, FreeRTOS Heap Free" },
+          { id: "w01_2", type: "photo", title: "แคปหน้าจอคุย AI TA (12 รูป)", desc: "บันทึก 1.png ถึง 12.png ครบทั้ง 3 หมวด (A: สถาปัตยกรรม, B: ESP-IDF, C: แก้ปัญหาพอร์ต)" },
+          { id: "w01_3", type: "report", title: "ไฟล์รายงาน 07-Exercise.md", desc: "มีหัวข้อผู้จัดทำรหัสนักศึกษาและชื่อภาษาไทยครบถ้วน" }
+        ]
+      },
+      {
+        week: "02",
+        title: "Week 02: Sensors & Calibration I (POT 10k & LED PWM)",
+        mode: "single",
+        badge: "👤 ทำเดี่ยว",
+        items: [
+          { id: "w02_1", type: "circuit", title: "วงจรที่ 7 (POT G34 + LED G2)", desc: "ต่อ POT 10k ขา 34 และ LED ขา 2 ผ่านตัวต้านทาน 220Ω ลงกราวด์ GND" },
+          { id: "w02_2", type: "terminal", title: "Log อ่านมุมองศา (Lab 2.2)", desc: "แสดงค่า: ADC Raw = 2052, Voltage = 1.65 V, Angle = 90.2 deg ใน Serial Monitor" },
+          { id: "w02_3", type: "photo", title: "รูปถ่ายวงจรจริงบน Breadboard", desc: "รูปถ่ายบอร์ด ESP32 เสียบบน Breadboard เห็นสายไฟ 5 เส้นและตัวอุปกรณ์ชัดเจน" },
+          { id: "w02_4", type: "video", title: "คลิปวิดีโอสาธิตหมุน POT หรี่ไฟ LED", desc: "คลิปสั้น 5-10 วินาที หมุนตัวต้านทานแล้วไฟ LED ค่อยๆ หรี่และสว่างตามมุมหมุน" },
+          { id: "w02_5", type: "report", title: "ไฟล์รายงาน README_template.md", desc: "บันทึกผลการทดลองครบทั้ง 3 แล็บย่อย พร้อมชื่อ-รหัสผู้จัดทำ" }
+        ]
+      },
+      {
+        week: "03",
+        title: "Week 03: Sensors & Calibration II (LDR Lux Sensor)",
+        mode: "single",
+        badge: "👤 ทำเดี่ยว",
+        items: [
+          { id: "w03_1", type: "circuit", title: "วงจรที่ 4 (LDR + R 10k Divider)", desc: "ต่อ LDR ไวแสงอนุกรมกับ R 10k ดึงจุดแยกเข้า GPIO 34" },
+          { id: "w03_2", type: "terminal", title: "ค่า Lux Calibration 3 สภาวะ", desc: "บันทึกค่า: มืดสนิท (ADC ~442), แสงห้อง (ADC ~2891), แสงไฟฉายจ่อ (ADC ~4015)" },
+          { id: "w03_3", type: "photo", title: "กราฟเส้นโค้ง Lux vs ADC (chart week3.png)", desc: "ภาพกราฟที่ได้จากการพล็อตสเกลความสว่างแสงเทียบกับค่าดิจิทัล" },
+          { id: "w03_4", type: "video", title: "คลิปวิดีโอเอามือบังมืดและส่องไฟฉาย", desc: "คลิปแสดงไฟ LED ปิดอัตโนมัติเมื่อมีแสง และสว่างขึ้นเมื่อมืด (Automatic Night Light)" },
+          { id: "w03_5", type: "report", title: "ไฟล์รายงาน report.md", desc: "สูตรคำนวณแบ่งแรงดัน V_out และตารางค่าความต้านทาน LDR" }
+        ]
+      },
+      {
+        week: "04",
+        title: "Week 04: LED and RGB Color Sensing",
+        mode: "single",
+        badge: "👤 ทำเดี่ยว",
+        items: [
+          { id: "w04_1", type: "circuit", title: "วงจรที่ 5 (RGB LED G4,G5,G23 + LDR G34)", desc: "ต่อหลอดแม่สี RGB ผ่าน R 220Ω 3 ตัว และวางเซนเซอร์ LDR รับแสงสะท้อน" },
+          { id: "w04_2", type: "terminal", title: "ค่าสะท้อนสี Red, Green, Blue", desc: "แสดงค่า ADC แยกย่อยทั้ง 3 Channel เมื่อนำกระดาษสีแดง, เขียว, น้ำเงินมาจ่อ" },
+          { id: "w04_3", type: "photo", title: "กราฟวิเคราะห์สี 3 ภาพ", desc: "มีภาพ Redchartweek04.png, Greenchartweek04.png, Bluechartweek04.png" },
+          { id: "w04_4", type: "video", title: "คลิปวิดีโอตรวจจับสีวัตถุ", desc: "คลิปแสดงหลอด RGB สลับยิงแสงแม่สี 3 สีแล้วหน้าจอ Terminal ระบุสีวัตถุถูกต้อง" },
+          { id: "w04_5", type: "report", title: "ไฟล์รายงาน report.md", desc: "อธิบายหลักการสะท้อนของแสงและตารางจำแนกสีวัตถุ" }
+        ]
+      },
+      {
+        week: "05",
+        title: "Week 05: Wi-Fi ESP32 Station Scan & Reason Codes",
+        mode: "single",
+        badge: "👤 ทำเดี่ยว",
+        items: [
+          { id: "w05_1", type: "terminal", title: "ผลสแกน Wi-Fi Scan All APs (Lab 5.1)", desc: "รายชื่อ SSID รอบข้าง, สัญญาณ RSSI (dBm), Channel, และ Encryption Type" },
+          { id: "w05_2", type: "terminal", title: "ดักจับ Wi-Fi Reason Code (Lab 5.2-5.4)", desc: "แสดงเหตุการณ์ตัดการเชื่อมต่อ เช่น Reason: 202 (AUTH_FAIL) หรือ 201 (NO_AP_FOUND)" },
+          { id: "w05_3", type: "photo", title: "แคปหน้าจอ Terminal ผลการสแกนและเชื่อมต่อ", desc: "ภาพหน้าจอ terminal สแกนครบทุกย่านสัญญาณ" },
+          { id: "w05_4", type: "report", title: "ไฟล์รายงาน report.md", desc: "ตารางสรุปเปรียบเทียบการสแกนทั้ง 4 กรณี (Active, Passive, Fast, All Channel)" }
+        ]
+      },
+      {
+        week: "06",
+        title: "Week 06: Wi-Fi SoftAP, Throughput & FreeRTOS",
+        mode: "pair",
+        badge: "👥 ทำคู่ (2 เครื่อง)",
+        items: [
+          { id: "w06_1", type: "terminal", title: "เครื่อง 1: ESP32 ปล่อย AP", desc: "แสดง Log: SSID = ESP32_AP_{LAST4}, IP = 192.168.4.1, สถานีเชื่อมต่อสำเร็จ" },
+          { id: "w06_2", type: "terminal", title: "เครื่อง 2: ผลทดสอบ ping 192.168.4.1", desc: "ผลปิง 10 แพ็กเก็ต ค่าความหน่วง (RTT) ต่ำกว่า 5ms และ Packet Loss 0%" },
+          { id: "w06_3", type: "terminal", title: "เครื่อง 2: ผลทดสอบ Throughput ด้วย iperf", desc: "คำสั่ง iperf -c 192.168.4.1 แสดง Bandwidth ความเร็วรับ-ส่ง (Mbits/sec)" },
+          { id: "w06_4", type: "photo", title: "กราฟ rssi_vs_throughput.png", desc: "กราฟวิเคราะห์ความสัมพันธ์ระหว่างระดับสัญญาณ RSSI กับความเร็ว Throughput" },
+          { id: "w06_5", type: "video", title: "คลิปวิดีโอทดสอบรับส่ง 2 เครื่อง", desc: "คลิปเห็นเครื่องเพื่อนต่อ Wi-Fi ของ ESP32 แล้วยิงคำสั่ง iperf วัดสปีด" },
+          { id: "w06_6", type: "report", title: "ไฟล์รายงาน report.md", desc: "ระบุรหัสนักศึกษาผู้ร่วมทดลองและสถิติ FreeRTOS Task Stack" }
+        ]
+      },
+      {
+        week: "07",
+        title: "Week 07: Wi-Fi Provisioning (BLE & SoftAP)",
+        mode: "single",
+        badge: "👤 ทำเดี่ยว / คู่ช่วยกด",
+        items: [
+          { id: "w07_1", type: "terminal", title: "Serial Log ปล่อยบลูทูธ BLE", desc: "บอร์ดส่งข้อความ: Starting BLE Provisioning, Device Name: PROV_{LAST4}" },
+          { id: "w07_2", type: "photo", title: "แคปหน้าจอแอปมือถือ ESP BLE Provisioning", desc: "ภาพขณะเชื่อมต่อบลูทูธ และภาพยืนยันการตั้งค่า Provisioning Status Success" },
+          { id: "w07_3", type: "terminal", title: "Log การเชื่อมต่อ Wi-Fi อัตโนมัติหลังรับค่า", desc: "บอร์ดได้รับ Credentials จากมือถือ และเชื่อมต่อ Wi-Fi สำเร็จได้ IP จริง" },
+          { id: "w07_4", type: "video", title: "คลิปวิดีโอใช้มือถือกดตั้งค่าบอร์ด", desc: "คลิปแสดงการเลือกชื่อบอร์ดบนแอปมือถือแล้วส่งรหัสผ่าน Wi-Fi เข้าไป" },
+          { id: "w07_5", type: "report", title: "ไฟล์รายงาน Report_{ID}.md", desc: "การวิเคราะห์โครงสร้าง NVS Partition และความปลอดภัย Proof-of-Possession (PoP)" }
+        ]
+      },
+      {
+        week: "08",
+        title: "Week 08: Kestrel C# Server & SVG Dual Dashboard",
+        mode: "single",
+        badge: "👤 ทำเดี่ยว",
+        items: [
+          { id: "w08_1", type: "terminal", title: "Terminal Kestrel C# Web Server", desc: "รัน dotnet run แสดง Now listening on: http://localhost:5000" },
+          { id: "w08_2", type: "terminal", title: "Terminal ESP32 ADC Stream", desc: "บอร์ดส่ง JSON สตรีมค่า ADC: {\"channelA\": {\"rawAdc\": 2048, \"voltage\": 1.65}}" },
+          { id: "w08_3", type: "photo", title: "แคปหน้าจอ Dual Dashboard มีชื่อ-รหัส", desc: "หน้าเว็บเห็นแถบ STUDENT ID: {ID} • {NAME} และเกจ์คู่ซ้ายขวาตรงตามโจทย์" },
+          { id: "w08_4", type: "video", title: "คลิปวิดีโอหมุน POT แล้วเกจ์บนเว็บขยับเรียลไทม์", desc: "คลิปแสดงการหมุนตัวต้านทานบนบอร์ด ESP32 แล้วเข็มไมล์/หลอดแทงก์บนเว็บขยับตามทันที" },
+          { id: "w08_5", type: "report", title: "ไฟล์รายงาน Report_{ID}.md", desc: "สูตรคำนวณเกจ์ N = {ID%1000} และสถาปัตยกรรม Minimal API" }
+        ]
+      },
+      {
+        week: "09",
+        title: "Week 09: SPI OLED Display & Kestrel Web UI",
+        mode: "single",
+        badge: "👤 ทำเดี่ยว",
+        items: [
+          { id: "w09_1", type: "circuit", title: "วงจรที่ 6 (OLED 7 ขา + POT 10k)", desc: "ต่อจอ SPI2 ความถี่ 10 MHz: SCK(G18), MOSI(G23), RES(G4), DC(G2), CS(G5)" },
+          { id: "w09_2", type: "photo", title: "รูปถ่ายจอ OLED แสดงข้อความจริง", desc: "ถ่ายรูปจอ OLED จริง บรรทัดที่ 1 แสดง HELLO WORLD และบรรทัดที่ 2 แสดง ID: {ID}" },
+          { id: "w09_3", type: "terminal", title: "คำสั่งยิง API curl POST ข้อความ", desc: "curl -X POST http://localhost:5000/api/oled -d '{\"line1\":\"{ID}\",\"line2\":\"HELLO IOT\"}'" },
+          { id: "w09_4", type: "video", title: "คลิปยิง API จากคอมพิวเตอร์ขึ้นจอ OLED", desc: "คลิปยิงคำสั่งใน Terminal แล้วข้อความบนจอ OLED ของ ESP32 เปลี่ยนตามทันที" },
+          { id: "w09_5", type: "report", title: "ไฟล์รายงาน report.md (ครบ 4 แล็บย่อย)", desc: "อธิบายโครงสร้าง Framebuffer 1024 bytes และการจัดการคำสั่ง SPI DC/CS" }
+        ]
+      },
+      {
+        week: "10",
+        title: "Week 10: Local Communication Benchmark (HTTP/UDP/CoAP)",
+        mode: "pair",
+        badge: "👥 ทำคู่ (2 เครื่อง)",
+        items: [
+          { id: "w10_1", type: "terminal", title: "เครื่อง 1: ESP32 เปิด 3 โปรโตคอล", desc: "เปิด HTTP Port 80, UDP Telemetry Port 3333, และ CoAP Port 5683" },
+          { id: "w10_2", type: "terminal", title: "เครื่อง 2: ผลรัน benchmark_protocols.py 50 รอบ", desc: "ตารางเปรียบเทียบค่าความหน่วง (RTT ms): HTTP (~45ms), CoAP (~12ms), UDP (~6ms)" },
+          { id: "w10_3", type: "photo", title: "กราฟและตารางสถิติเปรียบเทียบ RTT", desc: "ภาพแคปหน้าจอผลสรุป Mean, Min, Max, Packet Loss ของทั้ง 3 โปรโตคอล" },
+          { id: "w10_4", type: "video", title: "คลิปยิง Benchmark ข้ามเครื่องเพื่อน", desc: "คลิปรันคำสั่ง benchmark จากโน้ตบุ๊กเพื่อนยิงเข้า IP ของ ESP32 ต่อเนื่อง 50 รอบ" },
+          { id: "w10_5", type: "report", title: "ไฟล์รายงาน report.md", desc: "การวิเคราะห์ Trade-off ระหว่าง Reliability (TCP/HTTP) กับ Low Latency (UDP/CoAP)" }
+        ]
+      },
+      {
+        week: "11",
+        title: "Week 11: MQTT Broker mTLS & ESP RainMaker",
+        mode: "pair",
+        badge: "👥 ทำคู่ (2 เครื่อง)",
+        items: [
+          { id: "w11_1", type: "terminal", title: "Mosquitto Broker mTLS Port 8883", desc: "รัน mosquitto ด้วยคอนฟิก SSL/TLS พร้อมใบรับรอง CA, Server CRT/Key" },
+          { id: "w11_2", type: "terminal", title: "เครื่อง 1: mosquitto_sub รับ Telemetry", desc: "Subscribe หัวข้อ: iot/{ID}/telemetry รับค่าเซนเซอร์แบบ Real-time" },
+          { id: "w11_3", type: "terminal", title: "เครื่อง 2: mosquitto_pub ส่งคำสั่งเปิดไฟ", desc: "Publish คำสั่ง: iot/{ID}/command ข้อความ {\"led\":1}" },
+          { id: "w11_4", type: "photo", title: "แคปหน้าจอแอป ESP RainMaker สั่งงานคู่กัน", desc: "ภาพสวิตช์ไฟบนแอป RainMaker และ Terminal ซิงก์สถานะพร้อมกัน (3-Way Sync)" },
+          { id: "w11_5", type: "video", title: "คลิปกดสวิตช์บนมือถือแล้วไฟบนบอร์ดติดทันที", desc: "คลิปทดสอบกดสั่งผ่าน RainMaker บนมือถือ และสั่งผ่าน MQTT command บนคอมพิวเตอร์" },
+          { id: "w11_6", type: "report", title: "ไฟล์รายงาน report.md", desc: "การทดสอบ QoS 0, 1, 2, Last Will & Testament (LWT) และ mTLS Handshake" }
+        ]
+      },
+      {
+        week: "12",
+        title: "Week 12: Flutter Mobile IoT App & MQTT Dashboard",
+        mode: "pair",
+        badge: "👥 ทำคู่ (2 เครื่อง)",
+        items: [
+          { id: "w12_1", type: "photo", title: "หน้าจอแอป Flutter แสดงกราฟเส้น Live Telemetry", desc: "แอปพลิเคชันมือถือ Flutter เชื่อมต่อ MQTT และพล็อต Sine Wave / ADC สด" },
+          { id: "w12_2", type: "photo", title: "หน้าจอแอป Flutter แสดงสวิตช์ Actuator LED", desc: "ปุ่มเปิด-ปิดไฟพร้อมสถานะตอบรับ ACK จาก ESP32" },
+          { id: "w12_3", type: "terminal", title: "Terminal ESP32 รับคำสั่งจากแอป Flutter", desc: "บอร์ด ESP32 แสดง Log รับข้อความเปิด-ปิดไฟจากแอปมือถือทันที" },
+          { id: "w12_4", type: "video", title: "คลิปวิดีโอใช้งานแอป Flutter ควบคุมบอร์ดจริง", desc: "คลิปเห็นจอมือถือ/เว็บรัน Flutter กดสวิตช์ไฟ แล้วหลอดไฟบนบอร์ด ESP32 ติด-ดับตาม" },
+          { id: "w12_5", type: "report", title: "ไฟล์รายงาน report.md", desc: "สถาปัตยกรรม State Management ใน Flutter, Reconnection Backoff และ Fault Tolerance" }
+        ]
+      }
+    ];
+
+    let currentStudentIndex = 0;
+    let currentFilter = 'all';
+
+    function init() {
+      renderStudentPills();
+      renderStudentCards();
+      loadStudent(0);
+    }
+
+    function switchNav(navId) {
+      document.querySelectorAll('.nav-view').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+
+      const targetView = document.getElementById('view-' + navId);
+      const targetBtn = document.getElementById('nav-' + navId + '-btn');
+
+      if (targetView) targetView.classList.remove('hidden');
+      if (targetBtn) targetBtn.classList.add('active');
+    }
+
+    function renderStudentPills() {
+      const container = document.getElementById('student-selector');
+      container.innerHTML = '';
+      STUDENTS.forEach((st, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `student-pill px-3 py-1.5 rounded-lg text-xs font-mono border border-border bg-sidebar hover:border-sky-400 transition flex items-center gap-1.5 ${idx === currentStudentIndex ? 'active' : ''}`;
+        btn.id = `pill-${st.id}`;
+        btn.onclick = () => loadStudent(idx);
+        btn.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${idx === currentStudentIndex ? 'bg-sky-400' : 'bg-gray-400'}"></span><b>${st.id}</b> <span class="opacity-80">${st.name_th.split(' ')[1] || st.name_th}</span>`;
+        container.appendChild(btn);
+      });
+    }
+
+    function renderStudentCards() {
+      const container = document.getElementById('students-cards-container');
+      container.innerHTML = '';
+      STUDENTS.slice(0, 7).forEach(st => {
+        const card = document.createElement('div');
+        card.className = "border border-border bg-background p-4 rounded-xl flex flex-col justify-between hover:border-sky-500 transition shadow-sm";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono font-bold text-sky-400 bg-sky-500/10 px-2.5 py-1 rounded-md border border-sky-500/20">${st.id}</span>
+              <span class="text-xs text-muted font-medium">${st.gauge}</span>
+            </div>
+            <h3 class="font-bold text-base mt-2 text-white">${st.name_th}</h3>
+            <p class="text-xs text-muted">${st.name_en}</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-border flex items-center justify-between text-xs">
+            <a href="https://github.com/phuwishpk/IoT-2569-Master-Kit/tree/main/students/${st.folder}" target="_blank"
+               class="text-sky-400 hover:text-sky-300 font-semibold flex items-center gap-1">
+              📂 เปิดโฟลเดอร์บน GitHub
+            </a>
+            <a href="https://github.com/phuwishpk/IoT-2569-Master-Kit/raw/main/students/zips/${st.folder}.zip" target="_blank"
+               class="px-2.5 py-1 rounded bg-sky-600 hover:bg-sky-500 text-white font-medium flex items-center gap-1 shadow-sm transition">
+              📦 โหลด ZIP (8 MB)
+            </a>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function loadStudent(idx) {
+      currentStudentIndex = idx;
+      const st = STUDENTS[idx];
+
+      document.querySelectorAll('.student-pill').forEach((p, i) => {
+        if (i === idx) {
+          p.classList.add('active');
+          p.querySelector('span').className = 'w-1.5 h-1.5 rounded-full bg-sky-400';
+        } else {
+          p.classList.remove('active');
+          p.querySelector('span').className = 'w-1.5 h-1.5 rounded-full bg-gray-400';
+        }
+      });
+
+      document.getElementById('st-name-display').textContent = `${st.name_th} (${st.name_en})`;
+      document.getElementById('st-id-display').textContent = st.id;
+      document.getElementById('st-topic-display').textContent = `iot/${st.id}/telemetry`;
+
+      renderChecklist();
+      updateStats();
+    }
+
+    function getStorageKey(stId, itemId) {
+      return `iot_audit_${stId}_${itemId}`;
+    }
+
+    function renderChecklist() {
+      const st = STUDENTS[currentStudentIndex];
+      const container = document.getElementById('checklist-container');
+      container.innerHTML = '';
+
+      WEEKS_DATA.forEach(w => {
+        if (currentFilter === 'single' && w.mode !== 'single') return;
+        if (currentFilter === 'pair' && w.mode !== 'pair') return;
+
+        const visibleItems = w.items.filter(item => {
+          if (currentFilter === 'photo' && item.type !== 'photo') return false;
+          if (currentFilter === 'video' && item.type !== 'video') return false;
+          if (currentFilter === 'terminal' && item.type !== 'terminal') return false;
+          return true;
+        });
+
+        if (visibleItems.length === 0) return;
+
+        const card = document.createElement('div');
+        card.className = "border border-border rounded-xl bg-background overflow-hidden transition";
+
+        let itemsChecked = 0;
+        w.items.forEach(it => {
+          if (localStorage.getItem(getStorageKey(st.id, it.id)) === 'true') itemsChecked++;
+        });
+        const isComplete = itemsChecked === w.items.length;
+
+        card.innerHTML = `
+          <div class="p-3.5 bg-sidebar border-b border-border flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+              <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${isComplete ? 'bg-emerald-500 text-white' : 'bg-sky-500/20 text-sky-400 border border-sky-500/30'}">
+                ${isComplete ? '✓' : w.week}
+              </span>
+              <h3 class="font-bold text-sm text-white">${w.title}</h3>
+              <span class="text-[11px] px-2 py-0.5 rounded-full ${w.mode === 'pair' ? 'bg-purple-500/15 text-purple-400 border border-purple-500/30' : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'} font-medium">
+                ${w.badge}
+              </span>
+            </div>
+            <div class="text-xs text-muted font-mono">
+              เสร็จแล้ว <b class="${isComplete ? 'text-emerald-400 font-bold' : 'text-white'}">${itemsChecked}/${w.items.length}</b>
+            </div>
+          </div>
+          <div class="p-3.5 space-y-2.5 divide-y divide-border/40" id="items-week-${w.week}"></div>
+        `;
+
+        const itemsBox = card.querySelector(`#items-week-${w.week}`);
+        visibleItems.forEach((it, itIdx) => {
+          const isChecked = localStorage.getItem(getStorageKey(st.id, it.id)) === 'true';
+          const itemRow = document.createElement('div');
+          itemRow.className = `pt-2.5 first:pt-0 flex items-start gap-3`;
+
+          let typeBadge = '';
+          if (it.type === 'photo') typeBadge = '<span class="text-[10px] bg-sky-500/15 text-sky-400 px-1.5 py-0.5 rounded border border-sky-500/30">📷 รูปภาพ</span>';
+          else if (it.type === 'video') typeBadge = '<span class="text-[10px] bg-purple-500/15 text-purple-400 px-1.5 py-0.5 rounded border border-purple-500/30">🎥 วิดีโอ</span>';
+          else if (it.type === 'terminal') typeBadge = '<span class="text-[10px] bg-emerald-500/15 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/30">💻 Terminal</span>';
+          else if (it.type === 'circuit') typeBadge = '<span class="text-[10px] bg-amber-500/15 text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/30">🔌 วงจร</span>';
+          else typeBadge = '<span class="text-[10px] bg-gray-500/15 text-gray-400 px-1.5 py-0.5 rounded border border-gray-500/30">📄 รายงาน</span>';
+
+          const personalizedDesc = it.desc
+            .replace(/{ID}/g, st.id)
+            .replace(/{LAST4}/g, st.last4)
+            .replace(/{NAME}/g, st.name_en.toUpperCase());
+
+          itemRow.innerHTML = `
+            <input type="checkbox" id="chk-${st.id}-${it.id}" class="mt-1 w-4 h-4 rounded text-sky-500 cursor-pointer accent-sky-500" ${isChecked ? 'checked' : ''} onchange="toggleItem('${st.id}', '${it.id}', this.checked)">
+            <label for="chk-${st.id}-${it.id}" class="flex-1 cursor-pointer select-none">
+              <div class="flex items-center gap-2">
+                <span class="font-semibold text-xs text-white">${it.title}</span>
+                ${typeBadge}
+              </div>
+              <p class="text-xs text-muted mt-0.5">${personalizedDesc}</p>
+            </label>
+          `;
+          itemsBox.appendChild(itemRow);
+        });
+
+        container.appendChild(card);
+      });
+    }
+
+    function toggleItem(stId, itemId, checked) {
+      localStorage.setItem(getStorageKey(stId, itemId), checked ? 'true' : 'false');
+      updateStats();
+      renderChecklist();
+    }
+
+    function updateStats() {
+      const st = STUDENTS[currentStudentIndex];
+      let total = 0, checked = 0;
+      let photoTotal = 0, photoChecked = 0;
+      let videoTotal = 0, videoChecked = 0;
+      let termTotal = 0, termChecked = 0;
+
+      WEEKS_DATA.forEach(w => {
+        w.items.forEach(it => {
+          total++;
+          const isDone = localStorage.getItem(getStorageKey(st.id, it.id)) === 'true';
+          if (isDone) checked++;
+
+          if (it.type === 'photo') {
+            photoTotal++;
+            if (isDone) photoChecked++;
+          } else if (it.type === 'video') {
+            videoTotal++;
+            if (isDone) videoChecked++;
+          } else if (it.type === 'terminal') {
+            termTotal++;
+            if (isDone) termChecked++;
+          }
+        });
+      });
+
+      const pct = total > 0 ? Math.round((checked / total) * 100) : 0;
+      document.getElementById('st-progress-pct').textContent = `${pct}%`;
+      document.getElementById('st-progress-bar').style.width = `${pct}%`;
+      document.getElementById('st-progress-count').textContent = `${checked} / ${total} รายการ`;
+
+      const statusEl = document.getElementById('st-progress-status');
+      if (pct === 100) {
+        statusEl.textContent = 'สมบูรณ์ครบ 100%';
+        statusEl.className = 'font-bold text-emerald-400';
+      } else if (pct > 50) {
+        statusEl.textContent = 'เกือบเสร็จแล้ว';
+        statusEl.className = 'font-medium text-sky-400';
+      } else {
+        statusEl.textContent = 'ยังไม่ครบ';
+        statusEl.className = 'font-medium text-amber-400';
+      }
+
+      document.getElementById('st-photo-stat').textContent = `${photoChecked}/${photoTotal}`;
+      document.getElementById('st-video-stat').textContent = `${videoChecked}/${videoTotal}`;
+      document.getElementById('st-terminal-stat').textContent = `${termChecked}/${termTotal}`;
+    }
+
+    function checkAllCurrentStudent(state) {
+      const st = STUDENTS[currentStudentIndex];
+      WEEKS_DATA.forEach(w => {
+        w.items.forEach(it => {
+          localStorage.setItem(getStorageKey(st.id, it.id), state ? 'true' : 'false');
+        });
+      });
+      renderChecklist();
+      updateStats();
+    }
+
+    function setFilter(filterType) {
+      currentFilter = filterType;
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById(`filter-${filterType}`);
+      if (activeBtn) activeBtn.classList.add('active');
+      renderChecklist();
+    }
+
+    function exportAuditReport() {
+      const st = STUDENTS[currentStudentIndex];
+      let reportText = `📋 สรุปผลการตรวจแล็บ IoT-App-2569\n`;
+      reportText += `นักศึกษา: ${st.name_th} (${st.name_en})\n`;
+      reportText += `รหัสประจำตัว: ${st.id}\n`;
+      reportText += `--------------------------------------------------\n`;
+
+      let total = 0, done = 0;
+      WEEKS_DATA.forEach(w => {
+        reportText += `\n[${w.title}]\n`;
+        w.items.forEach(it => {
+          total++;
+          const isDone = localStorage.getItem(getStorageKey(st.id, it.id)) === 'true';
+          if (isDone) done++;
+          reportText += `  ${isDone ? '[✓]' : '[ ]'} ${it.title} (${it.type})\n`;
+        });
+      });
+
+      reportText += `\n--------------------------------------------------\n`;
+      reportText += `ความสมบูรณ์โดยรวม: ${done}/${total} รายการ (${Math.round(done/total*100)}%)\n`;
+
+      navigator.clipboard.writeText(reportText).then(() => {
+        alert(`คัดลอกสรุปผลการตรวจของ ${st.name_th} (${st.id}) เรียบร้อยแล้ว! สามารถนำไปวางส่งอาจารย์หรือรายงานผลได้ทันที`);
+      });
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
