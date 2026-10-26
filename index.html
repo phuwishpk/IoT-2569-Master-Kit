@@ -209,21 +209,33 @@
         </div>
 
         <!-- Real-Time Cloud Sync Status Banner -->
-        <div class="mt-3 p-3 rounded-xl bg-gradient-to-r from-emerald-950/60 via-slate-900/95 to-sky-950/60 border border-emerald-500/40 flex flex-wrap items-center justify-between gap-2.5 text-xs shadow-lg">
-          <div class="flex items-center gap-2.5">
-            <span id="cloud-status-dot" class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400"></span>
-            <span class="text-emerald-300 font-bold flex items-center gap-1">
-              <span>☁️</span> Real-Time Cloud Sync (ซิงก์ข้อมูลเชื่อมถึงกันทุกเครื่องอัตโนมัติ)
-            </span>
-            <span id="storage-last-save" class="text-slate-300 text-[11px] font-mono">• กำลังเชื่อมต่อฐานข้อมูลกลาง...</span>
+        <div class="mt-3 p-3 rounded-xl bg-gradient-to-r from-emerald-950/60 via-slate-900/95 to-sky-950/60 border border-emerald-500/40 flex flex-col gap-2.5 text-xs shadow-lg">
+          <div class="flex flex-wrap items-center justify-between gap-2.5">
+            <div class="flex items-center gap-2.5">
+              <span id="cloud-status-dot" class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400"></span>
+              <span class="text-emerald-300 font-bold flex items-center gap-1">
+                <span>☁️</span> Real-Time Cloud Sync (เพิ่มหรือแก้ไขที่ใคร ซิงก์เหมือนกันทั้งหมดทุกเครื่องทันที!)
+              </span>
+              <span id="storage-last-save" class="text-slate-300 text-[11px] font-mono">• กำลังเชื่อมต่อฐานข้อมูลกลาง...</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="syncPoolAcrossAllStudentsNow(true)" class="px-2.5 py-1 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 border border-purple-500/40 text-[11px] font-semibold transition flex items-center gap-1 shadow-sm" title="รวมข้อมูลที่กรอกไว้จากทุกรายชื่อให้ซิงก์เหมือนกันครบทั้ง 9 คนทันที">
+                <span>⚡</span> รวมข้อมูลให้เหมือนกันครบทั้ง 9 คน
+              </button>
+              <button onclick="forceCloudPullAll()" class="px-2.5 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 text-[11px] font-semibold transition flex items-center gap-1" title="ดึงข้อมูลล่าสุดจาก Cloud ทันที">
+                <span>🔄</span> ดึงจาก Cloud
+              </button>
+              <button onclick="forceCloudPushCurrent()" class="px-2.5 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold transition flex items-center gap-1" title="บังคับส่งข้อมูลขึ้น Cloud ทันที">
+                <span>☁️</span> ซิงก์ขึ้น Cloud
+              </button>
+            </div>
           </div>
-          <div class="flex items-center gap-2">
-            <button onclick="forceCloudPullAll()" class="px-2.5 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 text-[11px] font-semibold transition flex items-center gap-1" title="ดึงข้อมูลล่าสุดของเพื่อนทุกคนจาก Cloud ทันที">
-              <span>🔄</span> ดึงข้อมูลล่าสุดจาก Cloud
-            </button>
-            <button onclick="forceCloudPushCurrent()" class="px-2.5 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold transition flex items-center gap-1" title="บังคับส่งข้อมูลของรหัสนี้ขึ้น Cloud ทันที">
-              <span>☁️</span> ซิงก์ขึ้น Cloud ทันที
-            </button>
+          <div class="pt-2 border-t border-emerald-500/20 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+            <label class="inline-flex items-center gap-2 cursor-pointer select-none text-emerald-200 font-semibold">
+              <input type="checkbox" id="toggle-sync-all-students" checked onchange="toggleSyncAllStudentsMode(this.checked)" class="w-4 h-4 rounded accent-emerald-500 cursor-pointer">
+              <span>🔗 โหมดซิงก์ข้อมูลเหมือนกันครบทั้ง 9 คนอัตโนมัติ (ไม่ว่าใครเพิ่ม ค่าที่วัด / Serial Log / รูป / คลิป จะซิงก์เข้าทุกคนและปรับรหัสนักศึกษาใน Log ให้อัตโนมัติ)</span>
+            </label>
+            <span class="text-slate-400 font-mono">✨ พิมพ์หรือวางปุ๊บ ซิงก์อัตโนมัติใน 0.3 วินาที</span>
           </div>
         </div>
 
@@ -1099,13 +1111,83 @@
       });
     }
 
+    let syncAllStudentsIdentical = true;
+    let initialMigrationCompleted = false;
+    let liveSaveTimer = null;
+
     function getStorageKey(stId) {
       return `iot_v2_data_${stId}`;
     }
 
+    function toggleSyncAllStudentsMode(enabled) {
+      syncAllStudentsIdentical = !!enabled;
+      if (syncAllStudentsIdentical) {
+        syncPoolAcrossAllStudentsNow(true);
+      } else {
+        showToast('ปรับเป็นโหมดบันทึกแยกเฉพาะรายบุคคลแล้ว');
+      }
+    }
+
+    function personalizeTextForStudent(rawText, targetSt) {
+      if (!rawText || typeof rawText !== 'string' || !targetSt || targetSt.id === '67030183' || targetSt.id === 'master') return rawText;
+      let out = rawText;
+      STUDENTS.forEach(src => {
+        if (!src || src.id === '67030183' || src.id === 'master' || src.id === targetSt.id) return;
+        out = out.split(src.id).join(targetSt.id);
+        if (src.folder && targetSt.folder) {
+          out = out.split(src.folder).join(targetSt.folder);
+        }
+        if (src.name_en && targetSt.name_en) {
+          out = out.split(src.name_en).join(targetSt.name_en);
+        }
+        if (src.name_th && targetSt.name_th) {
+          out = out.split(src.name_th).join(targetSt.name_th);
+        }
+        if (src.last4 && targetSt.last4) {
+          out = out.split('ESP32_AP_' + src.last4).join('ESP32_AP_' + targetSt.last4);
+          out = out.split('_' + src.last4).join('_' + targetSt.last4);
+          out = out.split('/' + src.last4).join('/' + targetSt.last4);
+        }
+      });
+      return out;
+    }
+
+    function cloneAndPersonalizeDataset(sourceData, targetSt, isoTimestamp) {
+      const src = sourceData || { sublabs: {} };
+      const out = {
+        lastUpdated: isoTimestamp || src.lastUpdated || new Date().toISOString(),
+        updatedByClient: CLIENT_INSTANCE_ID,
+        weekLogs: {},
+        sublabs: {}
+      };
+
+      if (src.weekLogs) {
+        Object.keys(src.weekLogs).forEach(w => {
+          out.weekLogs[w] = personalizeTextForStudent(src.weekLogs[w] || '', targetSt);
+        });
+      }
+
+      if (src.sublabs) {
+        Object.keys(src.sublabs).forEach(subId => {
+          const sd = src.sublabs[subId] || {};
+          out.sublabs[subId] = {
+            completed: !!sd.completed,
+            terminalLog: personalizeTextForStudent(sd.terminalLog || '', targetSt),
+            notes: personalizeTextForStudent(sd.notes || '', targetSt),
+            imageUrl: sd.imageUrl || '',
+            videoUrl: sd.videoUrl || '',
+            metrics: Object.assign({}, sd.metrics || {}),
+            photos: Object.assign({}, sd.photos || {}),
+            videos: Object.assign({}, sd.videos || {})
+          };
+        });
+      }
+      return out;
+    }
+
     function mergeStudentDatasets(localObj, cloudObj) {
-      if (!localObj || !localObj.sublabs) return cloudObj || { sublabs: {} };
-      if (!cloudObj || !cloudObj.sublabs) return localObj || { sublabs: {} };
+      if (!localObj || (!localObj.sublabs && !localObj.weekLogs)) return cloudObj || { sublabs: {} };
+      if (!cloudObj || (!cloudObj.sublabs && !cloudObj.weekLogs)) return localObj || { sublabs: {} };
 
       const cloudNewer = (cloudObj.lastUpdated || '') >= (localObj.lastUpdated || '');
       const primary = cloudNewer ? cloudObj : localObj;
@@ -1114,9 +1196,19 @@
       const merged = {
         lastUpdated: primary.lastUpdated || secondary.lastUpdated || new Date().toISOString(),
         updatedByClient: primary.updatedByClient || secondary.updatedByClient || '',
-        weekLogs: Object.assign({}, secondary.weekLogs || {}, primary.weekLogs || {}),
+        weekLogs: {},
         sublabs: {}
       };
+
+      const allWKeys = new Set([
+        ...Object.keys(secondary.weekLogs || {}),
+        ...Object.keys(primary.weekLogs || {})
+      ]);
+      allWKeys.forEach(w => {
+        const pVal = primary.weekLogs && primary.weekLogs[w];
+        const sVal = secondary.weekLogs && secondary.weekLogs[w];
+        merged.weekLogs[w] = (pVal !== undefined && pVal !== '') ? pVal : (sVal || '');
+      });
 
       const allSubIds = new Set([
         ...Object.keys(localObj.sublabs || {}),
@@ -1176,37 +1268,67 @@
     }
 
     function hasAnyStudentContent(data) {
-      if (!data || !data.sublabs) return false;
+      if (!data) return false;
+      if (data.weekLogs && Object.values(data.weekLogs).some(v => v && String(v).trim() !== '')) return true;
+      if (!data.sublabs) return false;
       for (const sd of Object.values(data.sublabs)) {
         if (!sd) continue;
         if (sd.completed) return true;
         if (sd.terminalLog && sd.terminalLog.trim() !== '') return true;
         if (sd.notes && sd.notes.trim() !== '') return true;
-        if (sd.metrics && Object.values(sd.metrics).some(v => v && v.trim() !== '')) return true;
-        if (sd.photos && Object.values(sd.photos).some(v => v && v.trim() !== '')) return true;
-        if (sd.videos && Object.values(sd.videos).some(v => v && v.trim() !== '')) return true;
+        if (sd.metrics && Object.values(sd.metrics).some(v => v && String(v).trim() !== '')) return true;
+        if (sd.photos && Object.values(sd.photos).some(v => v && String(v).trim() !== '')) return true;
+        if (sd.videos && Object.values(sd.videos).some(v => v && String(v).trim() !== '')) return true;
       }
-      if (data.weekLogs && Object.values(data.weekLogs).some(v => v && v.trim() !== '')) return true;
       return false;
+    }
+
+    function countFilledFields(data) {
+      if (!data) return 0;
+      let count = 0;
+      if (data.weekLogs) {
+        Object.values(data.weekLogs).forEach(v => { if (v && String(v).trim() !== '') count++; });
+      }
+      if (data.sublabs) {
+        Object.values(data.sublabs).forEach(sd => {
+          if (!sd) return;
+          if (sd.completed) count++;
+          if (sd.terminalLog && sd.terminalLog.trim() !== '') count++;
+          if (sd.notes && sd.notes.trim() !== '') count++;
+          if (sd.imageUrl && sd.imageUrl.trim() !== '') count++;
+          if (sd.videoUrl && sd.videoUrl.trim() !== '') count++;
+          if (sd.metrics) Object.values(sd.metrics).forEach(v => { if (v && String(v).trim() !== '') count++; });
+          if (sd.photos) Object.values(sd.photos).forEach(v => { if (v && String(v).trim() !== '') count++; });
+          if (sd.videos) Object.values(sd.videos).forEach(v => { if (v && String(v).trim() !== '') count++; });
+        });
+      }
+      return count;
+    }
+
+    function getRawLocalAndMemoryData(stId) {
+      let rawParsed = { sublabs: {} };
+      try {
+        const raw = localStorage.getItem(getStorageKey(stId)) || localStorage.getItem(`iot_checklist_v1_${stId}`);
+        if (raw) rawParsed = JSON.parse(raw);
+        if (!rawParsed.sublabs) rawParsed.sublabs = {};
+      } catch (e) {}
+      if (cloudDataCache[stId]) {
+        return mergeStudentDatasets(rawParsed, cloudDataCache[stId]);
+      }
+      cloudDataCache[stId] = rawParsed;
+      return rawParsed;
     }
 
     function getStudentData(stId) {
       if (cloudDataCache[stId]) {
+        if (!cloudDataCache[stId].sublabs) cloudDataCache[stId].sublabs = {};
         return cloudDataCache[stId];
       }
-      try {
-        const raw = localStorage.getItem(getStorageKey(stId));
-        const parsed = raw ? JSON.parse(raw) : { sublabs: {} };
-        if (!parsed.sublabs) parsed.sublabs = {};
-        cloudDataCache[stId] = parsed;
-        return parsed;
-      } catch (e) {
-        console.error("Storage read error", e);
-        return { sublabs: {} };
-      }
+      return getRawLocalAndMemoryData(stId);
     }
 
     function saveLocalQuietly(stId, data) {
+      if (!data.sublabs) data.sublabs = {};
       cloudDataCache[stId] = data;
       try {
         localStorage.setItem(getStorageKey(stId), JSON.stringify(data));
@@ -1236,12 +1358,89 @@
       }
     }
 
+    async function pushAllStudentsMapToCloud(allMap, isoTime) {
+      updateStorageStatusBanner(isoTime, 'syncing');
+      try {
+        if (firebaseDb) {
+          await firebaseDb.ref('iot_2569_students').update(allMap);
+        } else {
+          await fetch(`${CLOUD_DB_URL}/iot_2569_students.json`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(allMap)
+          });
+        }
+        isCloudConnected = true;
+        updateStorageStatusBanner(isoTime, 'synced');
+        updateStudentPillsBadges();
+      } catch (err) {
+        console.error("Batch cloud push error:", err);
+        updateStorageStatusBanner(isoTime, 'error');
+      }
+    }
+
     function saveStudentData(stId, data) {
-      data.lastUpdated = new Date().toISOString();
+      const nowIso = new Date().toISOString();
+      data.lastUpdated = nowIso;
+      data.updatedByClient = CLIENT_INSTANCE_ID;
+
+      if (syncAllStudentsIdentical) {
+        const batchMap = {};
+        STUDENTS.forEach(targetSt => {
+          const cloned = cloneAndPersonalizeDataset(data, targetSt, nowIso);
+          saveLocalQuietly(targetSt.id, cloned);
+          batchMap[targetSt.id] = cloned;
+        });
+        updateStudentPillsBadges();
+        pushAllStudentsMapToCloud(batchMap, nowIso);
+      } else {
+        saveLocalQuietly(stId, data);
+        updateStudentPillsBadges();
+        pushStudentDataToCloud(stId, data);
+      }
+    }
+
+    function scheduleDebouncedCloudSave(stId, data) {
+      const nowIso = new Date().toISOString();
+      data.lastUpdated = nowIso;
       data.updatedByClient = CLIENT_INSTANCE_ID;
       saveLocalQuietly(stId, data);
+      if (liveSaveTimer) clearTimeout(liveSaveTimer);
+      liveSaveTimer = setTimeout(() => {
+        saveStudentData(stId, data);
+      }, 350);
+    }
+
+    async function syncPoolAcrossAllStudentsNow(showToastMsg) {
+      let unifiedPool = { sublabs: {}, weekLogs: {} };
+      // Merge all students in order, giving the currently active student highest priority
+      STUDENTS.forEach(st => {
+        if (st.id !== STUDENTS[currentStudentIndex].id) {
+          unifiedPool = mergeStudentDatasets(unifiedPool, getStudentData(st.id));
+        }
+      });
+      const curSt = STUDENTS[currentStudentIndex];
+      const curData = getStudentData(curSt.id);
+      curData.lastUpdated = new Date().toISOString();
+      unifiedPool = mergeStudentDatasets(unifiedPool, curData);
+
+      if (!hasAnyStudentContent(unifiedPool) && !showToastMsg) return;
+
+      const nowIso = new Date().toISOString();
+      const batchMap = {};
+      STUDENTS.forEach(targetSt => {
+        const cloned = cloneAndPersonalizeDataset(unifiedPool, targetSt, nowIso);
+        saveLocalQuietly(targetSt.id, cloned);
+        batchMap[targetSt.id] = cloned;
+      });
       updateStudentPillsBadges();
-      pushStudentDataToCloud(stId, data);
+      updateStats();
+      renderWeeksAccordion();
+      renderCommandsView();
+      await pushAllStudentsMapToCloud(batchMap, nowIso);
+      if (showToastMsg) {
+        showToast('⚡ รวมและซิงก์ข้อมูลให้เหมือนกันครบทั้ง 9 คนเรียบร้อย!');
+      }
     }
 
     function updateStorageStatusBanner(isoDate, mode) {
@@ -1251,113 +1450,131 @@
 
       const timeStr = isoDate ? new Date(isoDate).toLocaleTimeString('th-TH') : new Date().toLocaleTimeString('th-TH');
       if (mode === 'syncing') {
-        el.textContent = `• ⏳ กำลังซิงก์ข้อมูลขึ้น Cloud...`;
+        el.textContent = `• ⏳ กำลังซิงก์ข้อมูลให้ทุกคนบน Cloud...`;
         if (dot) dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping';
       } else if (mode === 'remote') {
-        el.textContent = `• ☁️ ซิงก์ข้อมูล Real-time ล่าสุดจากเพื่อนเมื่อ ${timeStr}`;
+        el.textContent = `• ☁️ ซิงก์ข้อมูล Real-time ล่าสุดตรงกันทุกเครื่องเมื่อ ${timeStr}`;
         if (dot) dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400';
       } else if (mode === 'error') {
         el.textContent = `• ⚠️ บันทึกลงเครื่องแล้ว (รอการเชื่อมต่อ Cloud) ${timeStr}`;
         if (dot) dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-rose-400';
       } else if (isoDate) {
-        el.textContent = `• ☁️ ซิงก์ออนไลน์ตรงกันทุกเครื่องแล้วเมื่อ ${timeStr}`;
+        el.textContent = `• ☁️ ซิงก์ออนไลน์เหมือนกันทั้งหมดแล้วเมื่อ ${timeStr}`;
         if (dot) dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400';
       } else {
-        el.textContent = isCloudConnected ? `• ☁️ เชื่อมต่อฐานข้อมูลกลางสำเร็จ (พร้อมซิงก์ Real-Time)` : `• พร้อมใช้งาน`;
+        el.textContent = isCloudConnected ? `• ☁️ เชื่อมต่อฐานข้อมูลกลางสำเร็จ (ซิงก์ทุกคนอัตโนมัติ)` : `• พร้อมใช้งาน`;
       }
-    }
-
-    function countFilledFields(data) {
-      if (!data) return 0;
-      let count = 0;
-      if (data.weekLogs) {
-        Object.values(data.weekLogs).forEach(v => { if (v && String(v).trim() !== '') count++; });
-      }
-      if (data.sublabs) {
-        Object.values(data.sublabs).forEach(sd => {
-          if (!sd) return;
-          if (sd.completed) count++;
-          if (sd.terminalLog && sd.terminalLog.trim() !== '') count++;
-          if (sd.notes && sd.notes.trim() !== '') count++;
-          if (sd.imageUrl && sd.imageUrl.trim() !== '') count++;
-          if (sd.videoUrl && sd.videoUrl.trim() !== '') count++;
-          if (sd.metrics) Object.values(sd.metrics).forEach(v => { if (v && String(v).trim() !== '') count++; });
-          if (sd.photos) Object.values(sd.photos).forEach(v => { if (v && String(v).trim() !== '') count++; });
-          if (sd.videos) Object.values(sd.videos).forEach(v => { if (v && String(v).trim() !== '') count++; });
-        });
-      }
-      return count;
-    }
-
-    function getRawLocalAndMemoryData(stId) {
-      let rawParsed = { sublabs: {} };
-      try {
-        const raw = localStorage.getItem(getStorageKey(stId));
-        if (raw) rawParsed = JSON.parse(raw);
-        if (!rawParsed.sublabs) rawParsed.sublabs = {};
-      } catch (e) {}
-      if (cloudDataCache[stId]) {
-        return mergeStudentDatasets(rawParsed, cloudDataCache[stId]);
-      }
-      cloudDataCache[stId] = rawParsed;
-      return rawParsed;
     }
 
     function applyIncomingCloudMap(allCloudData, isManualRefresh) {
       const safeCloudMap = (allCloudData && typeof allCloudData === 'object') ? allCloudData : {};
-      let activeStUpdatedRemotely = false;
+      let anyUpdatedRemotely = false;
+      let needsUnifiedBroadcast = false;
       const currentStId = STUDENTS[currentStudentIndex].id;
 
-      STUDENTS.forEach(st => {
-        const cData = safeCloudMap[st.id];
-        const lData = getRawLocalAndMemoryData(st.id);
+      if (!initialMigrationCompleted) {
+        // First load: merge any pre-existing localStorage data with Cloud data across all students
+        let unionPool = { sublabs: {}, weekLogs: {} };
+        let maxCloudCount = 0;
 
-        if (cData && (cData.sublabs || cData.weekLogs)) {
+        STUDENTS.forEach(st => {
+          const cData = safeCloudMap[st.id];
+          const lData = getRawLocalAndMemoryData(st.id);
+          const cCount = countFilledFields(cData);
+          if (cCount > maxCloudCount) maxCloudCount = cCount;
           const merged = mergeStudentDatasets(lData, cData);
-          const mergedCount = countFilledFields(merged);
-          const cloudCount = countFilledFields(cData);
-          const localCount = countFilledFields(lData);
+          saveLocalQuietly(st.id, merged);
+          unionPool = mergeStudentDatasets(unionPool, merged);
+        });
 
-          if (mergedCount > cloudCount) {
-            // Local storage had previously saved fields not yet in Cloud -> push merged up to Cloud!
-            merged.lastUpdated = new Date().toISOString();
-            merged.updatedByClient = CLIENT_INSTANCE_ID;
-            saveLocalQuietly(st.id, merged);
-            pushStudentDataToCloud(st.id, merged);
-            if (st.id === currentStId) activeStUpdatedRemotely = true;
-          } else if (mergedCount > localCount || (cData.updatedByClient !== CLIENT_INSTANCE_ID && cData.lastUpdated !== lData.lastUpdated)) {
-            saveLocalQuietly(st.id, merged);
-            if (st.id === currentStId) activeStUpdatedRemotely = true;
+        const unionCount = countFilledFields(unionPool);
+        if (syncAllStudentsIdentical && unionCount > 0) {
+          const nowIso = new Date().toISOString();
+          const batchMap = {};
+          let anyStudentBehind = false;
+          STUDENTS.forEach(targetSt => {
+            const curCount = countFilledFields(safeCloudMap[targetSt.id]);
+            if (curCount < unionCount) anyStudentBehind = true;
+            const cloned = cloneAndPersonalizeDataset(unionPool, targetSt, unionPool.lastUpdated || nowIso);
+            saveLocalQuietly(targetSt.id, cloned);
+            batchMap[targetSt.id] = cloned;
+          });
+          if (anyStudentBehind) {
+            pushAllStudentsMapToCloud(batchMap, nowIso);
           }
-        } else if (hasAnyStudentContent(lData)) {
-          // Local has data that is not in Cloud yet -> upload to Cloud automatically!
-          pushStudentDataToCloud(st.id, lData);
+          anyUpdatedRemotely = true;
         }
-      });
+        initialMigrationCompleted = true;
+      } else {
+        // Live real-time update after initial migration
+        let newestRemoteStudentData = null;
+        let newestRemoteTime = '';
+
+        STUDENTS.forEach(st => {
+          const cData = safeCloudMap[st.id];
+          const lData = getStudentData(st.id);
+          if (cData && (cData.sublabs || cData.weekLogs)) {
+            const isDifferentTime = cData.lastUpdated && cData.lastUpdated !== lData.lastUpdated;
+            const isFromOther = cData.updatedByClient !== CLIENT_INSTANCE_ID;
+            if (isDifferentTime && (isFromOther || isManualRefresh)) {
+              if (! cData.sublabs) cData.sublabs = {};
+              saveLocalQuietly(st.id, cData);
+              anyUpdatedRemotely = true;
+              if ((cData.lastUpdated || '') >= newestRemoteTime) {
+                newestRemoteTime = cData.lastUpdated || '';
+                newestRemoteStudentData = cData;
+              }
+            }
+          }
+        });
+
+        // If syncAllStudentsIdentical is enabled and a single student was updated remotely by an older client, mirror to all locally
+        if (syncAllStudentsIdentical && newestRemoteStudentData) {
+          STUDENTS.forEach(targetSt => {
+            const cur = getStudentData(targetSt.id);
+            if ((cur.lastUpdated || '') < newestRemoteTime) {
+              const cloned = cloneAndPersonalizeDataset(newestRemoteStudentData, targetSt, newestRemoteTime);
+              saveLocalQuietly(targetSt.id, cloned);
+            }
+          });
+        }
+      }
 
       updateStudentPillsBadges();
 
-      if (activeStUpdatedRemotely || isManualRefresh) {
+      if (anyUpdatedRemotely || isManualRefresh) {
         const curData = getStudentData(currentStId);
         updateStorageStatusBanner(curData.lastUpdated, 'remote');
         updateStats();
         const activeTag = document.activeElement ? document.activeElement.tagName : '';
-        if (activeTag !== 'INPUT' && activeTag !== 'TEXTAREA' || isManualRefresh) {
+        if ((activeTag !== 'INPUT' && activeTag !== 'TEXTAREA') || isManualRefresh) {
           renderWeeksAccordion();
           renderCommandsView();
         }
       }
     }
 
+    async function pollCloudLatestQuietly() {
+      if (liveSaveTimer) return; // Do not poll while local debounce save is pending
+      try {
+        const resp = await fetch(`${CLOUD_DB_URL}/iot_2569_students.json`);
+        if (resp.ok) {
+          const allCloudData = await resp.json();
+          isCloudConnected = true;
+          applyIncomingCloudMap(allCloudData || {}, false);
+        }
+      } catch (e) {}
+    }
+
     async function forceCloudPullAll() {
-      showToast('🔄 กำลังดึงข้อมูลล่าสุดของทุกคนจาก Cloud...');
+      showToast('🔄 กำลังดึงข้อมูลล่าสุดจาก Cloud...');
       try {
         const resp = await fetch(`${CLOUD_DB_URL}/iot_2569_students.json`);
         if (resp.ok) {
           const allCloudData = await resp.json();
           isCloudConnected = true;
           applyIncomingCloudMap(allCloudData || {}, true);
-          showToast('☁️ ดึงและผสานข้อมูลล่าสุดจาก Cloud เรียบร้อย!');
+          showToast('☁️ ดึงและซิงก์ข้อมูลล่าสุดจาก Cloud เรียบร้อย!');
         }
       } catch (err) {
         console.error("Cloud pull error:", err);
@@ -1366,6 +1583,10 @@
     }
 
     async function forceCloudPushCurrent() {
+      if (syncAllStudentsIdentical) {
+        await syncPoolAcrossAllStudentsNow(true);
+        return;
+      }
       let pushedCount = 0;
       for (const st of STUDENTS) {
         const sData = getRawLocalAndMemoryData(st.id);
@@ -1408,6 +1629,9 @@
       } catch (e) {
         console.warn("Firebase WebSocket listener setup warning:", e);
       }
+
+      // 3. Fallback 4-second periodic sync in case WebSocket is blocked by firewall
+      setInterval(pollCloudLatestQuietly, 4000);
     }
 
     function loadStudent(idx) {
@@ -1537,6 +1761,21 @@
       const st = STUDENTS[currentStudentIndex];
       const sData = getStudentData(st.id);
       const container = document.getElementById('weeks-accordion-container');
+
+      const collapsedWeeks = new Set();
+      const openCircuits = new Set();
+      const openCmdBoxes = new Set();
+      WEEKS_DATA.forEach(w => {
+        const wb = document.getElementById('week-body-' + w.week);
+        if (wb && wb.classList.contains('hidden')) collapsedWeeks.add(String(w.week));
+        const cb = document.getElementById('circuit-box-' + w.week);
+        if (cb && !cb.classList.contains('hidden')) openCircuits.add(String(w.week));
+        w.sublabs.forEach(sub => {
+          const cmdb = document.getElementById('card-cmd-box-' + sub.id);
+          if (cmdb && !cmdb.classList.contains('hidden')) openCmdBoxes.add(sub.id);
+        });
+      });
+
       container.innerHTML = '';
 
       let totalVisibleSublabs = 0;
@@ -1652,7 +1891,7 @@
                         rows="4"
                         placeholder="วางข้อความ Serial Monitor ทั้งหมดของสัปดาห์นี้ที่นี่ (Ctrl+A -> Ctrl+C จาก Terminal แล้ววางเลย)..."
                         class="w-full bg-black/70 border border-slate-800 rounded-lg p-2.5 text-xs text-emerald-400 font-mono focus:border-sky-500 focus:outline-none custom-scrollbar resize-y"
-                        onchange="saveWeekLog('${w.week}', this.value)">${sData.weekLogs && sData.weekLogs[w.week] ? sData.weekLogs[w.week] : ''}</textarea>
+                        oninput="saveWeekLogLive('${w.week}', this.value)" onchange="saveWeekLog('${w.week}', this.value)">${sData.weekLogs && sData.weekLogs[w.week] ? sData.weekLogs[w.week] : ''}</textarea>
               <div class="flex items-center justify-between text-[10px] text-muted font-mono">
                 <span>สถานะ: <b class="${sData.weekLogs && sData.weekLogs[w.week] ? 'text-emerald-400' : 'text-slate-500'}">${sData.weekLogs && sData.weekLogs[w.week] ? 'บันทึกแล้ว (' + sData.weekLogs[w.week].length + ' ตัวอักษร)' : 'ยังไม่มีข้อมูล'}</b></span>
                 ${sData.weekLogs && sData.weekLogs[w.week] ? `<button onclick="clearWeekLog('${w.week}')" class="text-rose-400 hover:text-rose-300">ล้างข้อความ ✕</button>` : ''}
@@ -2007,7 +2246,7 @@
                                    value="${isPhotoFilled && !pVal.startsWith('data:') ? pVal : ''}"
                                    placeholder="แปะลิงก์รูป (URL/Drive)..."
                                    class="flex-1 bg-background border ${isNameReq && !isPhotoFilled ? 'border-rose-500/40 focus:border-rose-400' : 'border-border focus:border-sky-400'} rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none"
-                                   onchange="saveSublabPhoto('${sub.id}', '${p.id}', this.value)">
+                                   oninput="saveSublabPhotoLive('${sub.id}', '${p.id}', this.value)" onchange="saveSublabPhoto('${sub.id}', '${p.id}', this.value)">
                             
                             <label class="px-2.5 py-1.5 rounded-lg border ${isNameReq && !isPhotoFilled ? 'border-rose-500/50 bg-rose-950/40 hover:bg-rose-900/50 text-rose-200' : 'border-border bg-slate-800 hover:bg-slate-700 text-slate-300'} text-xs cursor-pointer transition flex items-center gap-1.5 shadow-sm whitespace-nowrap" title="อัปโหลดรูปภาพ รองรับ JPG, PNG, และ HEIC ของ iPhone">
                               <span>📁</span>
@@ -2083,7 +2322,7 @@
                                      value="${vVal}"
                                      placeholder="แปะลิงก์ YouTube / Google Drive / Loom..."
                                      class="flex-1 bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:border-purple-400 focus:outline-none"
-                                     onchange="saveSublabVideo('${sub.id}', '${v.id}', this.value)">
+                                     oninput="saveSublabVideoLive('${sub.id}', '${v.id}', this.value)" onchange="saveSublabVideo('${sub.id}', '${v.id}', this.value)">
                               ${isVideoFilled ? `
                                 <a href="${vVal}" target="_blank"
                                    class="px-2.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold flex items-center gap-1 transition shadow-sm whitespace-nowrap">
@@ -2133,7 +2372,7 @@
                               rows="6"
                               placeholder="${sub.termMeta && sub.termMeta.placeholder ? sub.termMeta.placeholder.split(String.fromCharCode(10))[0] + '...' : (sub.termPlaceholder || 'วางข้อความ Log ที่ก๊อปปี้มาจาก Terminal หรือ Serial Monitor ที่นี่...')}"
                               class="w-full bg-black/60 border border-border rounded-lg p-2.5 text-xs text-emerald-400 font-mono focus:border-emerald-500 focus:outline-none custom-scrollbar resize-y"
-                              onchange="saveSublabField('${sub.id}', 'terminalLog', this.value)">${terminalLog}</textarea>
+                              oninput="saveSublabFieldLive('${sub.id}', 'terminalLog', this.value)" onchange="saveSublabField('${sub.id}', 'terminalLog', this.value)">${terminalLog}</textarea>
                   </div>
                   <div class="flex items-center justify-between text-[10px] text-muted font-mono pt-1 border-t border-border/40">
                     <span class="truncate mr-2 font-medium">${sub.termLabel}</span>
@@ -2156,6 +2395,27 @@
       });
 
       document.getElementById('sublabs-count-display').textContent = totalVisibleSublabs;
+
+      collapsedWeeks.forEach(wk => {
+        const wb = document.getElementById('week-body-' + wk);
+        const icon = document.getElementById('icon-week-body-' + wk);
+        if (wb) wb.classList.add('hidden');
+        if (icon) icon.style.transform = 'rotate(-90deg)';
+      });
+      openCircuits.forEach(wk => {
+        const cb = document.getElementById('circuit-box-' + wk);
+        const arrow = document.getElementById('circuit-arrow-circuit-box-' + wk);
+        const txt = document.getElementById('circuit-text-circuit-box-' + wk);
+        if (cb) cb.classList.remove('hidden');
+        if (arrow) arrow.textContent = '▲';
+        if (txt) txt.textContent = 'ซ่อนผังวงจร';
+      });
+      openCmdBoxes.forEach(subId => {
+        const cmdb = document.getElementById('card-cmd-box-' + subId);
+        const arrow = document.getElementById('cmd-arrow-' + subId);
+        if (cmdb) cmdb.classList.remove('hidden');
+        if (arrow) arrow.textContent = '▲';
+      });
     }
 
     function toggleWeekCircuit(id) {
@@ -2317,7 +2577,54 @@
       if (!sData.sublabs[subId]) sData.sublabs[subId] = {};
       if (!sData.sublabs[subId].metrics) sData.sublabs[subId].metrics = {};
       sData.sublabs[subId].metrics[metricKey] = value.trim();
-      saveStudentData(st.id, sData);
+      scheduleDebouncedCloudSave(st.id, sData);
+      updateStats();
+    }
+
+    function saveSublabFieldLive(subId, field, value) {
+      const st = STUDENTS[currentStudentIndex];
+      const sData = getStudentData(st.id);
+      if (!sData.sublabs[subId]) sData.sublabs[subId] = {};
+      sData.sublabs[subId][field] = value.trim();
+      if (field === 'terminalLog') {
+        const cEl = document.getElementById('term-chars-' + subId);
+        if (cEl) cEl.textContent = value.trim().length + ' ตัวอักษร';
+      }
+      checkSublabAutoCompletion(subId, sData);
+      scheduleDebouncedCloudSave(st.id, sData);
+      updateStats();
+    }
+
+    function saveSublabPhotoLive(subId, photoId, value) {
+      const st = STUDENTS[currentStudentIndex];
+      const sData = getStudentData(st.id);
+      if (!sData.sublabs[subId]) sData.sublabs[subId] = {};
+      if (!sData.sublabs[subId].photos) sData.sublabs[subId].photos = {};
+      sData.sublabs[subId].photos[photoId] = value.trim();
+      if (photoId === 'p1') sData.sublabs[subId].imageUrl = value.trim();
+      checkSublabAutoCompletion(subId, sData);
+      scheduleDebouncedCloudSave(st.id, sData);
+      updateStats();
+    }
+
+    function saveSublabVideoLive(subId, videoId, value) {
+      const st = STUDENTS[currentStudentIndex];
+      const sData = getStudentData(st.id);
+      if (!sData.sublabs[subId]) sData.sublabs[subId] = {};
+      if (!sData.sublabs[subId].videos) sData.sublabs[subId].videos = {};
+      sData.sublabs[subId].videos[videoId] = value.trim();
+      if (videoId === 'v1') sData.sublabs[subId].videoUrl = value.trim();
+      checkSublabAutoCompletion(subId, sData);
+      scheduleDebouncedCloudSave(st.id, sData);
+      updateStats();
+    }
+
+    function saveWeekLogLive(week, text) {
+      const st = STUDENTS[currentStudentIndex];
+      const sData = getStudentData(st.id);
+      if (!sData.weekLogs) sData.weekLogs = {};
+      sData.weekLogs[week] = text.trim();
+      scheduleDebouncedCloudSave(st.id, sData);
       updateStats();
     }
 
