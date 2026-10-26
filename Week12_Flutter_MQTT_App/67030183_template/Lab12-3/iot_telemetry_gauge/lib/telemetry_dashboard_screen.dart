@@ -5,6 +5,9 @@ import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'radial_gauge_widget.dart';
 
+// รหัส/ชื่อผู้รัน ส่งตอน build ด้วย --dart-define=STUDENT="รหัส ชื่อ" (ว่างได้)
+const String _studentLabel = String.fromEnvironment('STUDENT');
+
 class TelemetryDashboardScreen extends StatefulWidget {
   final String brokerIp;
   const TelemetryDashboardScreen({super.key, required this.brokerIp});
@@ -87,7 +90,7 @@ class _TelemetryDashboardScreenState extends State<TelemetryDashboardScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
       appBar: AppBar(
-        title: const Text('Real-time Telemetry Dashboard'),
+        title: Text(_studentLabel.isEmpty ? 'Real-time Telemetry Dashboard' : 'Real-time Telemetry Dashboard — $_studentLabel'),
         backgroundColor: const Color(0xFF1E293B),
         actions: [
           Padding(
