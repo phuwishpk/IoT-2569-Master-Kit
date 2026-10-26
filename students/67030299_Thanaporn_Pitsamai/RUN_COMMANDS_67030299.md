@@ -58,22 +58,22 @@ python3 setup_friend.py --id 67030299 --name-en "Thanaporn Pitsamai" --name-th "
 
 #### 1. Lab 2.1: ควบคุมไฟ LED หรี่แสง (PWM Breathing)
 ```bash
-cd Week02_POT_and_LED/ESP32_Project/LED_Blink
+cd Week02_POT_and_LED/ESP32_Project/Lab2-1_LED_Blink 2>/dev/null || cd Week02_POT_and_LED/ESP32_Project/LED_Blink
 idf.py set-target esp32
 idf.py build
 idf.py -p <PORT> flash monitor
 ```
 
-#### 2. Lab 2.2: อ่านค่ามุมการหมุนของ Potentiometer 10k (0° ถึง 180°)
+#### 2. Lab 2.2: อ่านค่าแรงดันไฟฟ้าและ ADC Raw จาก Potentiometer 10k
 ```bash
-cd Week02_POT_and_LED/ESP32_Project/POT_Angle_Measure
+cd Week02_POT_and_LED/ESP32_Project/Lab2-2_POT_ADC_Read 2>/dev/null || cd Week02_POT_and_LED/ESP32_Project/POT_ADC_Read
 idf.py build
 idf.py -p <PORT> flash monitor
 ```
 
-#### 3. Lab 2.3: ปรับมุม POT หรี่ไฟ LED แบบเรียลไทม์
+#### 3. Lab 2.3: อ่านค่ามุมการหมุน (0° ถึง 180°) และหรี่ไฟ LED
 ```bash
-cd Week02_POT_and_LED/ESP32_Project/POT_ADC_Read
+cd Week02_POT_and_LED/ESP32_Project/Lab2-3_POT_Angle_Measure 2>/dev/null || cd Week02_POT_and_LED/ESP32_Project/POT_Angle_Measure
 idf.py build
 idf.py -p <PORT> flash monitor
 ```
@@ -111,21 +111,21 @@ idf.py -p <PORT> flash monitor
 
 #### 1. Lab 4.1: Hardware Timer Interrupts
 ```bash
-cd Week04_RGB_Color_Sensing/Lab1
+cd Week04_RGB_Color_Sensing/Lab4-1_Hardware_Timer 2>/dev/null || cd Week04_RGB_Color_Sensing/Lab1
 idf.py build
 idf.py -p <PORT> flash monitor
 ```
 
 #### 2. Lab 4.2: ผสมสีแม่สี RGB LED 7 เฉดสี
 ```bash
-cd Week04_RGB_Color_Sensing/Lab2
+cd Week04_RGB_Color_Sensing/Lab4-2_RGB_Color_Mixing 2>/dev/null || cd Week04_RGB_Color_Sensing/Lab2
 idf.py build
 idf.py -p <PORT> flash monitor
 ```
 
 #### 3. Lab 4.3: ตรวจจับสีวัตถุด้วยการวัดแสงสะท้อน LDR
 ```bash
-cd Week04_RGB_Color_Sensing/Lab3
+cd Week04_RGB_Color_Sensing/Lab4-3_Color_Classifier 2>/dev/null || cd Week04_RGB_Color_Sensing/Lab3
 idf.py build
 idf.py -p <PORT> flash monitor
 ```
@@ -137,14 +137,28 @@ idf.py -p <PORT> flash monitor
 
 #### 1. Lab 5.1: สแกนโครงข่าย Wi-Fi ทั้งหมด
 ```bash
-cd Week05_WiFi_ESP32/67030299_template/lab1 2>/dev/null || cd Week05_WiFi_ESP32/67030183_template/lab1
+cd Week05_WiFi_ESP32/67030299_template/Lab5-1_WiFi_Scan 2>/dev/null || cd Week05_WiFi_ESP32/67030299_template/lab1
 idf.py build
 idf.py -p <PORT> flash monitor
 ```
 
-#### 2. Lab 5.2 - 5.4: เชื่อมต่อ Wi-Fi และแสดง Reason Code ตอนหลุด
+#### 2. Lab 5.2: เชื่อมต่อสถานี Wi-Fi Station
 ```bash
-cd Week05_WiFi_ESP32/67030299_template/lab2 2>/dev/null || cd Week05_WiFi_ESP32/67030183_template/lab2
+cd Week05_WiFi_ESP32/67030299_template/Lab5-2_WiFi_STA_Connect 2>/dev/null || cd Week05_WiFi_ESP32/67030299_template/lab2
+idf.py build
+idf.py -p <PORT> flash monitor
+```
+
+#### 3. Lab 5.3: ตรวจสอบ Reason Code ตอนสัญญาณหลุด
+```bash
+cd Week05_WiFi_ESP32/67030299_template/Lab5-3_WiFi_Disconnect_Reason 2>/dev/null || cd Week05_WiFi_ESP32/67030299_template/lab3
+idf.py build
+idf.py -p <PORT> flash monitor
+```
+
+#### 4. Lab 5.4: ระบบเชื่อมต่อใหม่อัตโนมัติ (Smart Reconnect)
+```bash
+cd Week05_WiFi_ESP32/67030299_template/Lab5-4_WiFi_Smart_Reconnect 2>/dev/null || cd Week05_WiFi_ESP32/67030299_template/lab4
 idf.py build
 idf.py -p <PORT> flash monitor
 ```
@@ -246,18 +260,32 @@ curl -X POST "http://localhost:5000/api/oled" \
 ### 👥 Week 10: Local Communication Benchmark (HTTP vs UDP vs CoAP) (ทำคู่)
 * **วงจร:** วงจรที่ 7 (POT 10k + LED)
 
-* **เครื่องที่ 1 (ESP32 ของ Thanaporn Pitsamai):** เปิด Server HTTP, UDP, CoAP
-  ```bash
-  cd Week10_HTTP_UDP_CoAP/Example_ESP32_Project/Lab10-4_Protocol_Benchmark
-  idf.py build
-  idf.py -p <PORT> flash monitor
-  # ดู IP ของ ESP32 บนหน้าจอ เช่น 192.168.1.150
-  ```
-* **เครื่องที่ 2 (คอมพิวเตอร์เพื่อน):** ยิงคำสั่ง Benchmark 50 รอบ วัด RTT
-  ```bash
-  cd Week10_HTTP_UDP_CoAP
-  python3 benchmark_protocols.py --target-ip <ESP32_IP> --rounds 50
-  ```
+#### 1. Lab 10.1: HTTP REST Server & API ควบคุมหลอดไฟ
+```bash
+cd Week10_HTTP_UDP_CoAP/67030299_template/Lab10-1_HTTP_REST_Server 2>/dev/null || cd Week10_HTTP_UDP_CoAP/Example_ESP32_Project/Lab10-1_HTTP_REST_Server
+idf.py build
+idf.py -p <PORT> flash monitor
+```
+
+#### 2. Lab 10.2: UDP Telemetry Socket Server (พอร์ต 3333)
+```bash
+cd Week10_HTTP_UDP_CoAP/67030299_template/Lab10-2_UDP_Telemetry_Socket 2>/dev/null || cd Week10_HTTP_UDP_CoAP/Example_ESP32_Project/Lab10-2_UDP_Telemetry_Socket
+idf.py build
+idf.py -p <PORT> flash monitor
+```
+
+#### 3. Lab 10.3: CoAP Server สำหรับ IoT มาตรฐาน RFC 7252 (พอร์ต 5683)
+```bash
+cd Week10_HTTP_UDP_CoAP/67030299_template/Lab10-3_CoAP_Server 2>/dev/null || cd Week10_HTTP_UDP_CoAP/Example_ESP32_Project/Lab10-3_CoAP_Server
+idf.py build
+idf.py -p <PORT> flash monitor
+```
+
+#### 4. Lab 10.4: สคริปต์ Benchmark เปรียบเทียบ RTT และ RAM Footprint
+```bash
+cd Week10_HTTP_UDP_CoAP/67030299_template 2>/dev/null || cd Week10_HTTP_UDP_CoAP
+python3 benchmark_protocols.py --target <ESP32_IP> --rounds 50
+```
 
 ---
 
