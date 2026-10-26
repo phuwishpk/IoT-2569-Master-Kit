@@ -1267,29 +1267,67 @@
       }
     }
 
+    function countFilledFields(data) {
+      if (!data) return 0;
+      let count = 0;
+      if (data.weekLogs) {
+        Object.values(data.weekLogs).forEach(v => { if (v && String(v).trim() !== '') count++; });
+      }
+      if (data.sublabs) {
+        Object.values(data.sublabs).forEach(sd => {
+          if (!sd) return;
+          if (sd.completed) count++;
+          if (sd.terminalLog && sd.terminalLog.trim() !== '') count++;
+          if (sd.notes && sd.notes.trim() !== '') count++;
+          if (sd.imageUrl && sd.imageUrl.trim() !== '') count++;
+          if (sd.videoUrl && sd.videoUrl.trim() !== '') count++;
+          if (sd.metrics) Object.values(sd.metrics).forEach(v => { if (v && String(v).trim() !== '') count++; });
+          if (sd.photos) Object.values(sd.photos).forEach(v => { if (v && String(v).trim() !== '') count++; });
+          if (sd.videos) Object.values(sd.videos).forEach(v => { if (v && String(v).trim() !== '') count++; });
+        });
+      }
+      return count;
+    }
+
+    function getRawLocalAndMemoryData(stId) {
+      let rawParsed = { sublabs: {} };
+      try {
+        const raw = localStorage.getItem(getStorageKey(stId));
+        if (raw) rawParsed = JSON.parse(raw);
+        if (!rawParsed.sublabs) rawParsed.sublabs = {};
+      } catch (e) {}
+      if (cloudDataCache[stId]) {
+        return mergeStudentDatasets(rawParsed, cloudDataCache[stId]);
+      }
+      cloudDataCache[stId] = rawParsed;
+      return rawParsed;
+    }
+
     function applyIncomingCloudMap(allCloudData, isManualRefresh) {
-      if (!allCloudData || typeof allCloudData !== 'object') return;
+      const safeCloudMap = (allCloudData && typeof allCloudData === 'object') ? allCloudData : {};
       let activeStUpdatedRemotely = false;
       const currentStId = STUDENTS[currentStudentIndex].id;
 
       STUDENTS.forEach(st => {
-        const cData = allCloudData[st.id];
-        const lData = getStudentData(st.id);
+        const cData = safeCloudMap[st.id];
+        const lData = getRawLocalAndMemoryData(st.id);
 
-        if (cData && cData.sublabs) {
-          const isFromOtherClient = cData.updatedByClient !== CLIENT_INSTANCE_ID;
-          const isNewerOrDiff = cData.lastUpdated !== lData.lastUpdated;
-          if (isFromOtherClient && isNewerOrDiff) {
-            const merged = mergeStudentDatasets(lData, cData);
+        if (cData && (cData.sublabs || cData.weekLogs)) {
+          const merged = mergeStudentDatasets(lData, cData);
+          const mergedCount = countFilledFields(merged);
+          const cloudCount = countFilledFields(cData);
+          const localCount = countFilledFields(lData);
+
+          if (mergedCount > cloudCount) {
+            // Local storage had previously saved fields not yet in Cloud -> push merged up to Cloud!
+            merged.lastUpdated = new Date().toISOString();
+            merged.updatedByClient = CLIENT_INSTANCE_ID;
             saveLocalQuietly(st.id, merged);
-            if (st.id === currentStId) {
-              activeStUpdatedRemotely = true;
-            }
-          } else if (!hasAnyStudentContent(lData) && hasAnyStudentContent(cData)) {
-            saveLocalQuietly(st.id, cData);
-            if (st.id === currentStId) {
-              activeStUpdatedRemotely = true;
-            }
+            pushStudentDataToCloud(st.id, merged);
+            if (st.id === currentStId) activeStUpdatedRemotely = true;
+          } else if (mergedCount > localCount || (cData.updatedByClient !== CLIENT_INSTANCE_ID && cData.lastUpdated !== lData.lastUpdated)) {
+            saveLocalQuietly(st.id, merged);
+            if (st.id === currentStId) activeStUpdatedRemotely = true;
           }
         } else if (hasAnyStudentContent(lData)) {
           // Local has data that is not in Cloud yet -> upload to Cloud automatically!
@@ -1319,7 +1357,7 @@
           const allCloudData = await resp.json();
           isCloudConnected = true;
           applyIncomingCloudMap(allCloudData || {}, true);
-          showToast('☁️ ดึงข้อมูลล่าสุดจาก Cloud เรียบร้อย!');
+          showToast('☁️ ดึงและผสานข้อมูลล่าสุดจาก Cloud เรียบร้อย!');
         }
       } catch (err) {
         console.error("Cloud pull error:", err);
@@ -1328,14 +1366,19 @@
     }
 
     async function forceCloudPushCurrent() {
-      const st = STUDENTS[currentStudentIndex];
-      const sData = getStudentData(st.id);
-      await pushStudentDataToCloud(st.id, sData);
-      showToast(`☁️ ซิงก์ข้อมูลของ ${st.id} ขึ้น Cloud สำเร็จ!`);
+      let pushedCount = 0;
+      for (const st of STUDENTS) {
+        const sData = getRawLocalAndMemoryData(st.id);
+        if (hasAnyStudentContent(sData) || st.id === STUDENTS[currentStudentIndex].id) {
+          await pushStudentDataToCloud(st.id, sData);
+          pushedCount++;
+        }
+      }
+      showToast(`☁️ ซิงก์ข้อมูลในเครื่องขึ้น Cloud สำเร็จ (${pushedCount} รายชื่อ)!`);
     }
 
     async function initCloudSync() {
-      // 1. Initial REST pull & bidirectional merge
+      // 1. Initial REST pull & bidirectional auto-migration of any existing localStorage data
       try {
         const resp = await fetch(`${CLOUD_DB_URL}/iot_2569_students.json`);
         if (resp.ok) {
@@ -1359,9 +1402,7 @@
           firebaseDb.ref('iot_2569_students').on('value', snapshot => {
             isCloudConnected = true;
             const val = snapshot.val();
-            if (val) {
-              applyIncomingCloudMap(val, false);
-            }
+            applyIncomingCloudMap(val || {}, false);
           });
         }
       } catch (e) {
