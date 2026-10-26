@@ -170,6 +170,9 @@
             <p class="text-xs text-muted">ข้อมูล รูปภาพ วิดีโอ Terminal Log และค่าคำนวณจะถูกบันทึกแยกรายบุคคลลงเบราว์เซอร์อัตโนมัติ</p>
           </div>
           <div class="flex items-center gap-2 text-xs">
+            <button onclick="openBulkLogModal()" class="px-2.5 py-1.5 rounded-lg border border-sky-500/30 bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 font-medium flex items-center gap-1 transition shadow-sm" title="วางข้อความ Serial Monitor ทั้งหมดรวดเดียว">
+              <span>🚀</span> วาง Serial Log รวมทั้งหมด
+            </button>
             <button onclick="exportStudentData()" class="px-2.5 py-1.5 rounded-lg border border-border bg-sidebar hover:bg-slate-800 text-sky-400 font-medium flex items-center gap-1 transition">
               <span>📥</span> ส่งออกข้อมูล (JSON)
             </button>
@@ -489,6 +492,47 @@
     </div>
   </div>
 
+  <!-- MODAL 3: BULK SERIAL MONITOR IMPORTER -->
+  <div id="bulk-log-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="bg-card border border-border rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-4 border-b border-border bg-sidebar flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🚀</span>
+          <div>
+            <h3 class="font-bold text-white text-base">วาง Serial Monitor Log รวมทั้งหมดรวดเดียว (Bulk Importer)</h3>
+            <p class="text-xs text-muted">คัดลอกข้อความทั้งหมดจากหน้าต่าง Terminal / Monitor มาวางที่นี่ ระบบจะวิเคราะห์และแยกบันทึกให้ครบทุกสัปดาห์</p>
+          </div>
+        </div>
+        <button onclick="closeBulkLogModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition">
+          ✕ ปิด
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 overflow-y-auto custom-scrollbar">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+            📋 วางข้อความจาก Terminal / Serial Monitor ทั้งหมดที่นี่ (Ctrl+A -> Ctrl+C):
+          </label>
+          <textarea id="bulk-log-textarea"
+                    rows="14"
+                    placeholder="วางข้อความ Serial Monitor ทั้งหมดที่นี่ ไม่ว่าจะมีกี่สัปดาห์ หรือกี่ร้อยบรรทัด..."
+                    class="w-full bg-black/70 border border-slate-800 rounded-xl p-3 text-xs text-emerald-400 font-mono focus:border-sky-500 focus:outline-none custom-scrollbar resize-y"></textarea>
+        </div>
+
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-border/60">
+          <div class="text-xs text-muted">
+            💡 ระบบจะตรวจหาคีย์เวิร์ดของทุกสัปดาห์ (Week 01 – 12) และแยกเนื้อหาเข้าแต่ละแล็บย่อยให้อัตโนมัติ
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="processBulkLog()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-sky-600 to-emerald-600 hover:from-sky-500 hover:to-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-sky-500/20 transition">
+              <span>✨</span> แยกข้อมูลและบันทึกเข้าทุกแล็บทันที
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- TOAST NOTIFICATION -->
   <div id="toast" class="fixed bottom-5 right-5 z-50 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-xl text-xs font-semibold flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300">
     <span id="toast-icon">✓</span>
@@ -779,7 +823,41 @@
 
           <!-- Week Sublabs Body -->
           <div id="week-body-${w.week}" class="p-4 sm:p-5 space-y-4 bg-background/50">
-            <!-- Sublab Cards Injected Here -->
+            
+            <!-- Full Week Serial Monitor Box -->
+            <div class="p-3.5 bg-sidebar/90 rounded-xl border border-sky-500/30 space-y-2">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-bold text-sky-400">💻 วาง Serial Monitor ทั้งหมดของสัปดาห์นี้ (Full Week Log)</span>
+                  <span class="text-[10px] bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded-full font-medium">วางครั้งเดียวครบทั้งวีค</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="autoDistributeWeekLog('${w.week}')" class="px-2.5 py-1 rounded bg-gradient-to-r from-emerald-600 to-sky-600 hover:from-emerald-500 hover:to-sky-500 text-white text-xs font-semibold flex items-center gap-1 transition shadow-sm" title="แยก Log เข้าช่องแล็บย่อยอัตโนมัติ">
+                    <span>✨</span> แยกเข้าแล็บย่อยอัตโนมัติ
+                  </button>
+                  <button onclick="copyWeekLog('${w.week}')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-border transition">
+                    📋 Copy
+                  </button>
+                </div>
+              </div>
+              <p class="text-xs text-muted">
+                ก๊อปปี้ข้อความทั้งหมดจากหน้าต่าง Terminal / Serial Monitor ของ Week ${w.week} มาวางในนี้ได้เลย (ระบบจะนับเป็นหลักฐานของสัปดาห์นี้ทันทีโดยไม่ต้องแยกย่อย)
+              </p>
+              <textarea id="week-log-input-${w.week}"
+                        rows="4"
+                        placeholder="วางข้อความ Serial Monitor ทั้งหมดของสัปดาห์นี้ที่นี่ (Ctrl+A -> Ctrl+C จาก Terminal แล้ววางเลย)..."
+                        class="w-full bg-black/70 border border-slate-800 rounded-lg p-2.5 text-xs text-emerald-400 font-mono focus:border-sky-500 focus:outline-none custom-scrollbar resize-y"
+                        onchange="saveWeekLog('${w.week}', this.value)">${sData.weekLogs && sData.weekLogs[w.week] ? sData.weekLogs[w.week] : ''}</textarea>
+              <div class="flex items-center justify-between text-[10px] text-muted font-mono">
+                <span>สถานะ: <b class="${sData.weekLogs && sData.weekLogs[w.week] ? 'text-emerald-400' : 'text-slate-500'}">${sData.weekLogs && sData.weekLogs[w.week] ? 'บันทึกแล้ว (' + sData.weekLogs[w.week].length + ' ตัวอักษร)' : 'ยังไม่มีข้อมูล'}</b></span>
+                ${sData.weekLogs && sData.weekLogs[w.week] ? `<button onclick="clearWeekLog('${w.week}')" class="text-rose-400 hover:text-rose-300">ล้างข้อความ ✕</button>` : ''}
+              </div>
+            </div>
+
+            <!-- Sublabs List Header -->
+            <div class="text-xs font-semibold text-slate-300 flex items-center gap-1.5 pt-1">
+              <span>📋</span> รายการแล็บย่อยประจำสัปดาห์ (Sub-Labs Data & Checklist):
+            </div>
           </div>
         `;
 
@@ -1133,6 +1211,199 @@
       });
     }
 
+    function saveWeekLog(week, text) {
+      const st = STUDENTS[currentStudentIndex];
+      const sData = getStudentData(st.id);
+      if (!sData.weekLogs) sData.weekLogs = {};
+      sData.weekLogs[week] = text.trim();
+      saveStudentData(st.id, sData);
+      updateStats();
+      renderWeeksAccordion();
+      showToast(`บันทึก Serial Monitor Week ${week} เรียบร้อย`);
+    }
+
+    function clearWeekLog(week) {
+      if (!confirm(`ต้องการลบข้อความ Serial Monitor ของ Week ${week} หรือไม่?`)) return;
+      const st = STUDENTS[currentStudentIndex];
+      const sData = getStudentData(st.id);
+      if (sData.weekLogs && sData.weekLogs[week]) {
+        delete sData.weekLogs[week];
+        saveStudentData(st.id, sData);
+        updateStats();
+        renderWeeksAccordion();
+        showToast(`ลบ Serial Monitor Week ${week} แล้ว`);
+      }
+    }
+
+    function copyWeekLog(week) {
+      const st = STUDENTS[currentStudentIndex];
+      const sData = getStudentData(st.id);
+      const text = (sData.weekLogs && sData.weekLogs[week]) ? sData.weekLogs[week] : '';
+      if (!text) {
+        alert(`ยังไม่มีข้อความ Serial Log ของ Week ${week}`);
+        return;
+      }
+      navigator.clipboard.writeText(text).then(() => {
+        showToast(`คัดลอก Serial Monitor Week ${week} เรียบร้อย`);
+      });
+    }
+
+    function autoDistributeWeekLog(week) {
+      const st = STUDENTS[currentStudentIndex];
+      const sData = getStudentData(st.id);
+      const text = (sData.weekLogs && sData.weekLogs[week]) ? sData.weekLogs[week] : (document.getElementById(`week-log-input-${week}`) ? document.getElementById(`week-log-input-${week}`).value.trim() : '');
+      if (!text) {
+        alert('กรุณาวางข้อความ Serial Monitor ของสัปดาห์นี้ก่อน');
+        return;
+      }
+      if (!sData.weekLogs) sData.weekLogs = {};
+      sData.weekLogs[week] = text;
+
+      const weekObj = WEEKS_DATA.find(w => w.week === week);
+      if (!weekObj) return;
+
+      let count = 0;
+      const lines = text.split('\n');
+
+      weekObj.sublabs.forEach(sub => {
+        if (!sData.sublabs[sub.id]) sData.sublabs[sub.id] = {};
+
+        // Try to find matching lines for this sublab code
+        const codeClean = sub.code.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const matchingLines = lines.filter(l => {
+          const lClean = l.toLowerCase().replace(/[^a-z0-9]/g, '');
+          return lClean.includes(codeClean) || l.toLowerCase().includes(sub.code.toLowerCase());
+        });
+
+        if (matchingLines.length >= 2) {
+          sData.sublabs[sub.id].terminalLog = matchingLines.join('\n');
+        } else {
+          sData.sublabs[sub.id].terminalLog = text;
+        }
+
+        // Mark completed if terminal was the only blocker
+        if (!sub.photoReq || sData.sublabs[sub.id].imageUrl) {
+          sData.sublabs[sub.id].completed = true;
+        }
+        count++;
+      });
+
+      saveStudentData(st.id, sData);
+      updateStats();
+      renderWeeksAccordion();
+      showToast(`✨ แยก Log เข้า ${count} แล็บย่อยของ Week ${week} สำเร็จ!`);
+    }
+
+    function openBulkLogModal() {
+      document.getElementById('bulk-log-modal').classList.remove('hidden');
+      document.getElementById('bulk-log-textarea').focus();
+    }
+
+    function closeBulkLogModal() {
+      document.getElementById('bulk-log-modal').classList.add('hidden');
+    }
+
+    function processBulkLog() {
+      const raw = document.getElementById('bulk-log-textarea').value.trim();
+      if (!raw) {
+        alert('กรุณาวางข้อความจาก Terminal / Serial Monitor ก่อน');
+        return;
+      }
+      const st = STUDENTS[currentStudentIndex];
+      const sData = getStudentData(st.id);
+      if (!sData.weekLogs) sData.weekLogs = {};
+
+      let matchedWeeks = 0;
+      let matchedSublabs = 0;
+      const lines = raw.split('\n');
+
+      WEEKS_DATA.forEach(w => {
+        const wNum = parseInt(w.week, 10);
+        const wPatterns = [
+          `week ${w.week.toLowerCase()}`,
+          `week ${wNum}`,
+          `w${w.week.toLowerCase()}`,
+          `week${w.week.toLowerCase()}`,
+          `week${wNum}`,
+          `lab ${wNum}`,
+          `lab${wNum}`,
+          `lab ${w.week.toLowerCase()}`
+        ];
+
+        // Search lines
+        const weekLines = [];
+        let capturing = false;
+
+        for (let i = 0; i < lines.length; i++) {
+          const lineLower = lines[i].toLowerCase();
+          const isMatch = wPatterns.some(p => lineLower.includes(p));
+          if (isMatch) {
+            capturing = true;
+          }
+          if (capturing) {
+            weekLines.push(lines[i]);
+            if (weekLines.length > 1 && lines[i+1]) {
+              const nextLineLower = lines[i+1].toLowerCase();
+              const isNextWeek = WEEKS_DATA.some(otherW => otherW.week !== w.week && [
+                `week ${otherW.week.toLowerCase()}`,
+                `week ${parseInt(otherW.week, 10)}`,
+                `w${otherW.week.toLowerCase()}`
+              ].some(p => nextLineLower.includes(p)));
+              if (isNextWeek) {
+                capturing = false;
+              }
+            }
+          }
+        }
+
+        let weekText = weekLines.join('\n').trim();
+        if (weekText) {
+          sData.weekLogs[w.week] = weekText;
+          matchedWeeks++;
+
+          w.sublabs.forEach(sub => {
+            if (!sData.sublabs[sub.id]) sData.sublabs[sub.id] = {};
+            sData.sublabs[sub.id].terminalLog = weekText;
+            if (!sub.photoReq || sData.sublabs[sub.id].imageUrl) {
+              sData.sublabs[sub.id].completed = true;
+            }
+            matchedSublabs++;
+          });
+        }
+      });
+
+      // Fallback: If no week markers matched at all (student pasted one continuous log)
+      if (matchedWeeks === 0) {
+        let targetWeek = WEEKS_DATA[0].week;
+        for (const w of WEEKS_DATA) {
+          if (!sData.weekLogs[w.week]) {
+            targetWeek = w.week;
+            break;
+          }
+        }
+        sData.weekLogs[targetWeek] = raw;
+        const weekObj = WEEKS_DATA.find(w => w.week === targetWeek);
+        if (weekObj) {
+          weekObj.sublabs.forEach(sub => {
+            if (!sData.sublabs[sub.id]) sData.sublabs[sub.id] = {};
+            sData.sublabs[sub.id].terminalLog = raw;
+            if (!sub.photoReq || sData.sublabs[sub.id].imageUrl) {
+              sData.sublabs[sub.id].completed = true;
+            }
+            matchedSublabs++;
+          });
+        }
+        matchedWeeks = 1;
+      }
+
+      saveStudentData(st.id, sData);
+      updateStats();
+      renderWeeksAccordion();
+      closeBulkLogModal();
+      document.getElementById('bulk-log-textarea').value = '';
+      showToast(`🚀 บันทึก Serial Monitor สำเร็จ! (${matchedWeeks} สัปดาห์, ${matchedSublabs} แล็บย่อย)`);
+    }
+
     function updateStats() {
       const st = STUDENTS[currentStudentIndex];
       const sData = getStudentData(st.id);
@@ -1145,6 +1416,7 @@
       let totalMetricsReq = 0, metricsFilled = 0;
 
       WEEKS_DATA.forEach(w => {
+        const hasWeekLog = !!(sData.weekLogs && sData.weekLogs[w.week]);
         w.sublabs.forEach(sub => {
           totalSublabs++;
           const subData = sData.sublabs[sub.id] || {};
@@ -1160,7 +1432,7 @@
           }
           if (sub.termReq) {
             totalTermReq++;
-            if (subData.terminalLog) termFilled++;
+            if (subData.terminalLog || hasWeekLog) termFilled++;
           }
           if (sub.metrics) {
             sub.metrics.forEach(m => {
@@ -1271,6 +1543,10 @@
       WEEKS_DATA.forEach(w => {
         text += `### ${w.title} (${w.badge})
 `;
+        if (sData.weekLogs && sData.weekLogs[w.week]) {
+          text += `  - 💻 Full Week Serial Log: บันทึกแล้ว (${sData.weekLogs[w.week].length} ตัวอักษร)
+`;
+        }
         w.sublabs.forEach(sub => {
           const subData = sData.sublabs[sub.id] || {};
           const isDone = subData.completed ? '[✓]' : '[ ]';
@@ -1318,12 +1594,19 @@
       `;
 
       WEEKS_DATA.forEach(w => {
+        const weekLog = (sData.weekLogs && sData.weekLogs[w.week]) ? sData.weekLogs[w.week] : '';
         html += `
           <div class="border border-slate-700 rounded-xl p-4 bg-slate-900/60 mb-6 space-y-4">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
               <h2 class="text-base font-bold text-sky-400">${w.title}</h2>
               <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-medium">${w.badge}</span>
             </div>
+            ${weekLog ? `
+              <div class="p-3 bg-black/60 rounded-lg border border-sky-500/30">
+                <span class="text-xs font-mono font-bold text-sky-300 block mb-1">💻 Serial Monitor รวมทั้งสัปดาห์ (Full Week Log):</span>
+                <pre class="bg-black p-2.5 rounded text-[11px] font-mono text-emerald-400 overflow-x-auto max-h-40 whitespace-pre-wrap">${weekLog}</pre>
+              </div>
+            ` : ''}
             <div class="space-y-4">
         `;
 
