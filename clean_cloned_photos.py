@@ -13,10 +13,23 @@ FIREBASE_URL = "https://testproject-c8b86-default-rtdb.asia-southeast1.firebased
 ORIGINAL_UPLOADER_ID = "67030248"
 
 def main():
+    import sys, time
+    # ⚠️ GUARD (เพิ่ม 2026-10-26): สคริปต์นี้ลบรูป/ลิงก์ของ "ทุกคนยกเว้น 67030248" และเขียนทับฐานข้อมูลทั้งก้อนด้วย PUT
+    # ถ้ามีใครกำลังแก้ข้อมูลอยู่ตอนรัน ข้อมูลนั้นจะหายทันที — ให้ใช้ find_cloned_links.py แทน (ตรวจก่อน/ลบเฉพาะช่องที่ซ้ำ)
+    if "--force" not in sys.argv:
+        print("⛔ สคริปต์นี้อันตราย: จะลบรูป/ลิงก์ของนักศึกษาทุกคน (ยกเว้น 67030248) และเขียนทับทั้งฐานข้อมูล")
+        print("   แนะนำให้ใช้:  python3 find_cloned_links.py   (รายงานอย่างเดียว ไม่แก้ข้อมูล)")
+        print("   ถ้าจำเป็นต้องรันจริง ๆ ให้ใส่ --force")
+        return
     print(f"Fetching cloud data from {FIREBASE_URL}...")
     req = urllib.request.Request(FIREBASE_URL)
     with urllib.request.urlopen(req, timeout=15) as resp:
         cloud_data = json.loads(resp.read().decode("utf-8"))
+
+    backup_name = time.strftime("cloud_backup_before_clean_%Y%m%d_%H%M%S.json")
+    with open(backup_name, "w", encoding="utf-8") as bf:
+        json.dump(cloud_data, bf, ensure_ascii=False)
+    print(f"💾 Backup of the original cloud data saved to {backup_name}")
 
     if not cloud_data:
         print("No cloud data found.")

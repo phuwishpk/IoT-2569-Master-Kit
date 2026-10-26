@@ -27,3 +27,8 @@ __pycache__/
 *.pyc
 .venv/
 env/
+
+# Local safety backups (never push: may contain all students' data)
+_backup_before_fix_*/
+cloud_backup_*.json
+iot_browser_backup_*.json

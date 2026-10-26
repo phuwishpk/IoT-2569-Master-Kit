@@ -174,7 +174,7 @@
             <h2 class="text-sm font-bold text-white flex items-center gap-2">
               <span>👤</span> เลือกรหัสนักศึกษาเพื่อบันทึกและตรวจงาน:
             </h2>
-            <p class="text-xs text-muted">ข้อมูล รูปภาพ วิดีโอ Terminal Log และค่าคำนวณจะถูกบันทึกแยกรายบุคคลลงเบราว์เซอร์อัตโนมัติ</p>
+            <p class="text-xs text-muted">ข้อมูล รูปภาพ วิดีโอ Terminal Log และค่าคำนวณจะถูกบันทึกแยกรายบุคคลขึ้น Cloud อัตโนมัติ (เฉพาะช่องที่แก้ของคนที่เปิดอยู่เท่านั้น)</p>
           </div>
           <div class="flex items-center gap-2 text-xs">
             <button onclick="openBulkLogModal()" class="px-2.5 py-1.5 rounded-lg border border-sky-500/30 bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 font-medium flex items-center gap-1 transition shadow-sm" title="วางข้อความ Serial Monitor ทั้งหมดรวดเดียว">
@@ -182,6 +182,9 @@
             </button>
             <button onclick="exportStudentData()" class="px-2.5 py-1.5 rounded-lg border border-border bg-sidebar hover:bg-slate-800 text-sky-400 font-medium flex items-center gap-1 transition">
               <span>📥</span> ส่งออกข้อมูล (JSON)
+            </button>
+            <button onclick="downloadLocalBrowserBackup()" class="px-2.5 py-1.5 rounded-lg border border-border bg-sidebar hover:bg-slate-800 text-slate-300 font-medium flex items-center gap-1 transition" title="ดาวน์โหลดสำเนาข้อมูลทั้งหมดที่เบราว์เซอร์นี้เก็บไว้ (รวมข้อมูลเวอร์ชันเก่า) เพื่อกันข้อมูลหาย">
+              <span>🗄️</span> สำรองข้อมูลในเครื่อง
             </button>
             <button onclick="autoSyncToLocalServer()" class="px-2.5 py-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 font-bold flex items-center gap-1 transition shadow-sm" title="บันทึกข้อมูลและอัปเดตไฟล์ Report ลงในเครื่องอัตโนมัติ (ผ่าน auto_report_sync.py)">
               <span>⚡</span> Auto-Sync เขียน Report ลงเครื่อง
@@ -229,6 +232,9 @@
           </div>
         </div>
 
+        <!-- Profile guard: เตือนเมื่อกำลังดู/แก้ไขโปรไฟล์ที่ไม่ใช่ของตัวเอง -->
+        <div id="profile-guard-banner" class="hidden mt-3"></div>
+
         <!-- Active Student Info Header Banner -->
         <div class="mt-4 p-4 rounded-xl bg-gradient-to-r from-sky-950/40 via-card to-emerald-950/30 border border-sky-500/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -246,7 +252,10 @@
           </div>
 
           <!-- Quick Action Buttons -->
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="openProfilePicker()" class="px-3 py-1.5 rounded-lg border border-sky-500/40 bg-sky-500/10 hover:bg-sky-500/20 text-xs text-sky-300 transition" title="เลือก/เปลี่ยนโปรไฟล์ของคุณ">
+              👤 โปรไฟล์ของฉัน
+            </button>
             <button onclick="toggleAllSublabsInView(true)" class="px-3 py-1.5 rounded-lg border border-border bg-sidebar hover:bg-slate-800 text-xs text-slate-300 hover:text-white transition">
               ✓ ติ๊กเสร็จทั้งหมด
             </button>
@@ -1473,10 +1482,13 @@ newgrp dialout</pre>
     let isCloudConnected = false;
 
     function init() {
+      bootstrapLocalState();
       renderStudentPills();
       renderStudentCards();
-      loadStudent(0);
+      // เปิดหน้าของ "#รหัส" ใน URL > โปรไฟล์ของฉัน > หน้าที่เปิดล่าสุด (ไม่เด้งกลับไปคนแรกเสมออีกต่อไป)
+      loadStudent(resolveInitialStudentIndex());
       initCloudSync();
+      if (!getMyStudentId()) setTimeout(() => openProfilePicker(), 400);
     }
 
     function switchNav(navId) {
@@ -1502,9 +1514,9 @@ newgrp dialout</pre>
         w.sublabs.forEach(sub => {
           const sd = sData.sublabs[sub.id];
           if (!sd) return;
-          const hasPhoto = sd.photos && Object.values(sd.photos).some(v => v && v.trim() !== '');
-          const hasTerm = sd.terminalLog && sd.terminalLog.trim() !== '';
-          const hasMetric = sd.metrics && Object.values(sd.metrics).some(v => v && v.trim() !== '');
+          const hasPhoto = sd.photos && Object.values(sd.photos).some(v => v && String(v).trim() !== '');
+          const hasTerm = sd.terminalLog && String(sd.terminalLog).trim() !== '';
+          const hasMetric = sd.metrics && Object.values(sd.metrics).some(v => v && String(v).trim() !== '');
           if (sd.completed || hasPhoto || hasTerm || hasMetric) count++;
         });
       });
@@ -1572,199 +1584,329 @@ newgrp dialout</pre>
       });
     }
 
-    let initialMigrationCompleted = false;
-    let liveSaveTimer = null;
+    // =====================================================================
+    //  CLOUD SYNC ENGINE v3  (แก้บั๊ก "ลิงก์/รูป ไปโผล่ในโปรไฟล์ของคนอื่น")
+    //  1) เขียนขึ้น Cloud เฉพาะ "ช่องที่ถูกแก้จริง" (field-level update) ของนักศึกษาคนนั้นเท่านั้น
+    //     -> ไม่มีการเขียนทับข้อมูลทั้งก้อน และไม่แตะข้อมูลของคนอื่นเด็ดขาด
+    //  2) ไม่ดันสำเนาเก่าใน localStorage ของ "ทุกคน" กลับขึ้น Cloud ตอนเปิดหน้าเว็บอีกต่อไป
+    //     (ต้นเหตุหลักที่ลิงก์ YouTube/รูปที่ถูกลบแล้ว กลับมาโผล่ซ้ำในโปรไฟล์เพื่อน)
+    //  3) การแก้ไขที่ยังส่งไม่สำเร็จจะถูกเก็บไว้ในเครื่อง (pending) แล้วส่งซ้ำอัตโนมัติเมื่อออนไลน์
+    //  4) ข้อมูลเวอร์ชันเก่า (iot_v2_data_*, iot_checklist_v1_*) ไม่ถูกลบ ดาวน์โหลดสำรองได้ทุกเมื่อ
+    //  5) จำโปรไฟล์ของผู้ใช้ + จำหน้าที่เปิดล่าสุด (#รหัส ใน URL) ไม่เด้งกลับไปหน้าคนแรกอีก
+    // =====================================================================
+    const CACHE_KEY = (stId) => `iot_v3_cache_${stId}`;
+    const PENDING_KEY = (stId) => `iot_v3_pending_${stId}`;
+    const MY_PROFILE_KEY = 'iot_v3_my_student';
+    const LAST_VIEW_KEY = 'iot_v3_last_view';
+    const ADMIN_PROFILE = '__admin__';
+    const META_KEYS = new Set(['lastUpdated', 'updatedByClient']);
 
-    function getStorageKey(stId) {
-      return `iot_v2_data_${stId}`;
+    const shadowData = {};      // stId -> สถานะล่าสุดที่คำนวณ diff ไปแล้ว
+    const pendingOps = {};      // stId -> { 'sublabs/w02_2/videos/v1': value | null }
+    const flushTimers = {};
+    const flushInFlight = {};
+    let firebaseConnected = false;
+    let pendingRemoteRender = false;
+    const editConfirmedFor = new Set();
+
+    function safeGetLS(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+    function safeSetLS(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+    function safeRemoveLS(k) { try { localStorage.removeItem(k); } catch (e) {} }
+
+    // ---------- HTML / URL safety helpers ----------
+    function escapeHtml(v) {
+      return String(v === undefined || v === null ? '' : v)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    // ใช้ใส่ค่าเป็นอาร์กิวเมนต์ใน onclick="fn(...)" อย่างปลอดภัย (กันชื่อที่มี ' หรือ " ทำปุ่มพัง)
+    function jsArg(v) {
+      return escapeHtml(JSON.stringify(String(v === undefined || v === null ? '' : v)));
+    }
+    // เติม https:// ให้ลิงก์ที่วางมาแบบไม่มีโปรโตคอล เช่น youtu.be/xxx, www.youtube.com/..., drive.google.com/...
+    function normalizeLinkUrl(raw) {
+      const v = String(raw === undefined || raw === null ? '' : raw).trim();
+      if (!v) return '';
+      if (/^data:/i.test(v)) return v;
+      if (/^https?:\/\//i.test(v)) return v;
+      if (/^\/\//.test(v)) return 'https:' + v;
+      if (/^[a-z][a-z0-9+.-]*:/i.test(v)) return v;
+      if (/^(www\.|m\.)?[a-z0-9-]+(\.[a-z0-9-]+)+([\/?#].*)?$/i.test(v)) return 'https://' + v;
+      return v;
+    }
+    function safeHref(raw) {
+      const v = normalizeLinkUrl(raw);
+      return /^https?:\/\//i.test(v) ? v : '#';
+    }
+    function safeImgSrc(raw) {
+      const v = String(raw === undefined || raw === null ? '' : raw).trim();
+      if (!v) return '';
+      if (/^(javascript|vbscript):/i.test(v)) return '';
+      if (/^data:/i.test(v)) return /^data:image\//i.test(v) ? v : '';
+      return normalizeLinkUrl(v);
     }
 
-    function mergeStudentDatasets(localObj, cloudObj) {
-      if (!localObj || (!localObj.sublabs && !localObj.weekLogs)) return cloudObj || { sublabs: {} };
-      if (!cloudObj || (!cloudObj.sublabs && !cloudObj.weekLogs)) return localObj || { sublabs: {} };
+    // ---------- student helpers ----------
+    function getStudentById(stId) { return STUDENTS.find(s => s.id === stId) || null; }
+    function indexOfStudent(stId) { return STUDENTS.findIndex(s => s.id === stId); }
+    function resolveStudent(stId) { return getStudentById(stId) || STUDENTS[currentStudentIndex]; }
+    function isCurrentStudent(stId) {
+      const c = STUDENTS[currentStudentIndex];
+      return !!c && c.id === stId;
+    }
+    function otherSuffix(stId) { return isCurrentStudent(stId) ? '' : ` (บันทึกให้ ${stId})`; }
+    function findSublabMeta(subId) {
+      for (const w of WEEKS_DATA) {
+        for (const s of w.sublabs) {
+          if (s.id === subId) return { sub: s, week: w };
+        }
+      }
+      return null;
+    }
+    function getMyStudentId() { return safeGetLS(MY_PROFILE_KEY) || ''; }
 
-      const cloudNewer = (cloudObj.lastUpdated || '') >= (localObj.lastUpdated || '');
-      const primary = cloudNewer ? cloudObj : localObj;
-      const secondary = cloudNewer ? localObj : cloudObj;
+    // ---------- data tree helpers ----------
+    function getStorageKey(stId) { return CACHE_KEY(stId); }
 
-      const merged = {
-        lastUpdated: primary.lastUpdated || secondary.lastUpdated || new Date().toISOString(),
-        updatedByClient: primary.updatedByClient || secondary.updatedByClient || '',
-        weekLogs: {},
-        sublabs: {}
-      };
+    function cloneTree(obj) {
+      if (obj === null || typeof obj !== 'object') return obj;
+      if (Array.isArray(obj)) return obj.map(cloneTree);
+      const out = {};
+      Object.keys(obj).forEach(k => { out[k] = cloneTree(obj[k]); });
+      return out;
+    }
 
-      const allWKeys = new Set([
-        ...Object.keys(secondary.weekLogs || {}),
-        ...Object.keys(primary.weekLogs || {})
-      ]);
-      allWKeys.forEach(w => {
-        const pVal = primary.weekLogs && primary.weekLogs[w];
-        const sVal = secondary.weekLogs && secondary.weekLogs[w];
-        merged.weekLogs[w] = (pVal !== undefined && pVal !== '') ? pVal : (sVal || '');
-      });
+    function normalizeStudentData(d) {
+      const data = (d && typeof d === 'object') ? d : {};
+      if (!data.sublabs || typeof data.sublabs !== 'object') data.sublabs = {};
+      if (!data.weekLogs || typeof data.weekLogs !== 'object') data.weekLogs = {};
+      return data;
+    }
 
-      const allSubIds = new Set([
-        ...Object.keys(localObj.sublabs || {}),
-        ...Object.keys(cloudObj.sublabs || {})
-      ]);
+    function flattenLeaves(obj, prefix, out) {
+      if (obj === null || obj === undefined) return out;
+      if (typeof obj !== 'object') { out[prefix] = obj; return out; }
+      Object.keys(obj).forEach(k => flattenLeaves(obj[k], prefix ? prefix + '/' + k : k, out));
+      return out;
+    }
 
-      allSubIds.forEach(subId => {
-        const pSub = (primary.sublabs && primary.sublabs[subId]) || {};
-        const sSub = (secondary.sublabs && secondary.sublabs[subId]) || {};
+    function diffLeaves(before, after) {
+      const a = flattenLeaves(before || {}, '', {});
+      const b = flattenLeaves(after || {}, '', {});
+      const ops = {};
+      Object.keys(b).forEach(p => { if (!META_KEYS.has(p) && a[p] !== b[p]) ops[p] = b[p]; });
+      Object.keys(a).forEach(p => { if (!META_KEYS.has(p) && !(p in b)) ops[p] = null; });
+      return ops;
+    }
 
-        const mMetrics = {};
-        const allMKeys = new Set([
-          ...Object.keys(sSub.metrics || {}),
-          ...Object.keys(pSub.metrics || {})
-        ]);
-        allMKeys.forEach(k => {
-          const pVal = pSub.metrics && pSub.metrics[k];
-          const sVal = sSub.metrics && sSub.metrics[k];
-          mMetrics[k] = (pVal !== undefined && pVal !== '') ? pVal : (sVal || '');
+    // Firebase ไม่ยอมให้ update path ที่เป็นแม่-ลูกกันในคำสั่งเดียว
+    function sanitizeOps(ops) {
+      const out = Object.assign({}, ops);
+      const keys = Object.keys(ops);
+      keys.forEach(p => keys.forEach(q => {
+        if (p !== q && q.startsWith(p + '/') && (p in out) && (q in out)) {
+          if (out[p] === null) delete out[p]; else delete out[q];
+        }
+      }));
+      return out;
+    }
+
+    function mergePendingOps(stId, ops) {
+      const cur = pendingOps[stId] || (pendingOps[stId] = {});
+      const clean = sanitizeOps(ops);
+      Object.keys(clean).forEach(p => {
+        Object.keys(cur).forEach(q => {
+          if (q === p || q.startsWith(p + '/') || p.startsWith(q + '/')) delete cur[q];
         });
-
-        const mPhotos = {};
-        if (pSub.photos !== undefined) {
-          Object.assign(mPhotos, pSub.photos);
-        } else if (sSub.photos !== undefined) {
-          Object.assign(mPhotos, sSub.photos);
-        }
-
-        const mVideos = {};
-        if (pSub.videos !== undefined) {
-          Object.assign(mVideos, pSub.videos);
-        } else if (sSub.videos !== undefined) {
-          Object.assign(mVideos, sSub.videos);
-        }
-
-        merged.sublabs[subId] = {
-          completed: pSub.completed !== undefined ? pSub.completed : (sSub.completed || false),
-          terminalLog: (pSub.terminalLog !== undefined && pSub.terminalLog !== '') ? pSub.terminalLog : (sSub.terminalLog || ''),
-          notes: (pSub.notes !== undefined && pSub.notes !== '') ? pSub.notes : (sSub.notes || ''),
-          imageUrl: (pSub.imageUrl !== undefined) ? pSub.imageUrl : (sSub.imageUrl || ''),
-          videoUrl: (pSub.videoUrl !== undefined) ? pSub.videoUrl : (sSub.videoUrl || ''),
-          metrics: mMetrics,
-          photos: mPhotos,
-          videos: mVideos
-        };
+        cur[p] = clean[p];
       });
+    }
 
-      return merged;
+    function applyOpsTo(obj, ops) {
+      Object.keys(ops || {}).forEach(path => {
+        const parts = path.split('/');
+        let node = obj;
+        for (let i = 0; i < parts.length - 1; i++) {
+          if (node[parts[i]] === null || typeof node[parts[i]] !== 'object') {
+            if (ops[path] === null) { node = null; break; }
+            node[parts[i]] = {};
+          }
+          node = node[parts[i]];
+        }
+        if (!node) return;
+        const last = parts[parts.length - 1];
+        if (ops[path] === null) delete node[last]; else node[last] = ops[path];
+      });
+      return obj;
+    }
+
+    function hasPending(stId) { return !!(pendingOps[stId] && Object.keys(pendingOps[stId]).length); }
+    function countAllPending() {
+      return STUDENTS.reduce((n, s) => n + (pendingOps[s.id] ? Object.keys(pendingOps[s.id]).length : 0), 0);
+    }
+
+    function loadPending(stId) {
+      try {
+        const raw = safeGetLS(PENDING_KEY(stId));
+        const parsed = raw ? JSON.parse(raw) : {};
+        return (parsed && typeof parsed === 'object') ? parsed : {};
+      } catch (e) { return {}; }
+    }
+    function persistPending(stId) {
+      if (!hasPending(stId)) { safeRemoveLS(PENDING_KEY(stId)); return; }
+      if (!safeSetLS(PENDING_KEY(stId), JSON.stringify(pendingOps[stId]))) {
+        // พื้นที่เต็ม: ลบแคชของคนอื่นออกก่อน แล้วลองใหม่ (pending สำคัญกว่าแคช)
+        STUDENTS.forEach(s => safeRemoveLS(CACHE_KEY(s.id)));
+        if (!safeSetLS(PENDING_KEY(stId), JSON.stringify(pendingOps[stId]))) {
+          console.warn('Storage full: pending edits for', stId, 'are kept in memory until synced.');
+        }
+      }
+    }
+    function shouldCacheLocally(stId) { return isCurrentStudent(stId) || stId === getMyStudentId(); }
+    function persistCache(stId) {
+      if (!shouldCacheLocally(stId)) { safeRemoveLS(CACHE_KEY(stId)); return; }
+      const d = cloudDataCache[stId];
+      if (!d) return;
+      const json = JSON.stringify(d);
+      if (!safeSetLS(CACHE_KEY(stId), json)) {
+        STUDENTS.forEach(s => { if (!shouldCacheLocally(s.id)) safeRemoveLS(CACHE_KEY(s.id)); });
+        if (!safeSetLS(CACHE_KEY(stId), json)) safeRemoveLS(CACHE_KEY(stId));
+      }
+    }
+
+    function bootstrapLocalState() {
+      STUDENTS.forEach(st => {
+        pendingOps[st.id] = loadPending(st.id);
+        let base = null;
+        try {
+          const raw = safeGetLS(CACHE_KEY(st.id));
+          if (raw) base = JSON.parse(raw);
+        } catch (e) { base = null; }
+        const data = applyOpsTo(normalizeStudentData(base || {}), pendingOps[st.id]);
+        cloudDataCache[st.id] = data;
+        shadowData[st.id] = cloneTree(data);
+      });
     }
 
     function hasAnyStudentContent(data) {
-      if (!data) return false;
-      if (data.weekLogs && Object.values(data.weekLogs).some(v => v && String(v).trim() !== '')) return true;
-      if (!data.sublabs) return false;
-      for (const sd of Object.values(data.sublabs)) {
-        if (!sd) continue;
-        if (sd.completed) return true;
-        if (sd.terminalLog && sd.terminalLog.trim() !== '') return true;
-        if (sd.notes && sd.notes.trim() !== '') return true;
-        if (sd.imageUrl && sd.imageUrl.trim() !== '') return true;
-        if (sd.videoUrl && sd.videoUrl.trim() !== '') return true;
-        if (sd.metrics && Object.values(sd.metrics).some(v => v && String(v).trim() !== '')) return true;
-        if (sd.photos && Object.values(sd.photos).some(v => v && String(v).trim() !== '')) return true;
-        if (sd.videos && Object.values(sd.videos).some(v => v && String(v).trim() !== '')) return true;
-      }
-      return false;
+      return countFilledFields(data) > 0;
     }
 
     function countFilledFields(data) {
       if (!data) return 0;
-      let count = 0;
-      if (data.weekLogs) {
-        Object.values(data.weekLogs).forEach(v => { if (v && String(v).trim() !== '') count++; });
-      }
-      if (data.sublabs) {
-        Object.values(data.sublabs).forEach(sd => {
-          if (!sd) return;
-          if (sd.completed) count++;
-          if (sd.terminalLog && sd.terminalLog.trim() !== '') count++;
-          if (sd.notes && sd.notes.trim() !== '') count++;
-          if (sd.imageUrl && sd.imageUrl.trim() !== '') count++;
-          if (sd.videoUrl && sd.videoUrl.trim() !== '') count++;
-          if (sd.metrics) Object.values(sd.metrics).forEach(v => { if (v && String(v).trim() !== '') count++; });
-          if (sd.photos) Object.values(sd.photos).forEach(v => { if (v && String(v).trim() !== '') count++; });
-          if (sd.videos) Object.values(sd.videos).forEach(v => { if (v && String(v).trim() !== '') count++; });
-        });
-      }
-      return count;
-    }
-
-    function getRawLocalAndMemoryData(stId) {
-      let rawParsed = { sublabs: {} };
-      try {
-        const raw = localStorage.getItem(getStorageKey(stId)) || localStorage.getItem(`iot_checklist_v1_${stId}`);
-        if (raw) rawParsed = JSON.parse(raw);
-        if (!rawParsed.sublabs) rawParsed.sublabs = {};
-      } catch (e) {}
-      if (cloudDataCache[stId]) {
-        return mergeStudentDatasets(rawParsed, cloudDataCache[stId]);
-      }
-      cloudDataCache[stId] = rawParsed;
-      return rawParsed;
+      const leaves = flattenLeaves(data, '', {});
+      return Object.keys(leaves).filter(p => !META_KEYS.has(p) && leaves[p] !== '' && leaves[p] !== false).length;
     }
 
     function getStudentData(stId) {
-      if (cloudDataCache[stId]) {
-        if (!cloudDataCache[stId].sublabs) cloudDataCache[stId].sublabs = {};
-        return cloudDataCache[stId];
+      if (!cloudDataCache[stId]) {
+        cloudDataCache[stId] = normalizeStudentData({});
+        shadowData[stId] = cloneTree(cloudDataCache[stId]);
       }
-      return getRawLocalAndMemoryData(stId);
+      return normalizeStudentData(cloudDataCache[stId]);
     }
 
-    function saveLocalQuietly(stId, data) {
-      if (!data.sublabs) data.sublabs = {};
+    function confirmEditOtherProfile(stId) {
+      const myId = getMyStudentId();
+      if (!myId || myId === ADMIN_PROFILE || myId === stId || editConfirmedFor.has(stId)) return true;
+      const st = getStudentById(stId);
+      const me = getStudentById(myId);
+      const NL = String.fromCharCode(10);
+      const ok = confirm(
+        `⚠️ คุณกำลังจะแก้ไขข้อมูลของ "${st ? st.id + ' ' + st.name_th : stId}"` + NL +
+        `ซึ่งไม่ใช่โปรไฟล์ของคุณ (${me ? me.id + ' ' + me.name_th : myId})` + NL + NL +
+        `ข้อมูลจะถูกซิงก์ขึ้น Cloud ในชื่อของ ${stId} ทันที` + NL +
+        `ต้องการแก้ไขโปรไฟล์นี้จริงหรือไม่?`
+      );
+      if (ok) editConfirmedFor.add(stId);
+      return ok;
+    }
+
+    // จุดเดียวที่ใช้บันทึกข้อมูล: คำนวณเฉพาะช่องที่เปลี่ยน แล้วส่งขึ้น Cloud เฉพาะนักศึกษาคนนั้น
+    function commitStudentEdit(stId, data, delayMs) {
+      data = normalizeStudentData(data);
+      const before = shadowData[stId] || {};
+      const ops = diffLeaves(before, data);
+      if (Object.keys(ops).length === 0) { cloudDataCache[stId] = data; return true; }
+      if (!confirmEditOtherProfile(stId)) {
+        cloudDataCache[stId] = normalizeStudentData(cloneTree(before));
+        if (isCurrentStudent(stId)) { updateStats(); renderWeeksAccordion(); }
+        showToast('ยกเลิกแล้ว — ไม่มีข้อมูลถูกบันทึกลงโปรไฟล์ของคนอื่น');
+        return false;
+      }
+      data.lastUpdated = new Date().toISOString();
+      data.updatedByClient = CLIENT_INSTANCE_ID;
       cloudDataCache[stId] = data;
-      try {
-        localStorage.setItem(getStorageKey(stId), JSON.stringify(data));
-      } catch (e) {
-        console.warn("Local storage quota reached; full data is safely stored in Cloud Sync.", e);
-      }
-    }
-
-    async function pushStudentDataToCloud(stId, data) {
-      updateStorageStatusBanner(data.lastUpdated, 'syncing');
-      try {
-        if (firebaseDb) {
-          await firebaseDb.ref('iot_2569_students/' + stId).set(data);
-        } else {
-          await fetch(`${CLOUD_DB_URL}/iot_2569_students/${stId}.json`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-          });
-        }
-        isCloudConnected = true;
-        updateStorageStatusBanner(data.lastUpdated, 'synced');
-        updateStudentPillsBadges();
-      } catch (err) {
-        console.error("Cloud push error:", err);
-        updateStorageStatusBanner(data.lastUpdated, 'error');
-      }
-    }
-
-    // STRICT PER-STUDENT SAVE: Only saves and pushes for stId! Never overwrites other students!
-    function saveStudentData(stId, data) {
-      const nowIso = new Date().toISOString();
-      data.lastUpdated = nowIso;
-      data.updatedByClient = CLIENT_INSTANCE_ID;
-      saveLocalQuietly(stId, data);
+      shadowData[stId] = cloneTree(data);
+      mergePendingOps(stId, ops);
+      persistPending(stId);
+      scheduleFlush(stId, delayMs);
+      if (isCurrentStudent(stId)) updateStorageStatusBanner(data.lastUpdated, 'syncing');
       updateStudentPillsBadges();
-      pushStudentDataToCloud(stId, data);
+      return true;
     }
 
-    function scheduleDebouncedCloudSave(stId, data) {
+    function saveStudentData(stId, data) { return commitStudentEdit(stId, data, 0); }
+    function scheduleDebouncedCloudSave(stId, data) { return commitStudentEdit(stId, data, 500); }
+
+    function scheduleFlush(stId, delayMs) {
+      if (flushTimers[stId]) clearTimeout(flushTimers[stId]);
+      flushTimers[stId] = setTimeout(() => {
+        flushTimers[stId] = null;
+        flushPending(stId);
+      }, Math.max(0, delayMs || 0));
+    }
+
+    async function flushPending(stId) {
+      if (!hasPending(stId)) { persistCache(stId); return true; }
+      if (flushInFlight[stId]) { scheduleFlush(stId, 700); return false; }
+      flushInFlight[stId] = true;
+      const sent = Object.assign({}, pendingOps[stId]);
       const nowIso = new Date().toISOString();
-      data.lastUpdated = nowIso;
-      data.updatedByClient = CLIENT_INSTANCE_ID;
-      saveLocalQuietly(stId, data);
-      if (liveSaveTimer) clearTimeout(liveSaveTimer);
-      liveSaveTimer = setTimeout(() => {
-        saveStudentData(stId, data);
-      }, 350);
+      const payload = Object.assign({}, sanitizeOps(sent), { lastUpdated: nowIso, updatedByClient: CLIENT_INSTANCE_ID });
+      if (isCurrentStudent(stId)) updateStorageStatusBanner(nowIso, 'syncing');
+      try {
+        if (firebaseDb && firebaseConnected) {
+          await firebaseDb.ref('iot_2569_students/' + stId).update(payload);
+        } else {
+          const body = JSON.stringify(payload);
+          const resp = await fetch(`${CLOUD_DB_URL}/iot_2569_students/${encodeURIComponent(stId)}.json`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body,
+            keepalive: body.length < 60000
+          });
+          if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        }
+        const cur = pendingOps[stId] || {};
+        Object.keys(sent).forEach(p => { if (p in cur && cur[p] === sent[p]) delete cur[p]; });
+        persistPending(stId);
+        if (cloudDataCache[stId]) cloudDataCache[stId].lastUpdated = nowIso;
+        persistCache(stId);
+        isCloudConnected = true;
+        if (isCurrentStudent(stId)) updateStorageStatusBanner(nowIso, hasPending(stId) ? 'syncing' : 'synced');
+        updateStudentPillsBadges();
+        return true;
+      } catch (err) {
+        console.error('Cloud push error:', err);
+        if (isCurrentStudent(stId)) updateStorageStatusBanner(nowIso, 'error');
+        scheduleFlush(stId, 8000);
+        return false;
+      } finally {
+        flushInFlight[stId] = false;
+      }
+    }
+
+    function flushAllPending(immediate) {
+      STUDENTS.forEach(st => {
+        if (!hasPending(st.id)) return;
+        if (immediate) {
+          if (flushTimers[st.id]) { clearTimeout(flushTimers[st.id]); flushTimers[st.id] = null; }
+          flushPending(st.id);
+        } else {
+          scheduleFlush(st.id, 0);
+        }
+      });
     }
 
     function updateStorageStatusBanner(isoDate, mode) {
@@ -1777,147 +1919,307 @@ newgrp dialout</pre>
         el.textContent = `• ⏳ กำลังซิงก์ข้อมูลขึ้น Cloud...`;
         if (dot) dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping';
       } else if (mode === 'remote') {
-        el.textContent = `• ☁️ ซิงก์ข้อมูล Real-time ล่าสุดตรงกันทุกเครื่องเมื่อ ${timeStr}`;
+        el.textContent = `• ☁️ ได้รับข้อมูลล่าสุดจาก Cloud เมื่อ ${timeStr}`;
         if (dot) dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400';
       } else if (mode === 'error') {
-        el.textContent = `• ⚠️ บันทึกลงเครื่องแล้ว (รอการเชื่อมต่อ Cloud) ${timeStr}`;
+        const n = countAllPending();
+        el.textContent = `• ⚠️ ยังส่งขึ้น Cloud ไม่ได้ — เก็บไว้ในเครื่องแล้ว ${n} รายการ จะส่งให้อัตโนมัติเมื่อออนไลน์ (${timeStr})`;
         if (dot) dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-rose-400';
       } else if (isoDate) {
         el.textContent = `• ☁️ ซิงก์ออนไลน์แยกรายบุคคลตรงกันแล้วเมื่อ ${timeStr}`;
         if (dot) dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400';
       } else {
-        el.textContent = isCloudConnected ? `• ☁️ เชื่อมต่อฐานข้อมูลกลางสำเร็จ (แยกรายบุคคล 100%)` : `• พร้อมใช้งาน`;
+        el.textContent = isCloudConnected ? `• ☁️ เชื่อมต่อฐานข้อมูลกลางสำเร็จ (แยกรายบุคคล)` : `• พร้อมใช้งาน`;
       }
     }
 
+    // รับข้อมูลจาก Cloud: Cloud คือข้อมูลจริง + ซ้อนการแก้ไขที่เครื่องนี้ยังส่งไม่เสร็จ (pending) ทับไว้
     function applyIncomingCloudMap(allCloudData, isManualRefresh) {
-      const safeCloudMap = (allCloudData && typeof allCloudData === 'object') ? allCloudData : {};
-      let currentStUpdatedRemotely = false;
-      const currentStId = STUDENTS[currentStudentIndex].id;
+      const map = (allCloudData && typeof allCloudData === 'object') ? allCloudData : {};
+      const curId = STUDENTS[currentStudentIndex].id;
+      let currentChanged = false;
 
       STUDENTS.forEach(st => {
-        const cData = safeCloudMap[st.id];
-        const lData = getRawLocalAndMemoryData(st.id);
-
-        if (cData && (cData.sublabs || cData.weekLogs)) {
-          const isDifferentTime = cData.lastUpdated && cData.lastUpdated !== lData.lastUpdated;
-          const isFromOther = cData.updatedByClient !== CLIENT_INSTANCE_ID;
-
-          if (!initialMigrationCompleted) {
-            // First load: merge local storage with Cloud data strictly for this student
-            const merged = mergeStudentDatasets(lData, cData);
-            saveLocalQuietly(st.id, merged);
-            if (countFilledFields(merged) > countFilledFields(cData)) {
-              pushStudentDataToCloud(st.id, merged);
-            }
-          } else if (isDifferentTime && (isFromOther || isManualRefresh)) {
-            saveLocalQuietly(st.id, cData);
-            if (st.id === currentStId) {
-              currentStUpdatedRemotely = true;
-            }
-          }
-        } else if (hasAnyStudentContent(lData)) {
-          pushStudentDataToCloud(st.id, lData);
+        const base = normalizeStudentData(cloneTree(map[st.id] || {}));
+        const next = applyOpsTo(base, pendingOps[st.id] || {});
+        const prev = cloudDataCache[st.id] || {};
+        const changed = Object.keys(diffLeaves(prev, next)).length > 0 || prev.lastUpdated !== next.lastUpdated;
+        cloudDataCache[st.id] = next;
+        shadowData[st.id] = cloneTree(next);
+        if (changed) {
+          persistCache(st.id);
+          if (st.id === curId) currentChanged = true;
         }
       });
 
-      initialMigrationCompleted = true;
+      isCloudConnected = true;
       updateStudentPillsBadges();
 
-      if (currentStUpdatedRemotely || isManualRefresh) {
-        const curData = getStudentData(currentStId);
-        updateStorageStatusBanner(curData.lastUpdated, 'remote');
+      if (currentChanged || isManualRefresh) {
+        const curData = getStudentData(curId);
+        updateStorageStatusBanner(curData.lastUpdated, currentChanged ? 'remote' : undefined);
         updateStats();
-        const activeTag = document.activeElement ? document.activeElement.tagName : '';
-        if ((activeTag !== 'INPUT' && activeTag !== 'TEXTAREA') || isManualRefresh) {
-          renderWeeksAccordion();
-          renderCommandsView();
-        }
+        requestSafeRerender(!!isManualRefresh);
       }
     }
 
+    function isEditingField() {
+      const a = document.activeElement;
+      if (!a) return false;
+      if (a.tagName === 'TEXTAREA' || a.isContentEditable) return true;
+      if (a.tagName === 'INPUT') {
+        const t = (a.getAttribute('type') || 'text').toLowerCase();
+        return ['text', 'url', 'search', 'email', 'number', 'tel', 'password'].includes(t);
+      }
+      return false;
+    }
+
+    // ไม่วาดหน้าใหม่ระหว่างที่ผู้ใช้กำลังพิมพ์ (กันเคอร์เซอร์หลุด/ข้อความหาย) — รอจนออกจากช่องก่อน
+    function requestSafeRerender(force) {
+      if (!force && isEditingField()) { pendingRemoteRender = true; return; }
+      pendingRemoteRender = false;
+      renderWeeksAccordion();
+      renderCommandsView();
+    }
+    function scheduleAccordionRefresh(stId) {
+      if (!isCurrentStudent(stId)) return;
+      setTimeout(() => requestSafeRerender(false), 0);
+    }
+    document.addEventListener('focusout', () => {
+      setTimeout(() => {
+        if (pendingRemoteRender && !isEditingField()) requestSafeRerender(true);
+      }, 250);
+    });
+
+    async function fetchAllViaRest() {
+      const resp = await fetch(`${CLOUD_DB_URL}/iot_2569_students.json`, { cache: 'no-store' });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      return (await resp.json()) || {};
+    }
+
+    // ใช้ REST ดึงข้อมูลเฉพาะตอนที่ WebSocket ของ Firebase ไม่ได้เชื่อมต่อ (ประหยัดเน็ตมาก)
     async function pollCloudLatestQuietly() {
-      if (liveSaveTimer) return;
+      if (firebaseConnected) return;
       try {
-        const resp = await fetch(`${CLOUD_DB_URL}/iot_2569_students.json`);
-        if (resp.ok) {
-          const allCloudData = await resp.json();
-          isCloudConnected = true;
-          applyIncomingCloudMap(allCloudData || {}, false);
-        }
+        const data = await fetchAllViaRest();
+        applyIncomingCloudMap(data, false);
+        flushAllPending(false);
       } catch (e) {}
     }
 
     async function forceCloudPullAll() {
       showToast('🔄 กำลังดึงข้อมูลล่าสุดจาก Cloud...');
       try {
-        const resp = await fetch(`${CLOUD_DB_URL}/iot_2569_students.json`);
-        if (resp.ok) {
-          const allCloudData = await resp.json();
-          isCloudConnected = true;
-          applyIncomingCloudMap(allCloudData || {}, true);
-          showToast('☁️ ดึงและซิงก์ข้อมูลล่าสุดจาก Cloud เรียบร้อย!');
+        let data;
+        if (firebaseDb && firebaseConnected) {
+          data = (await firebaseDb.ref('iot_2569_students').once('value')).val();
+        } else {
+          data = await fetchAllViaRest();
         }
+        applyIncomingCloudMap(data || {}, true);
+        showToast(hasPending(STUDENTS[currentStudentIndex].id)
+          ? '☁️ ดึงข้อมูลแล้ว (ยังมีการแก้ไขในเครื่องที่รอส่ง ซึ่งยังแสดงอยู่)'
+          : '☁️ ดึงและซิงก์ข้อมูลล่าสุดจาก Cloud เรียบร้อย!');
       } catch (err) {
-        console.error("Cloud pull error:", err);
+        console.error('Cloud pull error:', err);
         showToast('⚠️ ไม่สามารถเชื่อมต่อ Cloud ได้ในขณะนี้');
       }
     }
 
+    // ส่งเฉพาะ "การแก้ไขที่ค้างอยู่" ของคนที่เปิดอยู่ — ไม่เขียนทับข้อมูลทั้งก้อนบน Cloud อีกต่อไป
     async function forceCloudPushCurrent() {
       const st = STUDENTS[currentStudentIndex];
-      const sData = getStudentData(st.id);
-      await pushStudentDataToCloud(st.id, sData);
-      showToast(`☁️ ซิงก์ข้อมูลของ ${st.id} ขึ้น Cloud สำเร็จ!`);
+      const n = pendingOps[st.id] ? Object.keys(pendingOps[st.id]).length : 0;
+      if (n === 0) {
+        showToast(`☁️ ข้อมูลของ ${st.id} ตรงกับ Cloud แล้ว (ไม่มีรายการค้างส่ง)`);
+        return;
+      }
+      if (flushTimers[st.id]) { clearTimeout(flushTimers[st.id]); flushTimers[st.id] = null; }
+      const ok = await flushPending(st.id);
+      showToast(ok
+        ? `☁️ ส่งการแก้ไขที่ค้างอยู่ ${n} รายการของ ${st.id} ขึ้น Cloud สำเร็จ!`
+        : '⚠️ ยังเชื่อมต่อ Cloud ไม่ได้ — ข้อมูลเก็บไว้ในเครื่องแล้ว จะส่งให้อัตโนมัติเมื่อออนไลน์');
     }
 
     async function initCloudSync() {
-      try {
-        const resp = await fetch(`${CLOUD_DB_URL}/iot_2569_students.json`);
-        if (resp.ok) {
-          const initialCloud = await resp.json();
-          isCloudConnected = true;
-          applyIncomingCloudMap(initialCloud || {}, true);
-          const curSt = STUDENTS[currentStudentIndex];
-          updateStorageStatusBanner(getStudentData(curSt.id).lastUpdated);
-        }
-      } catch (e) {
-        console.warn("Initial REST fetch error:", e);
-      }
-
+      let sdkReady = false;
       try {
         if (typeof firebase !== 'undefined' && firebase.initializeApp) {
           if (!firebase.apps || firebase.apps.length === 0) {
             firebase.initializeApp(FIREBASE_CONFIG);
           }
           firebaseDb = firebase.database();
-          firebaseDb.ref('iot_2569_students').on('value', snapshot => {
-            isCloudConnected = true;
-            const val = snapshot.val();
-            applyIncomingCloudMap(val || {}, false);
+          firebaseDb.ref('.info/connected').on('value', snap => {
+            firebaseConnected = snap.val() === true;
+            if (firebaseConnected) flushAllPending(false);
           });
+          firebaseDb.ref('iot_2569_students').on('value', snapshot => {
+            applyIncomingCloudMap(snapshot.val() || {}, false);
+          }, err => console.warn('Firebase listener error:', err));
+          sdkReady = true;
         }
       } catch (e) {
-        console.warn("Firebase WebSocket listener setup warning:", e);
+        console.warn('Firebase WebSocket listener setup warning:', e);
+        firebaseDb = null;
       }
 
-      setInterval(pollCloudLatestQuietly, 4000);
+      if (!sdkReady) {
+        try {
+          applyIncomingCloudMap(await fetchAllViaRest(), true);
+        } catch (e) {
+          updateStorageStatusBanner(null, 'error');
+        }
+      }
+
+      flushAllPending(false);
+      setInterval(pollCloudLatestQuietly, 15000);
+      window.addEventListener('online', () => flushAllPending(true));
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') flushAllPending(true);
+      });
+      window.addEventListener('pagehide', () => flushAllPending(true));
+    }
+
+    // ---------- "โปรไฟล์ของฉัน" (กันการบันทึกลงโปรไฟล์ของเพื่อนโดยไม่ตั้งใจ) ----------
+    function resolveInitialStudentIndex() {
+      let fromHash = '';
+      try { fromHash = decodeURIComponent((location.hash || '').replace(/^#/, '')).trim(); } catch (e) {}
+      const candidates = [fromHash, getMyStudentId(), safeGetLS(LAST_VIEW_KEY)];
+      for (const c of candidates) {
+        const i = indexOfStudent(c);
+        if (i >= 0) return i;
+      }
+      return 0;
+    }
+
+    window.addEventListener('hashchange', () => {
+      let id = '';
+      try { id = decodeURIComponent((location.hash || '').replace(/^#/, '')).trim(); } catch (e) {}
+      const i = indexOfStudent(id);
+      if (i >= 0 && i !== currentStudentIndex) loadStudent(i);
+    });
+
+    function openProfilePicker() {
+      let modal = document.getElementById('profile-picker-modal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'profile-picker-modal';
+        document.body.appendChild(modal);
+      }
+      const myId = getMyStudentId();
+      modal.className = 'fixed inset-0 z-[60] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4';
+      modal.innerHTML = `
+        <div class="bg-card border border-sky-500/40 rounded-2xl p-5 w-full max-w-lg shadow-2xl space-y-3 max-h-[90vh] overflow-y-auto">
+          <h3 class="text-base font-bold text-white">👋 คุณคือใคร? เลือกโปรไฟล์ของคุณ</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">ระบบจะจำไว้ในเบราว์เซอร์นี้ และเปิดหน้าของคุณทุกครั้ง ถ้าเผลอไปแก้ไขหน้าของเพื่อน ระบบจะถามยืนยันก่อนบันทึก — ป้องกันลิงก์ YouTube/รูปภาพ ไปโผล่ในโปรไฟล์คนอื่น</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            ${STUDENTS.map(s => `
+              <button type="button" onclick="chooseMyProfile(${jsArg(s.id)})"
+                      class="text-left px-3 py-2 rounded-lg border ${s.id === myId ? 'border-sky-400 bg-sky-500/15' : 'border-border bg-sidebar'} hover:border-sky-400 text-xs transition">
+                <b class="font-mono text-sky-300">${escapeHtml(s.id)}</b>${s.id === myId ? ' <span class="text-emerald-400">✓ ปัจจุบัน</span>' : ''}<br>
+                <span class="text-slate-200">${escapeHtml(s.name_th)}</span>
+              </button>`).join('')}
+          </div>
+          <div class="flex flex-wrap justify-between items-center gap-2 pt-2 border-t border-border">
+            <button type="button" onclick="chooseMyProfile(${jsArg(ADMIN_PROFILE)})" class="text-[11px] text-slate-400 hover:text-white underline">ฉันเป็นอาจารย์ / ผู้ดูแล (ดูและแก้ได้ทุกคน)</button>
+            ${myId ? `<button type="button" onclick="closeProfilePicker()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300">ปิด</button>` : ''}
+          </div>
+        </div>`;
+      modal.classList.remove('hidden');
+    }
+
+    function closeProfilePicker() {
+      const modal = document.getElementById('profile-picker-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function chooseMyProfile(stId) {
+      safeSetLS(MY_PROFILE_KEY, stId);
+      editConfirmedFor.clear();
+      closeProfilePicker();
+      const i = indexOfStudent(stId);
+      if (i >= 0) {
+        loadStudent(i);
+        showToast(`👤 ตั้งเป็นโปรไฟล์ของคุณแล้ว: ${stId}`);
+      } else {
+        updateProfileGuardBanner();
+        showToast('🧑‍🏫 เข้าสู่โหมดผู้ดูแล');
+      }
+    }
+
+    function goToMyProfile() {
+      const i = indexOfStudent(getMyStudentId());
+      if (i >= 0) loadStudent(i); else openProfilePicker();
+    }
+
+    function updateProfileGuardBanner() {
+      const el = document.getElementById('profile-guard-banner');
+      if (!el) return;
+      const myId = getMyStudentId();
+      const cur = STUDENTS[currentStudentIndex];
+      if (!myId) {
+        el.className = 'mt-3 p-2.5 rounded-xl border border-amber-500/50 bg-amber-500/10 text-xs text-amber-200 flex flex-wrap items-center justify-between gap-2';
+        el.innerHTML = `<span>👤 ยังไม่ได้เลือกโปรไฟล์ของคุณ — เลือกก่อนเพื่อป้องกันการบันทึกลิงก์/รูปลงโปรไฟล์ของเพื่อนโดยไม่ตั้งใจ</span>
+          <button type="button" onclick="openProfilePicker()" class="px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-500/40 font-semibold">เลือกโปรไฟล์ของฉัน</button>`;
+        return;
+      }
+      if (myId === ADMIN_PROFILE || myId === cur.id) {
+        el.className = 'mt-3 p-2 rounded-xl border border-sky-500/30 bg-sky-500/5 text-[11px] text-sky-200 flex flex-wrap items-center justify-between gap-2';
+        el.innerHTML = (myId === ADMIN_PROFILE
+          ? `<span>🧑‍🏫 โหมดผู้ดูแล: กำลังดูข้อมูลของ <b>${escapeHtml(cur.id)} ${escapeHtml(cur.name_th)}</b></span>`
+          : `<span>✅ นี่คือโปรไฟล์ของคุณ: <b>${escapeHtml(cur.id)} ${escapeHtml(cur.name_th)}</b> — ทุกอย่างที่กรอกจะบันทึกในชื่อของคุณ</span>`)
+          + `<button type="button" onclick="openProfilePicker()" class="underline hover:text-white">เปลี่ยนโปรไฟล์</button>`;
+        return;
+      }
+      const me = getStudentById(myId);
+      el.className = 'mt-3 p-2.5 rounded-xl border-2 border-amber-500/70 bg-amber-500/15 text-xs text-amber-100 flex flex-wrap items-center justify-between gap-2';
+      el.innerHTML = `<span>⚠️ คุณกำลังดูโปรไฟล์ของ <b>${escapeHtml(cur.id)} ${escapeHtml(cur.name_th)}</b> (ไม่ใช่ของคุณ) — ถ้าแก้ไขอะไร ระบบจะถามยืนยันก่อนบันทึก</span>
+        <button type="button" onclick="goToMyProfile()" class="px-2.5 py-1 rounded-lg bg-amber-500/30 border border-amber-400/60 font-bold">↩︎ กลับไปหน้าของฉัน${me ? ' (' + escapeHtml(me.id) + ')' : ''}</button>`;
+    }
+
+    // ดาวน์โหลดทุกอย่างที่เบราว์เซอร์นี้เก็บไว้ (รวมข้อมูลเวอร์ชันเก่า) — กันข้อมูลหาย 100%
+    function downloadLocalBrowserBackup() {
+      const dump = { exportedAt: new Date().toISOString(), note: 'สำเนาข้อมูลทั้งหมดใน localStorage ของเบราว์เซอร์นี้ (iot_*) สำหรับกู้คืน', keys: {} };
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && /^iot_/.test(k)) dump.keys[k] = localStorage.getItem(k);
+        }
+      } catch (e) {}
+      const count = Object.keys(dump.keys).length;
+      const blob = new Blob([JSON.stringify(dump, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `iot_browser_backup_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast(`🗄️ ดาวน์โหลดสำรองข้อมูลในเครื่องแล้ว (${count} รายการ)`);
     }
 
     function loadStudent(idx) {
+      if (typeof idx !== 'number' || idx < 0 || idx >= STUDENTS.length) idx = 0;
+      const prev = STUDENTS[currentStudentIndex];
+      if (prev && prev.id !== STUDENTS[idx].id && hasPending(prev.id)) scheduleFlush(prev.id, 0);
       currentStudentIndex = idx;
       const st = STUDENTS[idx];
+      safeSetLS(LAST_VIEW_KEY, st.id);
+      let curHash = '';
+      try { curHash = decodeURIComponent((location.hash || '').replace(/^#/, '')); } catch (e) {}
+      if (curHash !== st.id) {
+        try { history.replaceState(null, '', '#' + st.id); } catch (e) {}
+      }
+
       const sData = getStudentData(st.id);
       updateStorageStatusBanner(sData.lastUpdated);
 
-      document.querySelectorAll('.student-pill').forEach((p, i) => {
-        if (i === idx) {
-          p.classList.add('active');
-          p.querySelector('span').className = 'w-1.5 h-1.5 rounded-full bg-sky-400';
-        } else {
-          p.classList.remove('active');
-          p.querySelector('span').className = 'w-1.5 h-1.5 rounded-full bg-gray-400';
-        }
+      document.querySelectorAll('.student-pill').forEach(p => {
+        const active = p.id === 'pill-' + st.id;
+        p.classList.toggle('active', active);
+        const dot = p.querySelector('.pill-dot');
+        if (dot) dot.className = `pill-dot w-1.5 h-1.5 rounded-full ${active ? 'bg-sky-400' : 'bg-gray-400'}`;
       });
 
       document.getElementById('st-name-display').textContent = `${st.name_th} (${st.name_en})`;
@@ -1926,9 +2228,12 @@ newgrp dialout</pre>
       document.getElementById('st-gauge-display').textContent = st.gauge;
       document.getElementById('st-ap-display').textContent = `ESP32_AP_${st.last4}`;
 
+      persistCache(st.id);
+      pendingRemoteRender = false;
       renderWeeksAccordion();
       renderCommandsView();
       updateStats();
+      updateProfileGuardBanner();
     }
 
     function updatePortInCommands(val) {
@@ -2015,15 +2320,15 @@ newgrp dialout</pre>
 
     function getPhotoValue(subData, photoId) {
       if (!subData) return '';
-      if (subData.photos && subData.photos[photoId]) return subData.photos[photoId];
-      if (photoId === 'p1' && subData.imageUrl) return subData.imageUrl;
+      if (subData.photos && subData.photos[photoId]) return String(subData.photos[photoId]);
+      if (photoId === 'p1' && subData.imageUrl) return String(subData.imageUrl);
       return '';
     }
 
     function getVideoValue(subData, videoId) {
       if (!subData) return '';
-      if (subData.videos && subData.videos[videoId]) return subData.videos[videoId];
-      if (videoId === 'v1' && subData.videoUrl) return subData.videoUrl;
+      if (subData.videos && subData.videos[videoId]) return String(subData.videos[videoId]);
+      if (videoId === 'v1' && subData.videoUrl) return String(subData.videoUrl);
       return '';
     }
 
@@ -2139,7 +2444,7 @@ newgrp dialout</pre>
                   <button onclick="previewWeekReportMarkdown('${w.week}')" class="px-2.5 py-1 rounded bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-semibold flex items-center gap-1 transition shadow-sm" title="สร้างและดูตัวอย่าง Report ของสัปดาห์นี้เป็น Markdown">
                     <span>📝</span> สร้าง Report สัปดาห์นี้
                   </button>
-                  <button onclick="autoDistributeWeekLog('${w.week}')" class="px-2.5 py-1 rounded bg-gradient-to-r from-emerald-600 to-sky-600 hover:from-emerald-500 hover:to-sky-500 text-white text-xs font-semibold flex items-center gap-1 transition shadow-sm" title="แยก Log เข้าช่องแล็บย่อยอัตโนมัติ">
+                  <button onclick="autoDistributeWeekLog('${st.id}', '${w.week}')" class="px-2.5 py-1 rounded bg-gradient-to-r from-emerald-600 to-sky-600 hover:from-emerald-500 hover:to-sky-500 text-white text-xs font-semibold flex items-center gap-1 transition shadow-sm" title="แยก Log เข้าช่องแล็บย่อยอัตโนมัติ">
                     <span>✨</span> แยกเข้าแล็บย่อยอัตโนมัติ
                   </button>
                   <button onclick="copyWeekLog('${w.week}')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-border transition">
@@ -2161,10 +2466,10 @@ newgrp dialout</pre>
                         rows="4"
                         placeholder="วางข้อความ Serial Monitor ทั้งหมดของสัปดาห์นี้ที่นี่ (Ctrl+A -> Ctrl+C จาก Terminal แล้ววางเลย)..."
                         class="w-full bg-black/70 border border-slate-800 rounded-lg p-2.5 text-xs text-emerald-400 font-mono focus:border-sky-500 focus:outline-none custom-scrollbar resize-y"
-                        oninput="saveWeekLogLive('${w.week}', this.value)" onchange="saveWeekLog('${w.week}', this.value)">${sData.weekLogs && sData.weekLogs[w.week] ? sData.weekLogs[w.week] : ''}</textarea>
+                        oninput="saveWeekLogLive('${st.id}', '${w.week}', this.value)" onchange="saveWeekLog('${st.id}', '${w.week}', this.value)">${escapeHtml(sData.weekLogs && sData.weekLogs[w.week] ? sData.weekLogs[w.week] : '')}</textarea>
               <div class="flex items-center justify-between text-[10px] text-muted font-mono">
-                <span>สถานะ: <b class="${sData.weekLogs && sData.weekLogs[w.week] ? 'text-emerald-400' : 'text-slate-500'}">${sData.weekLogs && sData.weekLogs[w.week] ? 'บันทึกแล้ว (' + sData.weekLogs[w.week].length + ' ตัวอักษร)' : 'ยังไม่มีข้อมูล'}</b></span>
-                ${sData.weekLogs && sData.weekLogs[w.week] ? `<button onclick="clearWeekLog('${w.week}')" class="text-rose-400 hover:text-rose-300">ล้างข้อความ ✕</button>` : ''}
+                <span>สถานะ: <b class="${sData.weekLogs && sData.weekLogs[w.week] ? 'text-emerald-400' : 'text-slate-500'}">${sData.weekLogs && sData.weekLogs[w.week] ? 'บันทึกแล้ว (' + String(sData.weekLogs[w.week]).length + ' ตัวอักษร)' : 'ยังไม่มีข้อมูล'}</b></span>
+                ${sData.weekLogs && sData.weekLogs[w.week] ? `<button onclick="clearWeekLog('${st.id}', '${w.week}')" class="text-rose-400 hover:text-rose-300">ล้างข้อความ ✕</button>` : ''}
               </div>
             </div>
 
@@ -2196,8 +2501,8 @@ newgrp dialout</pre>
                             </div>
 
                             <div class="rounded-lg overflow-hidden border border-border bg-black/60 relative group cursor-pointer h-48 flex items-center justify-center shadow-inner"
-                                 onclick="openImageModal('${c.png}', '${c.title}')">
-                              <img src="${c.png}" alt="${c.title}" class="max-h-full max-w-full object-contain p-1.5">
+                                 onclick="openImageModal(${jsArg(c.png)}, ${jsArg(c.title)})">
+                              <img src="${escapeHtml(c.png)}" alt="${escapeHtml(c.title)}" class="max-h-full max-w-full object-contain p-1.5">
                               <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-xs text-white font-semibold transition">
                                 🔍 คลิกเพื่อดูขนาดเต็ม
                               </div>
@@ -2233,8 +2538,8 @@ newgrp dialout</pre>
                       
                       <!-- Circuit Image Preview -->
                       <div class="w-full lg:w-1/2 rounded-xl overflow-hidden border border-border bg-black/60 relative group cursor-pointer shadow-inner"
-                           onclick="openImageModal('${w.circuit.png}', '${w.circuit.title}')">
-                        <img src="${w.circuit.png}" alt="${w.circuit.title}" class="w-full max-h-72 object-contain bg-black/80 p-2">
+                           onclick="openImageModal(${jsArg(w.circuit.png)}, ${jsArg(w.circuit.title)})">
+                        <img src="${escapeHtml(w.circuit.png)}" alt="${escapeHtml(w.circuit.title)}" class="w-full max-h-72 object-contain bg-black/80 p-2">
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-xs text-white font-semibold transition">
                           🔍 คลิกเพื่อดูรูปผังวงจรขนาดเต็ม
                         </div>
@@ -2283,7 +2588,7 @@ newgrp dialout</pre>
         filteredSublabs.forEach(sub => {
           const subData = sData.sublabs[sub.id] || {};
           const isDone = subData.completed || false;
-          const terminalLog = subData.terminalLog || '';
+          const terminalLog = subData.terminalLog ? String(subData.terminalLog) : '';
           const metrics = subData.metrics || {};
           const cleanCmd = getInterpolatedCommand(sub.command, st);
 
@@ -2359,12 +2664,12 @@ newgrp dialout</pre>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                   ${sub.metrics.map(m => `
                     <div class="bg-sidebar p-2 rounded-lg border border-border">
-                      <span class="text-[10px] text-muted block truncate font-medium" title="${m.label}">${m.label}</span>
+                      <span class="text-[10px] text-muted block truncate font-medium" title="${escapeHtml(m.label)}">${m.label}</span>
                       <input type="text"
-                             value="${metrics[m.key] || ''}"
-                             placeholder="${m.placeholder}"
+                             value="${escapeHtml(metrics[m.key] || '')}"
+                             placeholder="${escapeHtml(m.placeholder)}"
                              class="w-full mt-1 bg-background border border-border rounded px-2 py-1 text-xs text-emerald-300 font-mono focus:border-sky-400 focus:outline-none"
-                             oninput="saveSublabMetric('${sub.id}', '${m.key}', this.value)">
+                             oninput="saveSublabMetric('${st.id}', '${sub.id}', '${m.key}', this.value)">
                     </div>
                   `).join('')}
                 </div>
@@ -2393,7 +2698,8 @@ newgrp dialout</pre>
                   <input type="checkbox"
                          ${isDone ? 'checked' : ''}
                          class="w-4 h-4 rounded text-emerald-500 accent-emerald-500 cursor-pointer"
-                         onchange="toggleSublabDone('${sub.id}', this.checked)">
+                         id="sublab-check-${sub.id}"
+                         onchange="toggleSublabDone('${st.id}', '${sub.id}', this.checked)">
                   <span class="font-medium">ทำเสร็จแล้ว</span>
                 </label>
               </div>
@@ -2513,29 +2819,30 @@ newgrp dialout</pre>
                           <div class="flex items-center gap-2">
                             <input type="url"
                                    id="img-input-${sub.id}-${p.id}"
-                                   value="${isPhotoFilled && !pVal.startsWith('data:') ? pVal : ''}"
+                                   autocomplete="off"
+                                   value="${escapeHtml(isPhotoFilled && !pVal.startsWith('data:') ? pVal : '')}"
                                    placeholder="แปะลิงก์รูป (URL/Drive)..."
                                    class="flex-1 bg-background border ${isNameReq && !isPhotoFilled ? 'border-rose-500/40 focus:border-rose-400' : 'border-border focus:border-sky-400'} rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none"
-                                   oninput="saveSublabPhotoLive('${sub.id}', '${p.id}', this.value)" onchange="saveSublabPhoto('${sub.id}', '${p.id}', this.value)">
+                                   oninput="saveSublabPhotoLive('${st.id}', '${sub.id}', '${p.id}', this.value)" onchange="saveSublabPhoto('${st.id}', '${sub.id}', '${p.id}', this.value)">
                             
                             <label class="px-2.5 py-1.5 rounded-lg border ${isNameReq && !isPhotoFilled ? 'border-rose-500/50 bg-rose-950/40 hover:bg-rose-900/50 text-rose-200' : 'border-border bg-slate-800 hover:bg-slate-700 text-slate-300'} text-xs cursor-pointer transition flex items-center gap-1.5 shadow-sm whitespace-nowrap" title="อัปโหลดรูปภาพ รองรับ JPG, PNG, และ HEIC ของ iPhone">
                               <span>📁</span>
                               <span class="text-[11px] font-medium hidden sm:inline">เลือกรูป</span>
-                              <input type="file" accept="image/*,.heic,.heif,image/heic,image/heif" class="hidden" onchange="handlePhotoUpload('${sub.id}', '${p.id}', event)">
+                              <input type="file" accept="image/*,.heic,.heif,image/heic,image/heif" class="hidden" onchange="handlePhotoUpload('${st.id}', '${sub.id}', '${p.id}', event)">
                             </label>
                           </div>
 
                           <div id="img-preview-box-${sub.id}-${p.id}" class="${isPhotoFilled ? '' : 'hidden'}">
                             <div class="relative group rounded-lg overflow-hidden border border-border bg-black/50 h-32 flex items-center justify-center cursor-pointer"
-                                 onclick="openImageModal('${pVal}', '${sub.code}: ${p.label}')">
-                              <img id="img-preview-${sub.id}-${p.id}" src="${pVal}" alt="Preview" class="max-h-full max-w-full object-contain">
+                                 onclick="openPhotoModal(${jsArg(st.id)}, ${jsArg(sub.id)}, ${jsArg(p.id)})">
+                              <img id="img-preview-${sub.id}-${p.id}" src="${escapeHtml(safeImgSrc(pVal))}" alt="Preview" class="max-h-full max-w-full object-contain">
                               <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-xs text-white font-semibold transition">
                                 🔍 คลิกดูรูปขนาดใหญ่
                               </div>
                             </div>
                             <div class="flex items-center justify-between mt-1 text-[10px]">
                               <span class="text-emerald-400 font-mono">รูปพร้อมส่ง ✓</span>
-                              <button onclick="clearPhoto('${sub.id}', '${p.id}')" class="text-rose-400 hover:text-rose-300">ลบรูปนี้ ✕</button>
+                              <button onclick="clearPhoto('${st.id}', '${sub.id}', '${p.id}')" class="text-rose-400 hover:text-rose-300">ลบรูปนี้ ✕</button>
                             </div>
                           </div>
                         </div>
@@ -2589,16 +2896,18 @@ newgrp dialout</pre>
                             <div class="flex items-center gap-2">
                               <input type="url"
                                      id="video-input-${sub.id}-${v.id}"
-                                     value="${vVal}"
+                                     autocomplete="off"
+                                     value="${escapeHtml(vVal)}"
                                      placeholder="แปะลิงก์ YouTube / Google Drive / Loom..."
                                      class="flex-1 bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:border-purple-400 focus:outline-none"
-                                     oninput="saveSublabVideoLive('${sub.id}', '${v.id}', this.value)" onchange="saveSublabVideo('${sub.id}', '${v.id}', this.value)">
+                                     oninput="saveSublabVideoLive('${st.id}', '${sub.id}', '${v.id}', this.value)" onchange="saveSublabVideo('${st.id}', '${sub.id}', '${v.id}', this.value)">
                               <div id="video-actions-${sub.id}-${v.id}" class="flex items-center gap-1.5 ${isVideoFilled ? '' : 'hidden'}">
-                                <a id="video-btn-open-${sub.id}-${v.id}" href="${vVal}" target="_blank"
-                                   class="px-2.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold flex items-center gap-1 transition shadow-sm whitespace-nowrap">
+                                <a id="video-btn-open-${sub.id}-${v.id}" href="${escapeHtml(safeHref(vVal))}" target="_blank" rel="noopener noreferrer"
+                                   title="${escapeHtml(safeHref(vVal) === '#' ? 'ลิงก์ยังไม่ถูกต้อง' : safeHref(vVal))}"
+                                   class="${safeHref(vVal) === '#' ? 'pointer-events-none opacity-50 ' : ''}px-2.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold flex items-center gap-1 transition shadow-sm whitespace-nowrap">
                                   ▶️ เปิดคลิป ↗️
                                 </a>
-                                <button type="button" onclick="clearVideo('${sub.id}', '${v.id}')" class="px-2 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-900/60 text-slate-400 hover:text-rose-300 border border-border text-xs transition" title="ลบคลิปนี้">
+                                <button type="button" onclick="clearVideo('${st.id}', '${sub.id}', '${v.id}')" class="px-2 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-900/60 text-slate-400 hover:text-rose-300 border border-border text-xs transition" title="ลบคลิปนี้">
                                   ✕
                                 </button>
                               </div>
@@ -2643,9 +2952,9 @@ newgrp dialout</pre>
 
                     <textarea id="term-input-${sub.id}"
                               rows="6"
-                              placeholder="${sub.termMeta && sub.termMeta.placeholder ? sub.termMeta.placeholder.split(String.fromCharCode(10))[0] + '...' : (sub.termPlaceholder || 'วางข้อความ Log ที่ก๊อปปี้มาจาก Terminal หรือ Serial Monitor ที่นี่...')}"
+                              placeholder="${escapeHtml(sub.termMeta && sub.termMeta.placeholder ? sub.termMeta.placeholder.split(String.fromCharCode(10))[0] + '...' : (sub.termPlaceholder || 'วางข้อความ Log ที่ก๊อปปี้มาจาก Terminal หรือ Serial Monitor ที่นี่...'))}"
                               class="w-full bg-black/60 border border-border rounded-lg p-2.5 text-xs text-emerald-400 font-mono focus:border-emerald-500 focus:outline-none custom-scrollbar resize-y"
-                              oninput="saveSublabFieldLive('${sub.id}', 'terminalLog', this.value)" onchange="saveSublabField('${sub.id}', 'terminalLog', this.value)">${terminalLog}</textarea>
+                              oninput="saveSublabFieldLive('${st.id}', '${sub.id}', 'terminalLog', this.value)" onchange="saveSublabField('${st.id}', '${sub.id}', 'terminalLog', this.value)">${escapeHtml(terminalLog)}</textarea>
                   </div>
                   <div class="flex items-center justify-between text-[10px] text-muted font-mono pt-1 border-t border-border/40">
                     <span class="truncate mr-2 font-medium">${sub.termLabel}</span>
@@ -2725,82 +3034,67 @@ newgrp dialout</pre>
       }
     }
 
-    function toggleSublabDone(subId, isChecked) {
-      const st = STUDENTS[currentStudentIndex];
+    function toggleSublabDone(stId, subId, isChecked) {
+      const st = resolveStudent(stId);
       const sData = getStudentData(st.id);
       if (!sData.sublabs[subId]) sData.sublabs[subId] = {};
-      sData.sublabs[subId].completed = isChecked;
-      saveStudentData(st.id, sData);
-      updateStats();
-      renderWeeksAccordion();
-      showToast(isChecked ? 'ทำเครื่องหมายเสร็จแล้ว' : 'ยกเลิกเครื่องหมายเสร็จ');
+      sData.sublabs[subId].completed = !!isChecked;
+      // ผู้ใช้ติ๊กเอง -> ระบบอัตโนมัติจะไม่ไปแก้สถานะนี้ทับอีก
+      sData.sublabs[subId].completedManual = true;
+      if (!saveStudentData(st.id, sData)) return;
+      if (isCurrentStudent(st.id)) { updateStats(); renderWeeksAccordion(); }
+      showToast((isChecked ? 'ทำเครื่องหมายเสร็จแล้ว' : 'ยกเลิกเครื่องหมายเสร็จ') + otherSuffix(st.id));
     }
 
-    function checkSublabAutoCompletion(subId, sData) {
-      let subObj = null;
-      let weekObj = null;
-      for (const w of WEEKS_DATA) {
-        for (const s of w.sublabs) {
-          if (s.id === subId) {
-            subObj = s;
-            weekObj = w;
-            break;
-          }
-        }
-        if (subObj) break;
-      }
-      if (!subObj || !sData.sublabs[subId]) return;
-
+    function checkSublabAutoCompletion(subId, sData, stId) {
+      const meta = findSublabMeta(subId);
+      if (!meta || !sData.sublabs[subId]) return;
+      const subObj = meta.sub;
+      const weekObj = meta.week;
       const subData = sData.sublabs[subId];
+      if (subData.completedManual) return;
+
       const hasWeekLog = !!(sData.weekLogs && sData.weekLogs[weekObj.week]);
       const termOk = !!(subData.terminalLog || hasWeekLog || !subObj.termReq);
 
       let photosOk = true;
       if (subObj.photos && subObj.photos.length > 0) {
-        for (const p of subObj.photos) {
-          const val = getPhotoValue(subData, p.id);
-          if (!val) {
-            photosOk = false;
-            break;
-          }
-        }
+        photosOk = subObj.photos.every(p => !!getPhotoValue(subData, p.id));
       }
-
       let videosOk = true;
       if (subObj.videos && subObj.videos.length > 0) {
-        for (const v of subObj.videos) {
-          const val = getVideoValue(subData, v.id);
-          if (!val) {
-            videosOk = false;
-            break;
-          }
-        }
+        videosOk = subObj.videos.every(v => !!getVideoValue(subData, v.id));
       }
 
-      if (photosOk && videosOk && termOk) {
-        subData.completed = true;
-      } else {
-        subData.completed = false;
+      subData.completed = !!(photosOk && videosOk && termOk);
+      if (!stId || isCurrentStudent(stId)) {
+        const checkEl = document.getElementById('sublab-check-' + subId);
+        if (checkEl) checkEl.checked = subData.completed;
       }
-      const checkEl = document.getElementById('sublab-check-' + subId);
-      if (checkEl) checkEl.checked = subData.completed;
     }
 
-    function saveSublabField(subId, field, value) {
-      const st = STUDENTS[currentStudentIndex];
+    function recheckWeekCompletion(week, sData, stId) {
+      const weekObj = WEEKS_DATA.find(w => w.week === week);
+      if (!weekObj) return;
+      weekObj.sublabs.forEach(sub => {
+        if (sData.sublabs[sub.id]) checkSublabAutoCompletion(sub.id, sData, stId);
+      });
+    }
+
+    function saveSublabField(stId, subId, field, value) {
+      const st = resolveStudent(stId);
       const sData = getStudentData(st.id);
       if (!sData.sublabs[subId]) sData.sublabs[subId] = {};
-      sData.sublabs[subId][field] = value.trim();
+      sData.sublabs[subId][field] = String(value === undefined || value === null ? '' : value).trim();
 
-      checkSublabAutoCompletion(subId, sData);
-      saveStudentData(st.id, sData);
-      updateStats();
-      renderWeeksAccordion();
-      showToast('บันทึกข้อมูลเรียบร้อย');
+      checkSublabAutoCompletion(subId, sData, st.id);
+      if (!saveStudentData(st.id, sData)) return;
+      if (isCurrentStudent(st.id)) { updateStats(); scheduleAccordionRefresh(st.id); }
+      showToast('บันทึกข้อมูลเรียบร้อย' + otherSuffix(st.id));
     }
 
-    function applyPhotoDomUpdate(subId, photoId, val) {
-      const trimmed = (val || '').trim();
+    function applyPhotoDomUpdate(subId, photoId, val, fromInput) {
+      const trimmed = String(val || '').trim();
       const pBox = document.getElementById(`img-preview-box-${subId}-${photoId}`);
       const pImg = document.getElementById(`img-preview-${subId}-${photoId}`);
       const pInput = document.getElementById(`img-input-${subId}-${photoId}`);
@@ -2808,16 +3102,19 @@ newgrp dialout</pre>
 
       if (!trimmed) {
         if (pBox) pBox.classList.add('hidden');
-        if (pImg) pImg.src = '';
-        if (pInput && pInput.value !== '') pInput.value = '';
+        if (pImg) pImg.removeAttribute('src');
+        if (pInput && !fromInput && pInput.value !== '') pInput.value = '';
         if (pBadge) {
           pBadge.className = 'text-[10px] px-2 py-0.5 rounded-full font-semibold whitespace-nowrap bg-slate-800 text-slate-400 border border-slate-700';
           pBadge.textContent = '⚪ รออัปโหลด';
         }
       } else {
         if (pBox) pBox.classList.remove('hidden');
-        if (pImg) pImg.src = trimmed;
-        if (pInput && !trimmed.startsWith('data:') && pInput.value !== trimmed) pInput.value = trimmed;
+        if (pImg) pImg.src = safeImgSrc(trimmed);
+        if (pInput && !fromInput) {
+          const shown = trimmed.startsWith('data:') ? '' : trimmed;
+          if (pInput.value !== shown) pInput.value = shown;
+        }
         if (pBadge) {
           pBadge.className = 'text-[10px] px-2 py-0.5 rounded-full font-semibold whitespace-nowrap bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
           pBadge.textContent = '✓ อัปโหลดแล้ว';
@@ -2825,23 +3122,29 @@ newgrp dialout</pre>
       }
     }
 
-    function applyVideoDomUpdate(subId, videoId, val) {
-      const trimmed = (val || '').trim();
+    function applyVideoDomUpdate(subId, videoId, val, fromInput) {
+      const trimmed = String(val || '').trim();
       const vInput = document.getElementById(`video-input-${subId}-${videoId}`);
       const vActions = document.getElementById(`video-actions-${subId}-${videoId}`);
       const vBtn = document.getElementById(`video-btn-open-${subId}-${videoId}`);
       const vBadge = document.getElementById(`video-badge-${subId}-${videoId}`);
 
       if (!trimmed) {
-        if (vInput && vInput.value !== '') vInput.value = '';
+        if (vInput && !fromInput && vInput.value !== '') vInput.value = '';
         if (vActions) vActions.classList.add('hidden');
         if (vBadge) {
           vBadge.className = 'text-[10px] px-2 py-0.5 rounded-full font-semibold bg-slate-800 text-slate-400 border border-slate-700';
           vBadge.textContent = '⚪ รอคลิป';
         }
       } else {
-        if (vInput && vInput.value !== trimmed) vInput.value = trimmed;
-        if (vBtn) vBtn.href = trimmed;
+        if (vInput && !fromInput && vInput.value !== trimmed) vInput.value = trimmed;
+        if (vBtn) {
+          const href = safeHref(trimmed);
+          vBtn.href = href;
+          vBtn.classList.toggle('pointer-events-none', href === '#');
+          vBtn.classList.toggle('opacity-50', href === '#');
+          vBtn.title = href === '#' ? 'ลิงก์ยังไม่ถูกต้อง (ต้องขึ้นต้นด้วย https://)' : href;
+        }
         if (vActions) vActions.classList.remove('hidden');
         if (vBadge) {
           vBadge.className = 'text-[10px] px-2 py-0.5 rounded-full font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30';
@@ -2850,171 +3153,145 @@ newgrp dialout</pre>
       }
     }
 
-    function saveSublabPhoto(subId, photoId, value) {
-      const st = STUDENTS[currentStudentIndex];
+    // mode: 'live' (กำลังพิมพ์), 'change' (ออกจากช่อง), 'upload' (เลือกไฟล์), 'clear' (กดลบ)
+    function writePhotoValue(stId, subId, photoId, value, mode) {
+      const st = resolveStudent(stId);
       const sData = getStudentData(st.id);
       if (!sData.sublabs[subId]) sData.sublabs[subId] = {};
-      if (!sData.sublabs[subId].photos) sData.sublabs[subId].photos = {};
-      const trimmed = (value || '').trim();
+      const sub = sData.sublabs[subId];
+      if (!sub.photos || typeof sub.photos !== 'object') sub.photos = {};
+      const existing = getPhotoValue(sub, photoId);
+      let next = mode === 'clear' ? '' : String(value === undefined || value === null ? '' : value).trim();
 
-      if (!trimmed) {
-        delete sData.sublabs[subId].photos[photoId];
-        if (photoId === 'p1') sData.sublabs[subId].imageUrl = '';
-      } else {
-        sData.sublabs[subId].photos[photoId] = trimmed;
-        if (photoId === 'p1') sData.sublabs[subId].imageUrl = trimmed;
-      }
-
-      // Instant DOM update with zero flicker
-      applyPhotoDomUpdate(subId, photoId, trimmed);
-
-      checkSublabAutoCompletion(subId, sData);
-      saveStudentData(st.id, sData);
-      updateStats();
-      showToast(trimmed ? 'บันทึกรูปภาพเรียบร้อย' : 'ลบรูปภาพแล้ว');
-    }
-
-    function clearPhoto(subId, photoId) {
-      const st = STUDENTS[currentStudentIndex];
-      const sData = getStudentData(st.id);
-      if (sData.sublabs && sData.sublabs[subId]) {
-        if (sData.sublabs[subId].photos) {
-          delete sData.sublabs[subId].photos[photoId];
+      if (mode === 'live' || mode === 'change') {
+        // ช่อง URL ว่างอยู่เสมอสำหรับรูปที่อัปโหลดเป็นไฟล์ -> การพิมพ์/ลบในช่องนี้ต้องไม่ลบรูปที่อัปโหลดไว้
+        if (existing && existing.startsWith('data:')) {
+          if (!next || mode === 'live') return 'kept';
+          if (!confirm('แทนที่รูปที่อัปโหลดไว้ด้วยลิงก์นี้หรือไม่?')) {
+            const pInput = document.getElementById(`img-input-${subId}-${photoId}`);
+            if (pInput && isCurrentStudent(st.id)) pInput.value = '';
+            return 'kept';
+          }
         }
-        if (photoId === 'p1') {
-          sData.sublabs[subId].imageUrl = '';
-        }
+        if (mode === 'change') next = normalizeLinkUrl(next);
       }
 
-      // 1. Instantly wipe from DOM so image disappears in 0ms without page refresh
-      applyPhotoDomUpdate(subId, photoId, '');
-
-      // 2. Recheck completion & update stats
-      checkSublabAutoCompletion(subId, sData);
-      saveStudentData(st.id, sData);
-      updateStats();
-      showToast('ลบรูปภาพแล้ว (หายทันที) ✓');
-    }
-
-    function saveSublabVideo(subId, videoId, value) {
-      const st = STUDENTS[currentStudentIndex];
-      const sData = getStudentData(st.id);
-      if (!sData.sublabs[subId]) sData.sublabs[subId] = {};
-      if (!sData.sublabs[subId].videos) sData.sublabs[subId].videos = {};
-      const trimmed = (value || '').trim();
-
-      if (!trimmed) {
-        delete sData.sublabs[subId].videos[videoId];
-        if (videoId === 'v1') sData.sublabs[subId].videoUrl = '';
+      if (!next) {
+        delete sub.photos[photoId];
+        if (photoId === 'p1') sub.imageUrl = '';
       } else {
-        sData.sublabs[subId].videos[videoId] = trimmed;
-        if (videoId === 'v1') sData.sublabs[subId].videoUrl = trimmed;
+        sub.photos[photoId] = next;
+        if (photoId === 'p1') sub.imageUrl = next;
       }
 
-      applyVideoDomUpdate(subId, videoId, trimmed);
-
-      checkSublabAutoCompletion(subId, sData);
-      saveStudentData(st.id, sData);
-      updateStats();
-      showToast(trimmed ? 'บันทึกลิงก์วิดีโอเรียบร้อย' : 'ลบวิดีโอแล้ว');
-    }
-
-    function clearVideo(subId, videoId) {
-      const st = STUDENTS[currentStudentIndex];
-      const sData = getStudentData(st.id);
-      if (sData.sublabs && sData.sublabs[subId]) {
-        if (sData.sublabs[subId].videos) {
-          delete sData.sublabs[subId].videos[videoId];
-        }
-        if (videoId === 'v1') {
-          sData.sublabs[subId].videoUrl = '';
-        }
+      checkSublabAutoCompletion(subId, sData, st.id);
+      const ok = mode === 'live' ? scheduleDebouncedCloudSave(st.id, sData) : saveStudentData(st.id, sData);
+      if (!ok) return 'cancelled';
+      if (isCurrentStudent(st.id)) {
+        applyPhotoDomUpdate(subId, photoId, next, mode === 'live');
+        updateStats();
       }
-
-      applyVideoDomUpdate(subId, videoId, '');
-
-      checkSublabAutoCompletion(subId, sData);
-      saveStudentData(st.id, sData);
-      updateStats();
-      showToast('ลบคลิปวิดีโอแล้ว ✓');
+      return next ? 'saved' : 'deleted';
     }
 
-    function saveSublabMetric(subId, metricKey, value) {
-      const st = STUDENTS[currentStudentIndex];
-      const sData = getStudentData(st.id);
-      if (!sData.sublabs[subId]) sData.sublabs[subId] = {};
-      if (!sData.sublabs[subId].metrics) sData.sublabs[subId].metrics = {};
-      sData.sublabs[subId].metrics[metricKey] = value.trim();
-      scheduleDebouncedCloudSave(st.id, sData);
-      updateStats();
+    function saveSublabPhoto(stId, subId, photoId, value) {
+      const r = writePhotoValue(stId, subId, photoId, value, 'change');
+      if (r === 'saved') showToast('บันทึกรูปภาพเรียบร้อย' + otherSuffix(stId));
+      else if (r === 'deleted') showToast('ลบรูปภาพแล้ว');
     }
 
-    function saveSublabFieldLive(subId, field, value) {
-      const st = STUDENTS[currentStudentIndex];
-      const sData = getStudentData(st.id);
-      if (!sData.sublabs[subId]) sData.sublabs[subId] = {};
-      sData.sublabs[subId][field] = value.trim();
-      if (field === 'terminalLog') {
-        const cEl = document.getElementById('term-chars-' + subId);
-        if (cEl) cEl.textContent = value.trim().length + ' ตัวอักษร';
-      }
-      checkSublabAutoCompletion(subId, sData);
-      scheduleDebouncedCloudSave(st.id, sData);
-      updateStats();
+    function saveSublabPhotoLive(stId, subId, photoId, value) {
+      writePhotoValue(stId, subId, photoId, value, 'live');
     }
 
-    function saveSublabPhotoLive(subId, photoId, value) {
-      const st = STUDENTS[currentStudentIndex];
+    function clearPhoto(stId, subId, photoId) {
+      const st = resolveStudent(stId);
+      if (!confirm(`ต้องการลบรูปนี้ออกจากโปรไฟล์ของ ${st.id} หรือไม่?`)) return;
+      const r = writePhotoValue(st.id, subId, photoId, '', 'clear');
+      if (r === 'deleted') showToast('ลบรูปภาพแล้ว ✓');
+    }
+
+    function writeVideoValue(stId, subId, videoId, value, mode) {
+      const st = resolveStudent(stId);
       const sData = getStudentData(st.id);
       if (!sData.sublabs[subId]) sData.sublabs[subId] = {};
-      if (!sData.sublabs[subId].photos) sData.sublabs[subId].photos = {};
-      const trimmed = (value || '').trim();
+      const sub = sData.sublabs[subId];
+      if (!sub.videos || typeof sub.videos !== 'object') sub.videos = {};
+      let next = mode === 'clear' ? '' : String(value === undefined || value === null ? '' : value).trim();
+      if (mode !== 'live') next = normalizeLinkUrl(next);
 
-      if (!trimmed) {
-        delete sData.sublabs[subId].photos[photoId];
-        if (photoId === 'p1') sData.sublabs[subId].imageUrl = '';
+      if (!next) {
+        delete sub.videos[videoId];
+        if (videoId === 'v1') sub.videoUrl = '';
       } else {
-        sData.sublabs[subId].photos[photoId] = trimmed;
-        if (photoId === 'p1') sData.sublabs[subId].imageUrl = trimmed;
+        sub.videos[videoId] = next;
+        if (videoId === 'v1') sub.videoUrl = next;
       }
 
-      // Instant live DOM preview toggle
-      applyPhotoDomUpdate(subId, photoId, trimmed);
-
-      checkSublabAutoCompletion(subId, sData);
-      scheduleDebouncedCloudSave(st.id, sData);
-      updateStats();
+      checkSublabAutoCompletion(subId, sData, st.id);
+      const ok = mode === 'live' ? scheduleDebouncedCloudSave(st.id, sData) : saveStudentData(st.id, sData);
+      if (!ok) return 'cancelled';
+      if (isCurrentStudent(st.id)) {
+        applyVideoDomUpdate(subId, videoId, next, mode === 'live');
+        updateStats();
+      }
+      return next ? 'saved' : 'deleted';
     }
 
-    function saveSublabVideoLive(subId, videoId, value) {
-      const st = STUDENTS[currentStudentIndex];
+    function saveSublabVideo(stId, subId, videoId, value) {
+      const r = writeVideoValue(stId, subId, videoId, value, 'change');
+      if (r === 'saved') showToast('บันทึกลิงก์วิดีโอเรียบร้อย' + otherSuffix(stId));
+      else if (r === 'deleted') showToast('ลบวิดีโอแล้ว');
+    }
+
+    function saveSublabVideoLive(stId, subId, videoId, value) {
+      writeVideoValue(stId, subId, videoId, value, 'live');
+    }
+
+    function clearVideo(stId, subId, videoId) {
+      const st = resolveStudent(stId);
+      if (!confirm(`ต้องการลบลิงก์คลิปนี้ออกจากโปรไฟล์ของ ${st.id} หรือไม่?`)) return;
+      const r = writeVideoValue(st.id, subId, videoId, '', 'clear');
+      if (r === 'deleted') showToast('ลบคลิปวิดีโอแล้ว ✓');
+    }
+
+    function saveSublabMetric(stId, subId, metricKey, value) {
+      const st = resolveStudent(stId);
       const sData = getStudentData(st.id);
       if (!sData.sublabs[subId]) sData.sublabs[subId] = {};
-      if (!sData.sublabs[subId].videos) sData.sublabs[subId].videos = {};
-      const trimmed = (value || '').trim();
-
-      if (!trimmed) {
-        delete sData.sublabs[subId].videos[videoId];
-        if (videoId === 'v1') sData.sublabs[subId].videoUrl = '';
-      } else {
-        sData.sublabs[subId].videos[videoId] = trimmed;
-        if (videoId === 'v1') sData.sublabs[subId].videoUrl = trimmed;
-      }
-
-      applyVideoDomUpdate(subId, videoId, trimmed);
-
-      checkSublabAutoCompletion(subId, sData);
-      scheduleDebouncedCloudSave(st.id, sData);
-      updateStats();
+      if (!sData.sublabs[subId].metrics || typeof sData.sublabs[subId].metrics !== 'object') sData.sublabs[subId].metrics = {};
+      const v = String(value === undefined || value === null ? '' : value).trim();
+      if (v) sData.sublabs[subId].metrics[metricKey] = v;
+      else delete sData.sublabs[subId].metrics[metricKey];
+      if (!scheduleDebouncedCloudSave(st.id, sData)) return;
+      if (isCurrentStudent(st.id)) updateStats();
     }
 
-    function saveWeekLogLive(week, text) {
-      const st = STUDENTS[currentStudentIndex];
+    function saveSublabFieldLive(stId, subId, field, value) {
+      const st = resolveStudent(stId);
       const sData = getStudentData(st.id);
-      if (!sData.weekLogs) sData.weekLogs = {};
-      sData.weekLogs[week] = text.trim();
-      scheduleDebouncedCloudSave(st.id, sData);
-      updateStats();
+      if (!sData.sublabs[subId]) sData.sublabs[subId] = {};
+      const v = String(value === undefined || value === null ? '' : value).trim();
+      sData.sublabs[subId][field] = v;
+      checkSublabAutoCompletion(subId, sData, st.id);
+      if (!scheduleDebouncedCloudSave(st.id, sData)) return;
+      if (isCurrentStudent(st.id)) {
+        if (field === 'terminalLog') {
+          const cEl = document.getElementById('term-chars-' + subId);
+          if (cEl) cEl.textContent = v.length + ' ตัวอักษร';
+        }
+        updateStats();
+      }
+    }
+
+    function saveWeekLogLive(stId, week, text) {
+      const st = resolveStudent(stId);
+      const sData = getStudentData(st.id);
+      const v = String(text === undefined || text === null ? '' : text).trim();
+      if (v) sData.weekLogs[week] = v; else delete sData.weekLogs[week];
+      recheckWeekCompletion(week, sData, st.id);
+      if (!scheduleDebouncedCloudSave(st.id, sData)) return;
+      if (isCurrentStudent(st.id)) updateStats();
     }
 
     function compressAndResizeImage(blobOrFile, maxWidth = 1280, maxHeight = 1280, quality = 0.82) {
@@ -3050,14 +3327,17 @@ newgrp dialout</pre>
       });
     }
 
-    async function handlePhotoUpload(subId, photoId, event) {
-      const file = event.target.files[0];
+    async function handlePhotoUpload(stId, subId, photoId, event) {
+      const input = event && event.target;
+      const file = input && input.files ? input.files[0] : null;
       if (!file) return;
+      // ล็อกรหัสนักศึกษาไว้ตั้งแต่ตอนเลือกไฟล์ — แม้ระหว่างแปลงภาพจะสลับไปดูหน้าคนอื่น รูปก็ไม่ไปผิดคน
+      const targetStId = resolveStudent(stId).id;
 
-      const fileName = file.name.toLowerCase();
-      const isHeic = fileName.endsWith('.heic') || 
-                     fileName.endsWith('.heif') || 
-                     file.type === 'image/heic' || 
+      const fileName = (file.name || '').toLowerCase();
+      const isHeic = fileName.endsWith('.heic') ||
+                     fileName.endsWith('.heif') ||
+                     file.type === 'image/heic' ||
                      file.type === 'image/heif';
 
       try {
@@ -3078,14 +3358,16 @@ newgrp dialout</pre>
 
         showToast('กำลังประมวลผลและปรับขนาดรูปภาพ... ⚙️');
         const optimizedBase64 = await compressAndResizeImage(processBlob, 1280, 1280, 0.82);
-        
-        saveSublabPhoto(subId, photoId, optimizedBase64);
-        showToast(isHeic ? 'แปลง HEIC และบันทึกภาพสำเร็จ! ✓' : 'อัปโหลดและบันทึกภาพสำเร็จ! ✓');
+
+        const r = writePhotoValue(targetStId, subId, photoId, optimizedBase64, 'upload');
+        if (r === 'saved') {
+          showToast((isHeic ? 'แปลง HEIC และบันทึกภาพสำเร็จ! ✓' : 'อัปโหลดและบันทึกภาพสำเร็จ! ✓') + otherSuffix(targetStId));
+        }
       } catch (err) {
         console.error('Image upload error:', err);
         alert('เกิดข้อผิดพลาดในการประมวลผลภาพ: ' + (err.message || err));
       } finally {
-        event.target.value = '';
+        if (input) input.value = '';
       }
     }
 
@@ -3102,26 +3384,26 @@ newgrp dialout</pre>
       });
     }
 
-    function saveWeekLog(week, text) {
-      const st = STUDENTS[currentStudentIndex];
+    function saveWeekLog(stId, week, text) {
+      const st = resolveStudent(stId);
       const sData = getStudentData(st.id);
-      if (!sData.weekLogs) sData.weekLogs = {};
-      sData.weekLogs[week] = text.trim();
-      saveStudentData(st.id, sData);
-      updateStats();
-      renderWeeksAccordion();
-      showToast(`บันทึก Serial Monitor Week ${week} เรียบร้อย`);
+      const v = String(text === undefined || text === null ? '' : text).trim();
+      if (v) sData.weekLogs[week] = v; else delete sData.weekLogs[week];
+      recheckWeekCompletion(week, sData, st.id);
+      if (!saveStudentData(st.id, sData)) return;
+      if (isCurrentStudent(st.id)) { updateStats(); scheduleAccordionRefresh(st.id); }
+      showToast(`บันทึก Serial Monitor Week ${week} เรียบร้อย` + otherSuffix(st.id));
     }
 
-    function clearWeekLog(week) {
-      if (!confirm(`ต้องการลบข้อความ Serial Monitor ของ Week ${week} หรือไม่?`)) return;
-      const st = STUDENTS[currentStudentIndex];
+    function clearWeekLog(stId, week) {
+      const st = resolveStudent(stId);
+      if (!confirm(`ต้องการลบข้อความ Serial Monitor ของ Week ${week} (${st.id}) หรือไม่?`)) return;
       const sData = getStudentData(st.id);
       if (sData.weekLogs && sData.weekLogs[week]) {
         delete sData.weekLogs[week];
-        saveStudentData(st.id, sData);
-        updateStats();
-        renderWeeksAccordion();
+        recheckWeekCompletion(week, sData, st.id);
+        if (!saveStudentData(st.id, sData)) return;
+        if (isCurrentStudent(st.id)) { updateStats(); renderWeeksAccordion(); }
         showToast(`ลบ Serial Monitor Week ${week} แล้ว`);
       }
     }
@@ -3139,45 +3421,56 @@ newgrp dialout</pre>
       });
     }
 
-    function autoDistributeWeekLog(week) {
-      const st = STUDENTS[currentStudentIndex];
+    function autoDistributeWeekLog(stId, week) {
+      const st = resolveStudent(stId);
       const sData = getStudentData(st.id);
-      const text = (sData.weekLogs && sData.weekLogs[week]) ? sData.weekLogs[week] : (document.getElementById(`week-log-input-${week}`) ? document.getElementById(`week-log-input-${week}`).value.trim() : '');
+      const inputEl = isCurrentStudent(st.id) ? document.getElementById(`week-log-input-${week}`) : null;
+      const text = (sData.weekLogs && sData.weekLogs[week]) ? sData.weekLogs[week] : (inputEl ? inputEl.value.trim() : '');
       if (!text) {
         alert('กรุณาวางข้อความ Serial Monitor ของสัปดาห์นี้ก่อน');
         return;
       }
-      if (!sData.weekLogs) sData.weekLogs = {};
-      sData.weekLogs[week] = text;
-
       const weekObj = WEEKS_DATA.find(w => w.week === week);
       if (!weekObj) return;
 
-      let count = 0;
-      const lines = text.split('\n');
-
-      weekObj.sublabs.forEach(sub => {
-        if (!sData.sublabs[sub.id]) sData.sublabs[sub.id] = {};
-
+      const lines = String(text).split('\n');
+      const plan = weekObj.sublabs.map(sub => {
         const codeClean = sub.code.toLowerCase().replace(/[^a-z0-9]/g, '');
         const matchingLines = lines.filter(l => {
           const lClean = l.toLowerCase().replace(/[^a-z0-9]/g, '');
           return lClean.includes(codeClean) || l.toLowerCase().includes(sub.code.toLowerCase());
         });
-
-        if (matchingLines.length >= 2) {
-          sData.sublabs[sub.id].terminalLog = matchingLines.join('\n');
-        } else {
-          sData.sublabs[sub.id].terminalLog = text;
-        }
-
-        checkSublabAutoCompletion(sub.id, sData);
-        count++;
+        return { sub, newLog: matchingLines.length >= 2 ? matchingLines.join('\n') : String(text) };
       });
 
-      saveStudentData(st.id, sData);
-      updateStats();
-      renderWeeksAccordion();
+      // กันข้อมูลหาย: ถ้าแล็บย่อยไหนมี Log ที่พิมพ์ไว้เองอยู่แล้ว ให้ถามก่อนเขียนทับ
+      const conflicts = plan.filter(x => {
+        const cur = String((sData.sublabs[x.sub.id] && sData.sublabs[x.sub.id].terminalLog) || '').trim();
+        return cur && cur !== x.newLog.trim();
+      });
+      let overwrite = true;
+      if (conflicts.length > 0) {
+        const NL = String.fromCharCode(10);
+        overwrite = confirm(
+          `มี ${conflicts.length} แล็บย่อยที่มี Terminal Log อยู่แล้ว (${conflicts.map(c => c.sub.code).join(', ')})` + NL + NL +
+          'กด OK = เขียนทับด้วย Log ใหม่' + NL +
+          'กด Cancel = เติมเฉพาะแล็บที่ยังว่าง (ของเดิมไม่ถูกแตะ)'
+        );
+      }
+
+      sData.weekLogs[week] = String(text);
+      let count = 0;
+      plan.forEach(({ sub, newLog }) => {
+        if (!sData.sublabs[sub.id]) sData.sublabs[sub.id] = {};
+        const cur = String(sData.sublabs[sub.id].terminalLog || '').trim();
+        if (cur && !overwrite) return;
+        sData.sublabs[sub.id].terminalLog = newLog;
+        count++;
+      });
+      recheckWeekCompletion(week, sData, st.id);
+
+      if (!saveStudentData(st.id, sData)) return;
+      if (isCurrentStudent(st.id)) { updateStats(); renderWeeksAccordion(); }
       showToast(`✨ แยก Log เข้า ${count} แล็บย่อยของ Week ${week} สำเร็จ!`);
     }
 
@@ -3198,12 +3491,10 @@ newgrp dialout</pre>
       }
       const st = STUDENTS[currentStudentIndex];
       const sData = getStudentData(st.id);
-      if (!sData.weekLogs) sData.weekLogs = {};
-
-      let matchedWeeks = 0;
-      let matchedSublabs = 0;
       const lines = raw.split('\n');
 
+      // 1) วิเคราะห์ก่อนว่าจะลงสัปดาห์ไหนบ้าง (ยังไม่แก้ข้อมูลจริง)
+      const weekPlan = [];
       WEEKS_DATA.forEach(w => {
         const wNum = parseInt(w.week, 10);
         const wPatterns = [
@@ -3242,21 +3533,11 @@ newgrp dialout</pre>
           }
         }
 
-        let weekText = weekLines.join('\n').trim();
-        if (weekText) {
-          sData.weekLogs[w.week] = weekText;
-          matchedWeeks++;
-
-          w.sublabs.forEach(sub => {
-            if (!sData.sublabs[sub.id]) sData.sublabs[sub.id] = {};
-            sData.sublabs[sub.id].terminalLog = weekText;
-            checkSublabAutoCompletion(sub.id, sData);
-            matchedSublabs++;
-          });
-        }
+        const weekText = weekLines.join('\n').trim();
+        if (weekText) weekPlan.push({ week: w.week, text: weekText });
       });
 
-      if (matchedWeeks === 0) {
+      if (weekPlan.length === 0) {
         let targetWeek = WEEKS_DATA[0].week;
         for (const w of WEEKS_DATA) {
           if (!sData.weekLogs[w.week]) {
@@ -3264,25 +3545,50 @@ newgrp dialout</pre>
             break;
           }
         }
-        sData.weekLogs[targetWeek] = raw;
-        const weekObj = WEEKS_DATA.find(w => w.week === targetWeek);
-        if (weekObj) {
-          weekObj.sublabs.forEach(sub => {
-            if (!sData.sublabs[sub.id]) sData.sublabs[sub.id] = {};
-            sData.sublabs[sub.id].terminalLog = raw;
-            checkSublabAutoCompletion(sub.id, sData);
-            matchedSublabs++;
-          });
-        }
-        matchedWeeks = 1;
+        weekPlan.push({ week: targetWeek, text: raw });
       }
 
-      saveStudentData(st.id, sData);
+      // 2) กันข้อมูลหาย: ถามก่อนเขียนทับ Log ที่มีอยู่แล้ว
+      let conflictCount = 0;
+      weekPlan.forEach(p => {
+        const wObj = WEEKS_DATA.find(w => w.week === p.week);
+        if (sData.weekLogs[p.week] && String(sData.weekLogs[p.week]).trim() !== p.text) conflictCount++;
+        (wObj ? wObj.sublabs : []).forEach(sub => {
+          const cur = String((sData.sublabs[sub.id] && sData.sublabs[sub.id].terminalLog) || '').trim();
+          if (cur && cur !== p.text) conflictCount++;
+        });
+      });
+      let overwrite = true;
+      if (conflictCount > 0) {
+        const NL = String.fromCharCode(10);
+        overwrite = confirm(
+          `ข้อมูลของ ${st.id} มี Log เดิมอยู่แล้ว ${conflictCount} ช่อง` + NL + NL +
+          'กด OK = เขียนทับด้วย Log ใหม่' + NL +
+          'กด Cancel = เติมเฉพาะช่องที่ยังว่าง (ของเดิมไม่ถูกแตะ)'
+        );
+      }
+
+      // 3) ลงข้อมูลจริง
+      let matchedSublabs = 0;
+      weekPlan.forEach(p => {
+        const wObj = WEEKS_DATA.find(w => w.week === p.week);
+        if (overwrite || !sData.weekLogs[p.week]) sData.weekLogs[p.week] = p.text;
+        (wObj ? wObj.sublabs : []).forEach(sub => {
+          if (!sData.sublabs[sub.id]) sData.sublabs[sub.id] = {};
+          const cur = String(sData.sublabs[sub.id].terminalLog || '').trim();
+          if (cur && !overwrite) return;
+          sData.sublabs[sub.id].terminalLog = p.text;
+          matchedSublabs++;
+        });
+        recheckWeekCompletion(p.week, sData, st.id);
+      });
+
+      if (!saveStudentData(st.id, sData)) return;
       updateStats();
       renderWeeksAccordion();
       closeBulkLogModal();
       document.getElementById('bulk-log-textarea').value = '';
-      showToast(`🚀 บันทึก Serial Monitor สำเร็จ! (${matchedWeeks} สัปดาห์, ${matchedSublabs} แล็บย่อย)`);
+      showToast(`🚀 บันทึก Serial Monitor สำเร็จ! (${weekPlan.length} สัปดาห์, ${matchedSublabs} แล็บย่อย)`);
     }
 
     function updateStats() {
@@ -3362,17 +3668,29 @@ newgrp dialout</pre>
 
     function toggleAllSublabsInView(state) {
       const st = STUDENTS[currentStudentIndex];
+      const visibleIds = Array.from(document.querySelectorAll('#weeks-accordion-container [id^="sublab-card-"]'))
+        .map(el => el.id.replace('sublab-card-', ''));
+      if (visibleIds.length === 0) {
+        showToast('ไม่มีแล็บย่อยที่แสดงอยู่ในตัวกรองนี้');
+        return;
+      }
+      const NL = String.fromCharCode(10);
+      const msg = state
+        ? `ติ๊ก "ทำเสร็จแล้ว" ให้ ${visibleIds.length} แล็บย่อยที่แสดงอยู่ของ ${st.id} หรือไม่?`
+        : `ล้างเครื่องหมาย "ทำเสร็จแล้ว" ของ ${visibleIds.length} แล็บย่อยที่แสดงอยู่ของ ${st.id} หรือไม่?` + NL + '(รูป วิดีโอ Log และค่าที่วัด จะไม่ถูกลบ)';
+      if (!confirm(msg)) return;
+
       const sData = getStudentData(st.id);
-      WEEKS_DATA.forEach(w => {
-        w.sublabs.forEach(sub => {
-          if (!sData.sublabs[sub.id]) sData.sublabs[sub.id] = {};
-          sData.sublabs[sub.id].completed = state;
-        });
+      visibleIds.forEach(id => {
+        if (!sData.sublabs[id]) sData.sublabs[id] = {};
+        sData.sublabs[id].completed = !!state;
+        if (state) sData.sublabs[id].completedManual = true;
+        else delete sData.sublabs[id].completedManual;
       });
-      saveStudentData(st.id, sData);
+      if (!saveStudentData(st.id, sData)) return;
       updateStats();
       renderWeeksAccordion();
-      showToast(state ? 'ติ๊กเสร็จครบทุกแล็บแล้ว' : 'ล้างสถานะทั้งหมดแล้ว');
+      showToast(state ? `ติ๊กเสร็จ ${visibleIds.length} แล็บแล้ว` : `ล้างสถานะ ${visibleIds.length} แล็บแล้ว`);
     }
 
     function setFilter(type) {
@@ -3437,7 +3755,7 @@ newgrp dialout</pre>
               <span style="font-size: 14px; color: #94a3b8;">(${st.name_en})</span>
             </div>
             <div style="margin-top: 8px; font-size: 12px; color: #cbd5e1; display: flex; gap: 16px; font-family: monospace;">
-              <span>• SoftAP: <b style="color: #fbbf24;">ESP32_AP_0${st.id.slice(-3)}</b></span>
+              <span>• SoftAP: <b style="color: #fbbf24;">ESP32_AP_${st.last4}</b></span>
               <span>• Gauge N: <b style="color: #34d399;">${st.gauge}</b></span>
               <span>• Folder: <b style="color: #38bdf8;">${st.folder}</b></span>
             </div>
@@ -3544,7 +3862,7 @@ newgrp dialout</pre>
       weekObj.sublabs.forEach(sub => {
         const subData = sData.sublabs[sub.id] || {};
         md.push('## 📋 ' + sub.code + ': ' + sub.title, '');
-        md.push('› ' + sub.desc, '');
+        md.push('› ' + sub.desc.replace(/{ID}/g, st.id).replace(/{LAST4}/g, st.last4), '');
 
         // Metrics Table
         if (sub.metrics && sub.metrics.length > 0) {
@@ -3552,7 +3870,7 @@ newgrp dialout</pre>
           md.push('| พารามิเตอร์ / หัวข้อการวัด | ค่าที่บันทึกได้จริง | หน่วย / หมายเหตุ |');
           md.push('| :--- | :---: | :--- |');
           sub.metrics.forEach(m => {
-            const val = (subData.metrics && subData.metrics[m.key]) || m.placeholder || '-';
+            const val = (subData.metrics && subData.metrics[m.key]) || '-';
             md.push('| ' + m.label + ' (`' + m.key + '`) | **' + val + '** | ค่าจากการทดลองจริง |');
           });
           md.push('');
@@ -3572,16 +3890,25 @@ newgrp dialout</pre>
         const photoKeys = Object.keys(photos);
         if (photoKeys.length > 0) {
           md.push('### 3. ภาพถ่ายหลักฐานผลการทดลอง');
+          const pLabel = (id) => { const pm = (sub.photos || []).find(x => x.id === id); return pm ? pm.label : id; };
           photoKeys.forEach(pId => {
             const pVal = photos[pId];
             if (pVal) {
               if (pVal.startsWith('data:')) {
-                md.push('* **' + pId + ':** บันทึกหลักฐานภาพถ่ายสำเร็จในระบบ');
+                md.push('* **' + pLabel(pId) + ':** บันทึกหลักฐานภาพถ่ายสำเร็จในระบบ');
               } else {
-                md.push('* **' + pId + ':** ![' + pId + '](' + pVal + ')');
+                md.push('* **' + pLabel(pId) + ':** ![' + pId + '](' + normalizeLinkUrl(pVal) + ')');
               }
             }
           });
+          md.push('');
+        }
+
+        // Videos (เดิมรายงานไม่ได้ใส่ลิงก์คลิปเลย)
+        const vids = (sub.videos || []).map(v => ({ v, url: getVideoValue(subData, v.id) })).filter(x => x.url);
+        if (vids.length > 0) {
+          md.push('### 3.1 คลิปวิดีโอหลักฐาน');
+          vids.forEach(x => md.push('* **' + x.v.label + ':** ' + normalizeLinkUrl(x.url)));
           md.push('');
         }
 
@@ -3698,32 +4025,70 @@ newgrp dialout</pre>
       showToast('ส่งออกไฟล์ JSON เรียบร้อย');
     }
 
+    function deepMergeInto(target, src) {
+      Object.keys(src || {}).forEach(k => {
+        const v = src[k];
+        if (v && typeof v === 'object' && !Array.isArray(v)) {
+          if (!target[k] || typeof target[k] !== 'object') target[k] = {};
+          deepMergeInto(target[k], v);
+        } else if (v !== undefined && v !== null) {
+          target[k] = v;
+        }
+      });
+      return target;
+    }
+
     function importStudentData(event) {
-      const file = event.target.files[0];
+      const input = event.target;
+      const file = input.files[0];
       if (!file) return;
 
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
           const parsed = JSON.parse(e.target.result);
-          const st = STUDENTS[currentStudentIndex];
-          if (parsed.dataset && parsed.dataset.sublabs) {
-            saveStudentData(st.id, parsed.dataset);
-          } else if (parsed.sublabs) {
-            saveStudentData(st.id, parsed);
-          } else {
-            throw new Error('Invalid format');
+          const dataset = (parsed && parsed.dataset && parsed.dataset.sublabs) ? parsed.dataset
+                        : (parsed && parsed.sublabs ? parsed : null);
+          if (!dataset) throw new Error('Invalid format');
+
+          const NL = String.fromCharCode(10);
+          let target = STUDENTS[currentStudentIndex];
+          const fileId = parsed.studentId ? String(parsed.studentId) : '';
+          // กันนำเข้าไฟล์ของคนหนึ่งไปใส่โปรไฟล์ของอีกคน
+          if (fileId && fileId !== target.id) {
+            const owner = getStudentById(fileId);
+            if (owner) {
+              if (!confirm(`ไฟล์นี้เป็นข้อมูลของ ${owner.id} ${owner.name_th}` + NL + `แต่ตอนนี้เปิดหน้าของ ${target.id} อยู่` + NL + NL + `กด OK = นำเข้าให้ ${owner.id} (เจ้าของไฟล์)` + NL + 'กด Cancel = ยกเลิก')) return;
+              target = owner;
+            } else if (!confirm(`ไฟล์นี้ระบุรหัส ${fileId} ซึ่งไม่อยู่ในรายชื่อ ต้องการนำเข้าให้ ${target.id} หรือไม่?`)) {
+              return;
+            }
+          } else if (!confirm(`นำเข้าข้อมูลจากไฟล์ให้ ${target.id} ${target.name_th}?` + NL + '(ช่องที่มีในไฟล์จะถูกอัปเดต ส่วนข้อมูลอื่นที่มีอยู่แล้วจะไม่ถูกลบ)')) {
+            return;
           }
-          updateStats();
-          renderWeeksAccordion();
-          renderCommandsView();
-          showToast('นำเข้าข้อมูลสำเร็จ!');
+
+          const sData = getStudentData(target.id);
+          const clean = cloneTree(dataset);
+          delete clean.lastUpdated;
+          delete clean.updatedByClient;
+          deepMergeInto(sData, clean);
+          if (!saveStudentData(target.id, sData)) return;
+
+          const idx = indexOfStudent(target.id);
+          if (idx >= 0 && idx !== currentStudentIndex) {
+            loadStudent(idx);
+          } else {
+            updateStats();
+            renderWeeksAccordion();
+            renderCommandsView();
+          }
+          showToast(`นำเข้าข้อมูลให้ ${target.id} สำเร็จ!`);
         } catch (err) {
           alert('ไฟล์ JSON ไม่ถูกต้องหรือไม่ตรงตามฟอร์แมต');
         }
       };
       reader.readAsText(file);
-      event.target.value = '';
+      input.value = '';
     }
 
     function copySubmissionSummary() {
@@ -3822,7 +4187,7 @@ newgrp dialout</pre>
             ${weekLog ? `
               <div class="p-3 bg-black/60 rounded-lg border border-sky-500/30">
                 <span class="text-xs font-mono font-bold text-sky-300 block mb-1">💻 Serial Monitor รวมทั้งสัปดาห์ (Full Week Log):</span>
-                <pre class="bg-black p-2.5 rounded text-[11px] font-mono text-emerald-400 overflow-x-auto max-h-40 whitespace-pre-wrap">${weekLog}</pre>
+                <pre class="bg-black p-2.5 rounded text-[11px] font-mono text-emerald-400 overflow-x-auto max-h-40 whitespace-pre-wrap">${escapeHtml(weekLog)}</pre>
               </div>
             ` : ''}
             <div class="space-y-4">
@@ -3846,7 +4211,7 @@ newgrp dialout</pre>
                   ${filledPhotos.map(p => `
                     <div class="bg-black/60 p-2 rounded-lg border border-slate-800 space-y-1">
                       <span class="text-[11px] text-sky-300 font-medium block truncate" title="${p.label}">${p.label}</span>
-                      <img src="${getPhotoValue(subData, p.id)}" class="max-h-40 rounded border border-slate-700 object-contain w-full bg-black">
+                      <img src="${escapeHtml(safeImgSrc(getPhotoValue(subData, p.id)))}" class="max-h-40 rounded border border-slate-700 object-contain w-full bg-black">
                     </div>
                   `).join('')}
                 </div>
@@ -3868,7 +4233,7 @@ newgrp dialout</pre>
                   ${filledVideos.map(v => `
                     <div class="text-xs">
                       <b class="text-purple-300">${v.label}:</b>
-                      <a href="${getVideoValue(subData, v.id)}" target="_blank" class="text-sky-400 underline ml-1">${getVideoValue(subData, v.id)}</a>
+                      <a href="${escapeHtml(safeHref(getVideoValue(subData, v.id)))}" target="_blank" rel="noopener noreferrer" class="text-sky-400 underline ml-1 break-all">${escapeHtml(getVideoValue(subData, v.id))}</a>
                     </div>
                   `).join('')}
                 </div>
@@ -3893,7 +4258,7 @@ newgrp dialout</pre>
                 <div class="mt-2">
                   <span class="text-slate-400 font-semibold block mb-1 text-xs">📊 ข้อมูลที่บันทึก:</span>
                   <div class="grid grid-cols-2 gap-1 bg-slate-900 p-2 rounded border border-slate-800 font-mono text-[11px]">
-                    ${Object.entries(metrics).map(([k, v]) => `<div><b class="text-slate-400">${k}:</b> <span class="text-emerald-300">${v}</span></div>`).join('')}
+                    ${Object.entries(metrics).map(([k, v]) => `<div><b class="text-slate-400">${escapeHtml(k)}:</b> <span class="text-emerald-300">${escapeHtml(v)}</span></div>`).join('')}
                   </div>
                 </div>
               ` : ''}
@@ -3901,7 +4266,7 @@ newgrp dialout</pre>
               ${log ? `
                 <div class="mt-2">
                   <span class="text-slate-400 text-xs font-semibold block mb-1">💻 Terminal Log:</span>
-                  <pre class="bg-black p-2 rounded text-[11px] font-mono text-emerald-400 overflow-x-auto max-h-36">${log}</pre>
+                  <pre class="bg-black p-2 rounded text-[11px] font-mono text-emerald-400 overflow-x-auto max-h-36">${escapeHtml(log)}</pre>
                 </div>
               ` : ''}
 
@@ -3930,15 +4295,28 @@ newgrp dialout</pre>
       document.getElementById('image-modal').classList.remove('hidden');
     }
 
+    function openPhotoModal(stId, subId, photoId) {
+      const sData = getStudentData(stId);
+      const subData = sData.sublabs[subId] || {};
+      const meta = findSublabMeta(subId);
+      const pMeta = meta && (meta.sub.photos || []).find(x => x.id === photoId);
+      const src = safeImgSrc(getPhotoValue(subData, photoId));
+      if (!src) return;
+      openImageModal(src, meta ? `${meta.sub.code}: ${pMeta ? pMeta.label : photoId}` : '');
+    }
+
     function closeImageModal() {
       document.getElementById('image-modal').classList.add('hidden');
     }
 
+    let toastTimer = null;
     function showToast(msg) {
       const t = document.getElementById('toast');
+      if (!t) return;
       document.getElementById('toast-msg').textContent = msg;
       t.classList.remove('translate-y-20', 'opacity-0');
-      setTimeout(() => {
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
         t.classList.add('translate-y-20', 'opacity-0');
       }, 2500);
     }
