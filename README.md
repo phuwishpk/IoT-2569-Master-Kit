@@ -3,6 +3,15 @@
 ชุดเครื่องมือและโปรเจกต์รวมสำหรับวิชา **IoT-App-2569** ครบทั้ง 12 สัปดาห์ (Week 01 – Week 12)  
 รวบรวมโค้ดที่ต้องรันจริง, Report Templates, ผังวงจร ESP32 (ครบ 38 ขา) ความละเอียดสูง, สคริปต์อัตโนมัติแปลงรหัส/ชื่อเพื่อน (`setup_friend.py`), สคริปต์ตรวจเครื่องและพอร์ต (`remote_doctor.py`), และระบบเชื่อมต่อผ่าน SSH (`ssh_deploy.sh`)
 
+[![Live Web Portal](https://img.shields.io/badge/🌐_Live_Web_Dashboard-GitHub_Pages-2563eb?style=for-the-badge&logo=github)](https://phuwishpk.github.io/IoT-2569-Master-Kit/)
+[![Checklist Dashboard](https://img.shields.io/badge/📋_Interactive-Checklist_%26_Audit-10b981?style=for-the-badge)](https://phuwishpk.github.io/IoT-2569-Master-Kit/)
+
+👉 **เปิดดูหน้าเว็บรวมและระบบ Checklist ออนไลน์ได้ทันที:** **[https://phuwishpk.github.io/IoT-2569-Master-Kit/](https://phuwishpk.github.io/IoT-2569-Master-Kit/)**
+- 📋 **Checklist ตรวจงานรายคน:** เลือกชื่อเพื่อนแล้วติ๊กบันทึกงาน รูปภาพ วิดีโอ บันทึก Log เทอร์มินัล (จำค่าอัตโนมัติด้วย LocalStorage และ Export ผลได้)
+- 👥 **Student Standalone Kits:** โฟลเดอร์และลิงก์ดาวน์โหลด `.zip` แยกแต่ละคน
+- ⚡ **Run Commands Cheat Sheet:** รวบรวมคำสั่งพร้อมปุ่ม Copy 1-Click
+- 🔌 **Circuit Diagrams Viewer:** ดูผังวงจร ESP32 38 ขาทุกสัปดาห์แบบคมชัด
+
 ---
 
 ## 📂 โครงสร้างโปรเจกต์ (Project Structure)
