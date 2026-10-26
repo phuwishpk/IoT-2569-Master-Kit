@@ -2,7 +2,7 @@
 ## หัวข้อ: Cross-Platform Mobile IoT Application with Flutter & MQTT Dashboard
 
 **รหัสนักศึกษา:** 67030248  
-**ชื่อ-นามสกุล:** นายสุวิจักขณ์ ลาวัง (Suwijak Lawang) (Suwijak Lawang)  
+**ชื่อ-นามสกุล:** นายสุวิจักขณ์ ลาวัง (Suwijak Lawang) (Suwijak Lawang) (Suwijak Lawang)  
 **วิชา:** ระบบสมองกลฝังตัวและการเชื่อมต่อเครือข่าย (Embedded Systems & IoT)  
 **บอร์ดทดลอง:** ESP32 (ESP32-D0WD-V3)  
 
