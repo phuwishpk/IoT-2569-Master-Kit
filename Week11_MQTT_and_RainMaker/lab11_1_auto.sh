@@ -19,9 +19,13 @@ MOSQ="$(command -v mosquitto || true)"
 if [ -z "$MOSQ" ] || ! command -v mosquitto_sub >/dev/null; then
   echo "❌ ไม่พบ Mosquitto — ติดตั้งก่อน: brew install mosquitto"; exit 1; fi
 
-PORT=1883
-if (echo > /dev/tcp/$H/$PORT) 2>/dev/null; then
-  echo "⚠️  พอร์ต 1883 มีโปรแกรมใช้อยู่ (เช่น brew services) — ปิดด้วย: brew services stop mosquitto แล้วรันใหม่"; exit 1; fi
+# ใช้พอร์ต 1883 ตามใบงาน ถ้ามีโปรแกรมอื่นใช้อยู่ (เช่น brew services) จะเลือกพอร์ตว่างถัดไปให้อัตโนมัติ
+PORT=""
+for p in 1883 1884 1885 1886 1887 1888 1889 1890; do
+  if ! (echo > /dev/tcp/$H/$p) 2>/dev/null; then PORT=$p; break; fi
+done
+[ -z "$PORT" ] && { echo "❌ พอร์ต 1883–1890 ถูกใช้หมด — ลอง: brew services stop mosquitto"; exit 1; }
+[ "$PORT" != "1883" ] && echo "ℹ️  พอร์ต 1883 มีโปรแกรมอื่นใช้อยู่ — ใช้พอร์ต $PORT แทน (ผลการทดลองเหมือนกัน)"
 printf 'listener %s 0.0.0.0\nallow_anonymous true\nlog_type all\n' "$PORT" > "$LAB/mosquitto.conf"
 
 "$MOSQ" -c "$LAB/mosquitto.conf" -v > "$BLOG" 2>&1 &
