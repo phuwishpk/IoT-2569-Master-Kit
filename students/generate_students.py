@@ -50,10 +50,16 @@ STUDENTS = [
         "folder_name": "67030360_Ittipat_Sutthinuan"
     },
     {
-        "id": "67030181",
-        "name_th": "นายภูมิพัฒน์ กุลด้วง",
-        "name_en": "Phumipat Kulduang",
-        "folder_name": "67030181_Phumipat_Kulduang"
+        "id": "67030180",
+        "name_th": "นายภูมิชนะ เทียมแก้ว",
+        "name_en": "Phumchana Thiamkaew",
+        "folder_name": "67030180_Phumchana_Thiamkaew"
+    },
+    {
+        "id": "67030073",
+        "name_th": "นายณัฐพงศ์ เนียมประดิษฐ",
+        "name_en": "Natthaphong Niampradit",
+        "folder_name": "67030073_Natthaphong_Niampradit"
     }
 ]
 
@@ -426,6 +432,14 @@ index_content = """# 🎓 ดัชนีโฟลเดอร์และคู
 ## วิชา IoT-App-2569 ภาคเรียนที่ 2/2568
 
 โฟลเดอร์นี้รวบรวม **ไฟล์คำสั่งรันและสคริปต์ประจำตัวนักศึกษาแต่ละคน** โดยแยกออกเป็นโฟลเดอร์เฉพาะบุคคล ทุกคำสั่งได้รับการผูกรหัสนักศึกษา, ชื่อ-นามสกุล, หัวข้อ MQTT, และวิดเจ็ตหน้าปัด SVG Gauge (Lab 8.5) ตามโจทย์เฉพาะตัวเรียบร้อยแล้ว
+
+---
+
+## 📦 ดาวน์โหลดชุดรวมทุกแล็บของทุกคน (Master All-In-One Pack)
+> [!IMPORTANT]
+> **ดาวน์โหลดครั้งเดียวได้ครบทั้ง 13 สัปดาห์ ของเพื่อนทุกคน (9 คน):**  
+> 🔗 **[ดาวน์โหลด All_Students_All_Labs_Master_Pack.zip (75 MB)](zips/All_Students_All_Labs_Master_Pack.zip)**  
+> ภายในไฟล์บรรจุโฟลเดอร์โปรเจกต์ฉบับสมบูรณ์ของนักศึกษาทุกคน พร้อมผังวงจร ESP32 (38 ขา) และคำสั่งรันครบทั้งหมด
 
 ---
 

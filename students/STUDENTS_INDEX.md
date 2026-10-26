@@ -5,15 +5,14 @@
 
 ---
 
----
-
 ## 📦 ดาวน์โหลดชุดรวมทุกแล็บของทุกคน (Master All-In-One Pack)
 > [!IMPORTANT]
-> **ดาวน์โหลดครั้งเดียวได้ครบทั้ง 13 สัปดาห์ ของเพื่อนทุกคน (8 คน):**  
-> 🔗 **[ดาวน์โหลด All_Students_All_Labs_Master_Pack.zip (72 MB)](zips/All_Students_All_Labs_Master_Pack.zip)**  
+> **ดาวน์โหลดครั้งเดียวได้ครบทั้ง 13 สัปดาห์ ของเพื่อนทุกคน (9 คน):**  
+> 🔗 **[ดาวน์โหลด All_Students_All_Labs_Master_Pack.zip (75 MB)](zips/All_Students_All_Labs_Master_Pack.zip)**  
 > ภายในไฟล์บรรจุโฟลเดอร์โปรเจกต์ฉบับสมบูรณ์ของนักศึกษาทุกคน พร้อมผังวงจร ESP32 (38 ขา) และคำสั่งรันครบทั้งหมด
 
 ---
+
 ## 📋 รายชื่อนักศึกษาและลิงก์คู่มือประจำตัว
 
 | รหัสนักศึกษา | ชื่อ - นามสกุล | ชื่อภาษาอังกฤษ | วิดเจ็ตหน้าปัด Lab 8.5 (ซ้าย + ขวา) | ลิงก์โฟลเดอร์และคู่มือคำสั่งรัน |
@@ -25,7 +24,8 @@
 | **67030299** | นางสาวธนพร พิศมัย | Thanaporn Pitsamai | Liquid + Retro | [📂 เปิดโฟลเดอร์ `67030299_Thanaporn_Pitsamai`](67030299_Thanaporn_Pitsamai/RUN_COMMANDS_67030299.md) |
 | **67030359** | นายอัฐวุฒิ บัวเรียน | Attawut Bualian | Liquid + Audio | [📂 เปิดโฟลเดอร์ `67030359_Attawut_Bualian`](67030359_Attawut_Bualian/RUN_COMMANDS_67030359.md) |
 | **67030360** | นายอิทธิพัทธิ์ สุทธินวล | Ittipat Sutthinuan | Analog + Retro | [📂 เปิดโฟลเดอร์ `67030360_Ittipat_Sutthinuan`](67030360_Ittipat_Sutthinuan/RUN_COMMANDS_67030360.md) |
-| **67030181** | นายภูมิพัฒน์ กุลด้วง | Phumipat Kulduang | Audio + Retro | [📂 เปิดโฟลเดอร์ `67030181_Phumipat_Kulduang`](67030181_Phumipat_Kulduang/RUN_COMMANDS_67030181.md) |
+| **67030180** | นายภูมิชนะ เทียมแก้ว | Phumchana Thiamkaew | Analog + Audio | [📂 เปิดโฟลเดอร์ `67030180_Phumchana_Thiamkaew`](67030180_Phumchana_Thiamkaew/RUN_COMMANDS_67030180.md) |
+| **67030073** | นายณัฐพงศ์ เนียมประดิษฐ | Natthaphong Niampradit | Audio + Retro | [📂 เปิดโฟลเดอร์ `67030073_Natthaphong_Niampradit`](67030073_Natthaphong_Niampradit/RUN_COMMANDS_67030073.md) |
 
 ---
 
