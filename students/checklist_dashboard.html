@@ -209,33 +209,23 @@
         </div>
 
         <!-- Real-Time Cloud Sync Status Banner -->
-        <div class="mt-3 p-3 rounded-xl bg-gradient-to-r from-emerald-950/60 via-slate-900/95 to-sky-950/60 border border-emerald-500/40 flex flex-col gap-2.5 text-xs shadow-lg">
-          <div class="flex flex-wrap items-center justify-between gap-2.5">
-            <div class="flex items-center gap-2.5">
-              <span id="cloud-status-dot" class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400"></span>
+        <div class="mt-3 p-3 rounded-xl bg-gradient-to-r from-emerald-950/60 via-slate-900/95 to-sky-950/60 border border-emerald-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs shadow-lg">
+          <div class="flex items-center gap-2.5">
+            <span id="cloud-status-dot" class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400"></span>
+            <div>
               <span class="text-emerald-300 font-bold flex items-center gap-1">
-                <span>☁️</span> Real-Time Cloud Sync (เพิ่มหรือแก้ไขที่ใคร ซิงก์เหมือนกันทั้งหมดทุกเครื่องทันที!)
+                <span>☁️</span> Real-Time Cloud Sync (ข้อมูล รูปภาพ และลิงก์แยกรายบุคคล 100% — ซิงก์ตรงกันทุกเครื่องสดๆ)
               </span>
-              <span id="storage-last-save" class="text-slate-300 text-[11px] font-mono">• กำลังเชื่อมต่อฐานข้อมูลกลาง...</span>
-            </div>
-            <div class="flex flex-wrap items-center gap-2">
-              <button onclick="syncPoolAcrossAllStudentsNow(true)" class="px-2.5 py-1 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 border border-purple-500/40 text-[11px] font-semibold transition flex items-center gap-1 shadow-sm" title="รวมข้อมูลที่กรอกไว้จากทุกรายชื่อให้ซิงก์เหมือนกันครบทั้ง 9 คนทันที">
-                <span>⚡</span> รวมข้อมูลให้เหมือนกันครบทั้ง 9 คน
-              </button>
-              <button onclick="forceCloudPullAll()" class="px-2.5 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 text-[11px] font-semibold transition flex items-center gap-1" title="ดึงข้อมูลล่าสุดจาก Cloud ทันที">
-                <span>🔄</span> ดึงจาก Cloud
-              </button>
-              <button onclick="forceCloudPushCurrent()" class="px-2.5 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold transition flex items-center gap-1" title="บังคับส่งข้อมูลขึ้น Cloud ทันที">
-                <span>☁️</span> ซิงก์ขึ้น Cloud
-              </button>
+              <span id="storage-last-save" class="text-slate-300 text-[11px] font-mono block sm:inline mt-0.5 sm:mt-0 sm:ml-2">• เชื่อมต่อฐานข้อมูลกลางสำเร็จ</span>
             </div>
           </div>
-          <div class="pt-2 border-t border-emerald-500/20 flex flex-wrap items-center justify-between gap-2 text-[11px]">
-            <label class="inline-flex items-center gap-2 cursor-pointer select-none text-emerald-200 font-semibold">
-              <input type="checkbox" id="toggle-sync-all-students" checked onchange="toggleSyncAllStudentsMode(this.checked)" class="w-4 h-4 rounded accent-emerald-500 cursor-pointer">
-              <span>🔗 โหมดซิงก์ข้อมูลเหมือนกันครบทั้ง 9 คนอัตโนมัติ (ไม่ว่าใครเพิ่ม ค่าที่วัด / Serial Log / รูป / คลิป จะซิงก์เข้าทุกคนและปรับรหัสนักศึกษาใน Log ให้อัตโนมัติ)</span>
-            </label>
-            <span class="text-slate-400 font-mono">✨ พิมพ์หรือวางปุ๊บ ซิงก์อัตโนมัติใน 0.3 วินาที</span>
+          <div class="flex items-center gap-2 shrink-0">
+            <button onclick="forceCloudPullAll()" class="px-2.5 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 text-[11px] font-semibold transition flex items-center gap-1" title="ดึงข้อมูลล่าสุดจาก Cloud ทันที">
+              <span>🔄</span> ดึงจาก Cloud
+            </button>
+            <button onclick="forceCloudPushCurrent()" class="px-2.5 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold transition flex items-center gap-1" title="บังคับส่งข้อมูลของรหัสนี้ขึ้น Cloud ทันที">
+              <span>☁️</span> ซิงก์ขึ้น Cloud
+            </button>
           </div>
         </div>
 
@@ -1582,78 +1572,11 @@ newgrp dialout</pre>
       });
     }
 
-    let syncAllStudentsIdentical = true;
     let initialMigrationCompleted = false;
     let liveSaveTimer = null;
 
     function getStorageKey(stId) {
       return `iot_v2_data_${stId}`;
-    }
-
-    function toggleSyncAllStudentsMode(enabled) {
-      syncAllStudentsIdentical = !!enabled;
-      if (syncAllStudentsIdentical) {
-        syncPoolAcrossAllStudentsNow(true);
-      } else {
-        showToast('ปรับเป็นโหมดบันทึกแยกเฉพาะรายบุคคลแล้ว');
-      }
-    }
-
-    function personalizeTextForStudent(rawText, targetSt) {
-      if (!rawText || typeof rawText !== 'string' || !targetSt || targetSt.id === '67030183' || targetSt.id === 'master') return rawText;
-      let out = rawText;
-      STUDENTS.forEach(src => {
-        if (!src || src.id === '67030183' || src.id === 'master' || src.id === targetSt.id) return;
-        out = out.split(src.id).join(targetSt.id);
-        if (src.folder && targetSt.folder) {
-          out = out.split(src.folder).join(targetSt.folder);
-        }
-        if (src.name_en && targetSt.name_en) {
-          out = out.split(src.name_en).join(targetSt.name_en);
-        }
-        if (src.name_th && targetSt.name_th) {
-          out = out.split(src.name_th).join(targetSt.name_th);
-        }
-        if (src.last4 && targetSt.last4) {
-          out = out.split('ESP32_AP_' + src.last4).join('ESP32_AP_' + targetSt.last4);
-          out = out.split('_' + src.last4).join('_' + targetSt.last4);
-          out = out.split('/' + src.last4).join('/' + targetSt.last4);
-        }
-      });
-      return out;
-    }
-
-    function cloneAndPersonalizeDataset(sourceData, targetSt, isoTimestamp) {
-      const src = sourceData || { sublabs: {} };
-      const out = {
-        lastUpdated: isoTimestamp || src.lastUpdated || new Date().toISOString(),
-        updatedByClient: CLIENT_INSTANCE_ID,
-        weekLogs: {},
-        sublabs: {}
-      };
-
-      if (src.weekLogs) {
-        Object.keys(src.weekLogs).forEach(w => {
-          out.weekLogs[w] = personalizeTextForStudent(src.weekLogs[w] || '', targetSt);
-        });
-      }
-
-      if (src.sublabs) {
-        Object.keys(src.sublabs).forEach(subId => {
-          const sd = src.sublabs[subId] || {};
-          out.sublabs[subId] = {
-            completed: !!sd.completed,
-            terminalLog: personalizeTextForStudent(sd.terminalLog || '', targetSt),
-            notes: personalizeTextForStudent(sd.notes || '', targetSt),
-            imageUrl: sd.imageUrl || '',
-            videoUrl: sd.videoUrl || '',
-            metrics: Object.assign({}, sd.metrics || {}),
-            photos: Object.assign({}, sd.photos || {}),
-            videos: Object.assign({}, sd.videos || {})
-          };
-        });
-      }
-      return out;
     }
 
     function mergeStudentDatasets(localObj, cloudObj) {
@@ -1747,6 +1670,8 @@ newgrp dialout</pre>
         if (sd.completed) return true;
         if (sd.terminalLog && sd.terminalLog.trim() !== '') return true;
         if (sd.notes && sd.notes.trim() !== '') return true;
+        if (sd.imageUrl && sd.imageUrl.trim() !== '') return true;
+        if (sd.videoUrl && sd.videoUrl.trim() !== '') return true;
         if (sd.metrics && Object.values(sd.metrics).some(v => v && String(v).trim() !== '')) return true;
         if (sd.photos && Object.values(sd.photos).some(v => v && String(v).trim() !== '')) return true;
         if (sd.videos && Object.values(sd.videos).some(v => v && String(v).trim() !== '')) return true;
@@ -1829,46 +1754,14 @@ newgrp dialout</pre>
       }
     }
 
-    async function pushAllStudentsMapToCloud(allMap, isoTime) {
-      updateStorageStatusBanner(isoTime, 'syncing');
-      try {
-        if (firebaseDb) {
-          await firebaseDb.ref('iot_2569_students').update(allMap);
-        } else {
-          await fetch(`${CLOUD_DB_URL}/iot_2569_students.json`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(allMap)
-          });
-        }
-        isCloudConnected = true;
-        updateStorageStatusBanner(isoTime, 'synced');
-        updateStudentPillsBadges();
-      } catch (err) {
-        console.error("Batch cloud push error:", err);
-        updateStorageStatusBanner(isoTime, 'error');
-      }
-    }
-
+    // STRICT PER-STUDENT SAVE: Only saves and pushes for stId! Never overwrites other students!
     function saveStudentData(stId, data) {
       const nowIso = new Date().toISOString();
       data.lastUpdated = nowIso;
       data.updatedByClient = CLIENT_INSTANCE_ID;
-
-      if (syncAllStudentsIdentical) {
-        const batchMap = {};
-        STUDENTS.forEach(targetSt => {
-          const cloned = cloneAndPersonalizeDataset(data, targetSt, nowIso);
-          saveLocalQuietly(targetSt.id, cloned);
-          batchMap[targetSt.id] = cloned;
-        });
-        updateStudentPillsBadges();
-        pushAllStudentsMapToCloud(batchMap, nowIso);
-      } else {
-        saveLocalQuietly(stId, data);
-        updateStudentPillsBadges();
-        pushStudentDataToCloud(stId, data);
-      }
+      saveLocalQuietly(stId, data);
+      updateStudentPillsBadges();
+      pushStudentDataToCloud(stId, data);
     }
 
     function scheduleDebouncedCloudSave(stId, data) {
@@ -1882,38 +1775,6 @@ newgrp dialout</pre>
       }, 350);
     }
 
-    async function syncPoolAcrossAllStudentsNow(showToastMsg) {
-      let unifiedPool = { sublabs: {}, weekLogs: {} };
-      // Merge all students in order, giving the currently active student highest priority
-      STUDENTS.forEach(st => {
-        if (st.id !== STUDENTS[currentStudentIndex].id) {
-          unifiedPool = mergeStudentDatasets(unifiedPool, getStudentData(st.id));
-        }
-      });
-      const curSt = STUDENTS[currentStudentIndex];
-      const curData = getStudentData(curSt.id);
-      curData.lastUpdated = new Date().toISOString();
-      unifiedPool = mergeStudentDatasets(unifiedPool, curData);
-
-      if (!hasAnyStudentContent(unifiedPool) && !showToastMsg) return;
-
-      const nowIso = new Date().toISOString();
-      const batchMap = {};
-      STUDENTS.forEach(targetSt => {
-        const cloned = cloneAndPersonalizeDataset(unifiedPool, targetSt, nowIso);
-        saveLocalQuietly(targetSt.id, cloned);
-        batchMap[targetSt.id] = cloned;
-      });
-      updateStudentPillsBadges();
-      updateStats();
-      renderWeeksAccordion();
-      renderCommandsView();
-      await pushAllStudentsMapToCloud(batchMap, nowIso);
-      if (showToastMsg) {
-        showToast('⚡ รวมและซิงก์ข้อมูลให้เหมือนกันครบทั้ง 9 คนเรียบร้อย!');
-      }
-    }
-
     function updateStorageStatusBanner(isoDate, mode) {
       const el = document.getElementById('storage-last-save');
       const dot = document.getElementById('cloud-status-dot');
@@ -1921,7 +1782,7 @@ newgrp dialout</pre>
 
       const timeStr = isoDate ? new Date(isoDate).toLocaleTimeString('th-TH') : new Date().toLocaleTimeString('th-TH');
       if (mode === 'syncing') {
-        el.textContent = `• ⏳ กำลังซิงก์ข้อมูลให้ทุกคนบน Cloud...`;
+        el.textContent = `• ⏳ กำลังซิงก์ข้อมูลขึ้น Cloud...`;
         if (dot) dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping';
       } else if (mode === 'remote') {
         el.textContent = `• ☁️ ซิงก์ข้อมูล Real-time ล่าสุดตรงกันทุกเครื่องเมื่อ ${timeStr}`;
@@ -1930,90 +1791,48 @@ newgrp dialout</pre>
         el.textContent = `• ⚠️ บันทึกลงเครื่องแล้ว (รอการเชื่อมต่อ Cloud) ${timeStr}`;
         if (dot) dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-rose-400';
       } else if (isoDate) {
-        el.textContent = `• ☁️ ซิงก์ออนไลน์เหมือนกันทั้งหมดแล้วเมื่อ ${timeStr}`;
+        el.textContent = `• ☁️ ซิงก์ออนไลน์แยกรายบุคคลตรงกันแล้วเมื่อ ${timeStr}`;
         if (dot) dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400';
       } else {
-        el.textContent = isCloudConnected ? `• ☁️ เชื่อมต่อฐานข้อมูลกลางสำเร็จ (ซิงก์ทุกคนอัตโนมัติ)` : `• พร้อมใช้งาน`;
+        el.textContent = isCloudConnected ? `• ☁️ เชื่อมต่อฐานข้อมูลกลางสำเร็จ (แยกรายบุคคล 100%)` : `• พร้อมใช้งาน`;
       }
     }
 
     function applyIncomingCloudMap(allCloudData, isManualRefresh) {
       const safeCloudMap = (allCloudData && typeof allCloudData === 'object') ? allCloudData : {};
-      let anyUpdatedRemotely = false;
-      let needsUnifiedBroadcast = false;
+      let currentStUpdatedRemotely = false;
       const currentStId = STUDENTS[currentStudentIndex].id;
 
-      if (!initialMigrationCompleted) {
-        // First load: merge any pre-existing localStorage data with Cloud data across all students
-        let unionPool = { sublabs: {}, weekLogs: {} };
-        let maxCloudCount = 0;
+      STUDENTS.forEach(st => {
+        const cData = safeCloudMap[st.id];
+        const lData = getRawLocalAndMemoryData(st.id);
 
-        STUDENTS.forEach(st => {
-          const cData = safeCloudMap[st.id];
-          const lData = getRawLocalAndMemoryData(st.id);
-          const cCount = countFilledFields(cData);
-          if (cCount > maxCloudCount) maxCloudCount = cCount;
-          const merged = mergeStudentDatasets(lData, cData);
-          saveLocalQuietly(st.id, merged);
-          unionPool = mergeStudentDatasets(unionPool, merged);
-        });
+        if (cData && (cData.sublabs || cData.weekLogs)) {
+          const isDifferentTime = cData.lastUpdated && cData.lastUpdated !== lData.lastUpdated;
+          const isFromOther = cData.updatedByClient !== CLIENT_INSTANCE_ID;
 
-        const unionCount = countFilledFields(unionPool);
-        if (syncAllStudentsIdentical && unionCount > 0) {
-          const nowIso = new Date().toISOString();
-          const batchMap = {};
-          let anyStudentBehind = false;
-          STUDENTS.forEach(targetSt => {
-            const curCount = countFilledFields(safeCloudMap[targetSt.id]);
-            if (curCount < unionCount) anyStudentBehind = true;
-            const cloned = cloneAndPersonalizeDataset(unionPool, targetSt, unionPool.lastUpdated || nowIso);
-            saveLocalQuietly(targetSt.id, cloned);
-            batchMap[targetSt.id] = cloned;
-          });
-          if (anyStudentBehind) {
-            pushAllStudentsMapToCloud(batchMap, nowIso);
-          }
-          anyUpdatedRemotely = true;
-        }
-        initialMigrationCompleted = true;
-      } else {
-        // Live real-time update after initial migration
-        let newestRemoteStudentData = null;
-        let newestRemoteTime = '';
-
-        STUDENTS.forEach(st => {
-          const cData = safeCloudMap[st.id];
-          const lData = getStudentData(st.id);
-          if (cData && (cData.sublabs || cData.weekLogs)) {
-            const isDifferentTime = cData.lastUpdated && cData.lastUpdated !== lData.lastUpdated;
-            const isFromOther = cData.updatedByClient !== CLIENT_INSTANCE_ID;
-            if (isDifferentTime && (isFromOther || isManualRefresh)) {
-              if (! cData.sublabs) cData.sublabs = {};
-              saveLocalQuietly(st.id, cData);
-              anyUpdatedRemotely = true;
-              if ((cData.lastUpdated || '') >= newestRemoteTime) {
-                newestRemoteTime = cData.lastUpdated || '';
-                newestRemoteStudentData = cData;
-              }
+          if (!initialMigrationCompleted) {
+            // First load: merge local storage with Cloud data strictly for this student
+            const merged = mergeStudentDatasets(lData, cData);
+            saveLocalQuietly(st.id, merged);
+            if (countFilledFields(merged) > countFilledFields(cData)) {
+              pushStudentDataToCloud(st.id, merged);
+            }
+          } else if (isDifferentTime && (isFromOther || isManualRefresh)) {
+            saveLocalQuietly(st.id, cData);
+            if (st.id === currentStId) {
+              currentStUpdatedRemotely = true;
             }
           }
-        });
-
-        // If syncAllStudentsIdentical is enabled and a single student was updated remotely by an older client, mirror to all locally
-        if (syncAllStudentsIdentical && newestRemoteStudentData) {
-          STUDENTS.forEach(targetSt => {
-            const cur = getStudentData(targetSt.id);
-            if ((cur.lastUpdated || '') < newestRemoteTime) {
-              const cloned = cloneAndPersonalizeDataset(newestRemoteStudentData, targetSt, newestRemoteTime);
-              saveLocalQuietly(targetSt.id, cloned);
-            }
-          });
+        } else if (hasAnyStudentContent(lData)) {
+          pushStudentDataToCloud(st.id, lData);
         }
-      }
+      });
 
+      initialMigrationCompleted = true;
       updateStudentPillsBadges();
 
-      if (anyUpdatedRemotely || isManualRefresh) {
+      if (currentStUpdatedRemotely || isManualRefresh) {
         const curData = getStudentData(currentStId);
         updateStorageStatusBanner(curData.lastUpdated, 'remote');
         updateStats();
@@ -2026,7 +1845,7 @@ newgrp dialout</pre>
     }
 
     async function pollCloudLatestQuietly() {
-      if (liveSaveTimer) return; // Do not poll while local debounce save is pending
+      if (liveSaveTimer) return;
       try {
         const resp = await fetch(`${CLOUD_DB_URL}/iot_2569_students.json`);
         if (resp.ok) {
@@ -2054,23 +1873,13 @@ newgrp dialout</pre>
     }
 
     async function forceCloudPushCurrent() {
-      if (syncAllStudentsIdentical) {
-        await syncPoolAcrossAllStudentsNow(true);
-        return;
-      }
-      let pushedCount = 0;
-      for (const st of STUDENTS) {
-        const sData = getRawLocalAndMemoryData(st.id);
-        if (hasAnyStudentContent(sData) || st.id === STUDENTS[currentStudentIndex].id) {
-          await pushStudentDataToCloud(st.id, sData);
-          pushedCount++;
-        }
-      }
-      showToast(`☁️ ซิงก์ข้อมูลในเครื่องขึ้น Cloud สำเร็จ (${pushedCount} รายชื่อ)!`);
+      const st = STUDENTS[currentStudentIndex];
+      const sData = getStudentData(st.id);
+      await pushStudentDataToCloud(st.id, sData);
+      showToast(`☁️ ซิงก์ข้อมูลของ ${st.id} ขึ้น Cloud สำเร็จ!`);
     }
 
     async function initCloudSync() {
-      // 1. Initial REST pull & bidirectional auto-migration of any existing localStorage data
       try {
         const resp = await fetch(`${CLOUD_DB_URL}/iot_2569_students.json`);
         if (resp.ok) {
@@ -2084,7 +1893,6 @@ newgrp dialout</pre>
         console.warn("Initial REST fetch error:", e);
       }
 
-      // 2. Attach Real-Time WebSocket listener via Firebase SDK
       try {
         if (typeof firebase !== 'undefined' && firebase.initializeApp) {
           if (!firebase.apps || firebase.apps.length === 0) {
@@ -2101,7 +1909,6 @@ newgrp dialout</pre>
         console.warn("Firebase WebSocket listener setup warning:", e);
       }
 
-      // 3. Fallback 4-second periodic sync in case WebSocket is blocked by firewall
       setInterval(pollCloudLatestQuietly, 4000);
     }
 

@@ -246,84 +246,8 @@ def personalize_text_for_student(text: str, target_id: str) -> str:
     return out
 
 
-def unify_and_personalize_cloud_map(cloud_map: dict) -> dict:
-    """Combine all filled fields across any student into a unified pool and personalize for all 9 students."""
-    # Sort student records by lastUpdated ascending so newest updates win
-    records = [
-        (k, v) for k, v in cloud_map.items()
-        if not k.startswith("_") and isinstance(v, dict)
-    ]
-    records.sort(key=lambda item: str(item[1].get("lastUpdated", "")))
-
-    unified_week_logs = {}
-    unified_sublabs = {}
-    latest_ts = ""
-
-    for _, rdata in records:
-        ts = str(rdata.get("lastUpdated", ""))
-        if ts >= latest_ts:
-            latest_ts = ts
-        for wk, wval in (rdata.get("weekLogs") or {}).items():
-            if wval and str(wval).strip():
-                unified_week_logs[wk] = wval
-        for sub_id, sdata in (rdata.get("sublabs") or {}).items():
-            if not isinstance(sdata, dict):
-                continue
-            cur = unified_sublabs.setdefault(sub_id, {
-                "completed": False,
-                "terminalLog": "",
-                "notes": "",
-                "imageUrl": "",
-                "videoUrl": "",
-                "metrics": {},
-                "photos": {},
-                "videos": {}
-            })
-            if sdata.get("completed") is not None:
-                cur["completed"] = bool(sdata.get("completed")) or cur["completed"]
-            for field in ("terminalLog", "notes", "imageUrl", "videoUrl"):
-                val = sdata.get(field)
-                if val and str(val).strip():
-                    cur[field] = val
-            for dict_field in ("metrics", "photos", "videos"):
-                for mk, mv in (sdata.get(dict_field) or {}).items():
-                    if mv and str(mv).strip():
-                        cur[dict_field][mk] = mv
-
-    if not unified_sublabs and not unified_week_logs:
-        return cloud_map
-
-    out_map = {}
-    for st_id in STUDENT_META.keys():
-        if st_id == "67030183":
-            continue
-        p_week_logs = {
-            wk: personalize_text_for_student(wval, st_id)
-            for wk, wval in unified_week_logs.items()
-        }
-        p_sublabs = {}
-        for sub_id, sd in unified_sublabs.items():
-            p_sublabs[sub_id] = {
-                "completed": sd["completed"],
-                "terminalLog": personalize_text_for_student(sd["terminalLog"], st_id),
-                "notes": personalize_text_for_student(sd["notes"], st_id),
-                "imageUrl": sd["imageUrl"],
-                "videoUrl": sd["videoUrl"],
-                "metrics": dict(sd["metrics"]),
-                "photos": dict(sd["photos"]),
-                "videos": dict(sd["videos"]),
-            }
-        out_map[st_id] = {
-            "lastUpdated": latest_ts or datetime.utcnow().isoformat() + "Z",
-            "updatedByClient": "auto_report_sync_unified",
-            "weekLogs": p_week_logs,
-            "sublabs": p_sublabs,
-        }
-    return out_map
-
-
 def sync_all_from_firebase_cloud() -> list:
-    """Fetch all students' data from Firebase Realtime Database, unify across all 9 students, and update local reports."""
+    """Fetch each student's data from Firebase Realtime Database and update their individual reports independently."""
     url = f"{CLOUD_DB_URL}/iot_2569_students.json"
     print(f"☁️  Fetching real-time shared data from Cloud: {url} ...")
     try:
@@ -338,10 +262,8 @@ def sync_all_from_firebase_cloud() -> list:
         print("ℹ️  No student data uploaded to Cloud yet.")
         return []
 
-    unified_map = unify_and_personalize_cloud_map(cloud_map)
-
     total_updated = []
-    for st_id, st_data in sorted(unified_map.items()):
+    for st_id, st_data in sorted(cloud_map.items()):
         if st_id.startswith("_") or not isinstance(st_data, dict):
             continue
         payload = {
@@ -351,7 +273,7 @@ def sync_all_from_firebase_cloud() -> list:
         updated = update_student_reports_from_dataset(payload)
         total_updated.extend(updated)
 
-    print(f"\n✅ Cloud Sync Complete! Updated {len(total_updated)} report files across all 9 students.")
+    print(f"\n✅ Cloud Sync Complete! Updated {len(total_updated)} individual report files across students.")
     return total_updated
 
 class SyncHandler(BaseHTTPRequestHandler):
