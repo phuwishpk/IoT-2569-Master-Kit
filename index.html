@@ -2913,7 +2913,7 @@ newgrp dialout</pre>
               </div>
             ` : ''}
 
-            ${(sub.resultTemplates || []).length ? `
+            ${((sub.resultTemplates || []).length || hasResults) ? `
               <div class="space-y-1.5">
                 <div class="flex items-center justify-between gap-2">
                   <span class="text-xs font-semibold text-slate-300">📋 ตารางบันทึกผลตามใบงาน (Markdown — ใช้ใน report.md ได้ทันที)</span>
