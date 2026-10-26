@@ -55,9 +55,13 @@
 
 ### 🟢 Week 03: Sensors & Calibration II (LDR Calibration) (ทำเดี่ยว)
 * **สิ่งที่ต้องแคปใน Terminal:**
-  1. **Serial Monitor วัดแสง LDR (1 รูป):** 
-     * ต้องเห็นค่าดิบและแรงดัน: `Raw ADC: 1720`, `Vadc: 1386 mV (1.39 V)`, `Approx Lux: 260`
-  2. **รูปกราฟใน Report (1 รูป):** `chart week3.png` พล็อตความสัมพันธ์ระหว่าง ADC Raw กับค่า Lux
+  1. **Serial Monitor Lab 3.1 (1 รูป):** อ่านค่าดิบ ADC Raw จาก LDR
+     * ต้องเห็นค่า: `[Lab 3.1] ADC Raw = 2845`
+  2. **Serial Monitor Lab 3.2 (1 รูป):** แปลงค่าเป็นแรงดันไฟฟ้าสำหรับจดบันทึก 5 สภาวะแสง
+     * ต้องเห็นค่า: `[Lab 3.2] ADC Raw = 2845 | Voltage = 2450 mV (2.450 V)`
+  3. **Serial Monitor Lab 3.3 (1 รูป):** คำนวณความสว่างเรียลไทม์ (Calibrated Lux)
+     * ต้องเห็นค่า: `[Lab 3.3] ADC Raw = 2845 | Voltage = 2450 mV | Calibrated Lux = 197.32 Lux`
+  4. **รูปกราฟใน Report (1 รูป):** `chart week3.png` พล็อตความสัมพันธ์ระหว่าง ADC Raw กับค่า Lux
 
 ---
 

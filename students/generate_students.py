@@ -187,10 +187,24 @@ idf.py -p <PORT> flash monitor
 
 ### 🟢 Week 03: Sensors & Calibration II (LDR Lux) (ทำเดี่ยว)
 * **วงจร:** วงจรที่ 4 (เซนเซอร์แสง LDR + R 10kΩ บนขา GPIO 34)
-* **คำสั่งรัน:**
+#### 1. Lab 3.1: อ่านค่าแอนะล็อกดิบจาก LDR (ADC Raw 12-bit)
 ```bash
-cd Week03_LDR_Calibration/{sid}_template 2>/dev/null || cd Week03_LDR_Calibration/67030183_template
+cd Week03_LDR_Calibration/{sid}_template/Lab3-1_LDR_ADC_Raw 2>/dev/null || cd Week03_LDR_Calibration/67030183_template/Lab3-1_LDR_ADC_Raw
 idf.py set-target esp32
+idf.py build
+idf.py -p <PORT> flash monitor
+```
+
+#### 2. Lab 3.2: อ่านค่าแรงดันไฟฟ้า (Voltage mV) บันทึกตารางเทียบ Lux
+```bash
+cd Week03_LDR_Calibration/{sid}_template/Lab3-2_LDR_Voltage 2>/dev/null || cd Week03_LDR_Calibration/67030183_template/Lab3-2_LDR_Voltage
+idf.py build
+idf.py -p <PORT> flash monitor
+```
+
+#### 3. Lab 3.3: มิเตอร์วัดความสว่างเรียลไทม์ (Calibrated Lux)
+```bash
+cd Week03_LDR_Calibration/{sid}_template/Lab3-3_LDR_Lux_Calibrated 2>/dev/null || cd Week03_LDR_Calibration/67030183_template/Lab3-3_LDR_Lux_Calibrated
 idf.py build
 idf.py -p <PORT> flash monitor
 ```

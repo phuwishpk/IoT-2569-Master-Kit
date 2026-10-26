@@ -82,10 +82,24 @@ idf.py -p <PORT> flash monitor
 
 ### 🟢 Week 03: Sensors & Calibration II (LDR Lux) (ทำเดี่ยว)
 * **วงจร:** วงจรที่ 4 (เซนเซอร์แสง LDR + R 10kΩ บนขา GPIO 34)
-* **คำสั่งรัน:**
+#### 1. Lab 3.1: อ่านค่าแอนะล็อกดิบจาก LDR (ADC Raw 12-bit)
 ```bash
-cd Week03_LDR_Calibration/67030073_template 2>/dev/null || cd Week03_LDR_Calibration/67030073_template
+cd Week03_LDR_Calibration/67030073_template/Lab3-1_LDR_ADC_Raw 2>/dev/null || cd Week03_LDR_Calibration/67030183_template/Lab3-1_LDR_ADC_Raw
 idf.py set-target esp32
+idf.py build
+idf.py -p <PORT> flash monitor
+```
+
+#### 2. Lab 3.2: อ่านค่าแรงดันไฟฟ้า (Voltage mV) บันทึกตารางเทียบ Lux
+```bash
+cd Week03_LDR_Calibration/67030073_template/Lab3-2_LDR_Voltage 2>/dev/null || cd Week03_LDR_Calibration/67030183_template/Lab3-2_LDR_Voltage
+idf.py build
+idf.py -p <PORT> flash monitor
+```
+
+#### 3. Lab 3.3: มิเตอร์วัดความสว่างเรียลไทม์ (Calibrated Lux)
+```bash
+cd Week03_LDR_Calibration/67030073_template/Lab3-3_LDR_Lux_Calibrated 2>/dev/null || cd Week03_LDR_Calibration/67030183_template/Lab3-3_LDR_Lux_Calibrated
 idf.py build
 idf.py -p <PORT> flash monitor
 ```
@@ -123,14 +137,14 @@ idf.py -p <PORT> flash monitor
 
 #### 1. Lab 5.1: สแกนโครงข่าย Wi-Fi ทั้งหมด
 ```bash
-cd Week05_WiFi_ESP32/67030073_template/lab1 2>/dev/null || cd Week05_WiFi_ESP32/67030073_template/lab1
+cd Week05_WiFi_ESP32/67030073_template/lab1 2>/dev/null || cd Week05_WiFi_ESP32/67030183_template/lab1
 idf.py build
 idf.py -p <PORT> flash monitor
 ```
 
 #### 2. Lab 5.2 - 5.4: เชื่อมต่อ Wi-Fi และแสดง Reason Code ตอนหลุด
 ```bash
-cd Week05_WiFi_ESP32/67030073_template/lab2 2>/dev/null || cd Week05_WiFi_ESP32/67030073_template/lab2
+cd Week05_WiFi_ESP32/67030073_template/lab2 2>/dev/null || cd Week05_WiFi_ESP32/67030183_template/lab2
 idf.py build
 idf.py -p <PORT> flash monitor
 ```
@@ -142,7 +156,7 @@ idf.py -p <PORT> flash monitor
 
 * **เครื่องที่ 1 (บอร์ด ESP32 ของ Natthaphong Niampradit):** ปล่อย Wi-Fi Hotspot ชื่อ `ESP32_AP_0073`
   ```bash
-  cd Week06_SoftAP_FreeRTOS/67030073_template/codes 2>/dev/null || cd Week06_SoftAP_FreeRTOS/67030073_template/codes
+  cd Week06_SoftAP_FreeRTOS/67030073_template/codes 2>/dev/null || cd Week06_SoftAP_FreeRTOS/67030183_template/codes
   idf.py build
   idf.py -p <PORT> flash monitor
   ```
@@ -157,7 +171,7 @@ idf.py -p <PORT> flash monitor
 ### 🟢 Week 07: Wi-Fi Provisioning (BLE) (ทำเดี่ยว/คู่)
 * **วงจร:** วงจรที่ 1 (บอร์ดเปล่าเสียบสาย USB)
 ```bash
-cd Week07_WiFi_Provisioning/67030073_template/Lab7-3-BLE-Provisioning 2>/dev/null || cd Week07_WiFi_Provisioning/67030073_template/Lab7-3-BLE-Provisioning
+cd Week07_WiFi_Provisioning/67030073_template/Lab7-3-BLE-Provisioning 2>/dev/null || cd Week07_WiFi_Provisioning/67030183_template/Lab7-3-BLE-Provisioning
 idf.py build
 idf.py -p <PORT> flash monitor
 ```
@@ -202,7 +216,7 @@ dotnet run
 
 #### 1. แฟลชโค้ดขับจอ OLED ลง ESP32
 ```bash
-cd Week09_SPI_OLED_and_UI/67030073_template/Lab9-1_OLED_BringUp 2>/dev/null || cd Week09_SPI_OLED_and_UI/67030073_template/Lab9-1_OLED_BringUp
+cd Week09_SPI_OLED_and_UI/67030073_template/Lab9-1_OLED_BringUp 2>/dev/null || cd Week09_SPI_OLED_and_UI/67030183_template/Lab9-1_OLED_BringUp
 idf.py set-target esp32
 idf.py build
 idf.py -p <PORT> flash monitor
@@ -210,13 +224,13 @@ idf.py -p <PORT> flash monitor
 
 #### 2. รัน Kestrel Web Server บนคอมพิวเตอร์
 ```bash
-cd Week09_SPI_OLED_and_UI/67030073_template/ESP32.Kestrel.Webserver 2>/dev/null || cd Week09_SPI_OLED_and_UI/67030073_template/ESP32.Kestrel.Webserver
+cd Week09_SPI_OLED_and_UI/67030073_template/ESP32.Kestrel.Webserver 2>/dev/null || cd Week09_SPI_OLED_and_UI/67030183_template/ESP32.Kestrel.Webserver
 dotnet run
 ```
 
 #### 3. รัน Serial Bridge ส่งข้อมูลข้ามพอร์ต
 ```bash
-cd Week09_SPI_OLED_and_UI/67030073_template 2>/dev/null || cd Week09_SPI_OLED_and_UI/67030073_template
+cd Week09_SPI_OLED_and_UI/67030073_template 2>/dev/null || cd Week09_SPI_OLED_and_UI/67030183_template
 python3 serial_bridge.py --port <PORT> --baud 115200
 ```
 
@@ -282,10 +296,10 @@ idf.py -p <PORT> flash monitor
 ---
 
 ### 👥 Week 12: Flutter Mobile IoT & MQTT Dashboard (ทำคู่)
-* **โฟลเดอร์:** `Week12_Flutter_MQTT_App/67030073_template/Lab12-4` (หรือ `67030073_template/Lab12-4`)
+* **โฟลเดอร์:** `Week12_Flutter_MQTT_App/67030073_template/Lab12-4` (หรือ `67030183_template/Lab12-4`)
 * **คำสั่งรันแอปพลิเคชันมือถือ:**
 ```bash
-cd Week12_Flutter_MQTT_App/67030073_template/Lab12-4 2>/dev/null || cd Week12_Flutter_MQTT_App/67030073_template/Lab12-4
+cd Week12_Flutter_MQTT_App/67030073_template/Lab12-4 2>/dev/null || cd Week12_Flutter_MQTT_App/67030183_template/Lab12-4
 flutter pub get
 
 # เลือกรันบน Google Chrome (เร็วที่สุด ไม่ต้องเสียบมือถือ):
