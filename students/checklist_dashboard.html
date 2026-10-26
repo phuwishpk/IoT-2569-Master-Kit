@@ -1625,33 +1625,25 @@ newgrp dialout</pre>
         });
 
         const mPhotos = {};
-        const allPKeys = new Set([
-          ...Object.keys(sSub.photos || {}),
-          ...Object.keys(pSub.photos || {})
-        ]);
-        allPKeys.forEach(k => {
-          const pVal = pSub.photos && pSub.photos[k];
-          const sVal = sSub.photos && sSub.photos[k];
-          mPhotos[k] = (pVal !== undefined && pVal !== '') ? pVal : (sVal || '');
-        });
+        if (pSub.photos !== undefined) {
+          Object.assign(mPhotos, pSub.photos);
+        } else if (sSub.photos !== undefined) {
+          Object.assign(mPhotos, sSub.photos);
+        }
 
         const mVideos = {};
-        const allVKeys = new Set([
-          ...Object.keys(sSub.videos || {}),
-          ...Object.keys(pSub.videos || {})
-        ]);
-        allVKeys.forEach(k => {
-          const pVal = pSub.videos && pSub.videos[k];
-          const sVal = sSub.videos && sSub.videos[k];
-          mVideos[k] = (pVal !== undefined && pVal !== '') ? pVal : (sVal || '');
-        });
+        if (pSub.videos !== undefined) {
+          Object.assign(mVideos, pSub.videos);
+        } else if (sSub.videos !== undefined) {
+          Object.assign(mVideos, sSub.videos);
+        }
 
         merged.sublabs[subId] = {
           completed: pSub.completed !== undefined ? pSub.completed : (sSub.completed || false),
           terminalLog: (pSub.terminalLog !== undefined && pSub.terminalLog !== '') ? pSub.terminalLog : (sSub.terminalLog || ''),
           notes: (pSub.notes !== undefined && pSub.notes !== '') ? pSub.notes : (sSub.notes || ''),
-          imageUrl: (pSub.imageUrl !== undefined && pSub.imageUrl !== '') ? pSub.imageUrl : (sSub.imageUrl || ''),
-          videoUrl: (pSub.videoUrl !== undefined && pSub.videoUrl !== '') ? pSub.videoUrl : (sSub.videoUrl || ''),
+          imageUrl: (pSub.imageUrl !== undefined) ? pSub.imageUrl : (sSub.imageUrl || ''),
+          videoUrl: (pSub.videoUrl !== undefined) ? pSub.videoUrl : (sSub.videoUrl || ''),
           metrics: mMetrics,
           photos: mPhotos,
           videos: mVideos
@@ -2487,7 +2479,7 @@ newgrp dialout</pre>
                               </span>
                             ` : ''}
                           </div>
-                          <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ${isPhotoFilled ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700'}">
+                          <span id="photo-badge-${sub.id}-${p.id}" class="text-[10px] px-2 py-0.5 rounded-full font-semibold whitespace-nowrap ${isPhotoFilled ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700'}">
                             ${isPhotoFilled ? '✓ อัปโหลดแล้ว' : '⚪ รออัปโหลด'}
                           </span>
                         </div>
@@ -2577,7 +2569,7 @@ newgrp dialout</pre>
                               <span class="text-xs font-bold ${isVideoFilled ? 'text-purple-300' : 'text-slate-200'}">
                                 ${v.label}
                               </span>
-                              <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold ${isVideoFilled ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700'}">
+                              <span id="video-badge-${sub.id}-${v.id}" class="text-[10px] px-2 py-0.5 rounded-full font-semibold ${isVideoFilled ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700'}">
                                 ${isVideoFilled ? '✓ มีคลิปแล้ว' : '⚪ รอคลิป'}
                               </span>
                             </div>
@@ -2601,12 +2593,15 @@ newgrp dialout</pre>
                                      placeholder="แปะลิงก์ YouTube / Google Drive / Loom..."
                                      class="flex-1 bg-background border border-border rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:border-purple-400 focus:outline-none"
                                      oninput="saveSublabVideoLive('${sub.id}', '${v.id}', this.value)" onchange="saveSublabVideo('${sub.id}', '${v.id}', this.value)">
-                              ${isVideoFilled ? `
-                                <a href="${vVal}" target="_blank"
+                              <div id="video-actions-${sub.id}-${v.id}" class="flex items-center gap-1.5 ${isVideoFilled ? '' : 'hidden'}">
+                                <a id="video-btn-open-${sub.id}-${v.id}" href="${vVal}" target="_blank"
                                    class="px-2.5 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold flex items-center gap-1 transition shadow-sm whitespace-nowrap">
                                   ▶️ เปิดคลิป ↗️
                                 </a>
-                              ` : ''}
+                                <button type="button" onclick="clearVideo('${sub.id}', '${v.id}')" class="px-2 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-900/60 text-slate-400 hover:text-rose-300 border border-border text-xs transition" title="ลบคลิปนี้">
+                                  ✕
+                                </button>
+                              </div>
                             </div>
                           </div>
                         `;
@@ -2784,7 +2779,11 @@ newgrp dialout</pre>
 
       if (photosOk && videosOk && termOk) {
         subData.completed = true;
+      } else {
+        subData.completed = false;
       }
+      const checkEl = document.getElementById('sublab-check-' + subId);
+      if (checkEl) checkEl.checked = subData.completed;
     }
 
     function saveSublabField(subId, field, value) {
@@ -2800,36 +2799,101 @@ newgrp dialout</pre>
       showToast('บันทึกข้อมูลเรียบร้อย');
     }
 
+    function applyPhotoDomUpdate(subId, photoId, val) {
+      const trimmed = (val || '').trim();
+      const pBox = document.getElementById(`img-preview-box-${subId}-${photoId}`);
+      const pImg = document.getElementById(`img-preview-${subId}-${photoId}`);
+      const pInput = document.getElementById(`img-input-${subId}-${photoId}`);
+      const pBadge = document.getElementById(`photo-badge-${subId}-${photoId}`);
+
+      if (!trimmed) {
+        if (pBox) pBox.classList.add('hidden');
+        if (pImg) pImg.src = '';
+        if (pInput && pInput.value !== '') pInput.value = '';
+        if (pBadge) {
+          pBadge.className = 'text-[10px] px-2 py-0.5 rounded-full font-semibold whitespace-nowrap bg-slate-800 text-slate-400 border border-slate-700';
+          pBadge.textContent = '⚪ รออัปโหลด';
+        }
+      } else {
+        if (pBox) pBox.classList.remove('hidden');
+        if (pImg) pImg.src = trimmed;
+        if (pInput && !trimmed.startsWith('data:') && pInput.value !== trimmed) pInput.value = trimmed;
+        if (pBadge) {
+          pBadge.className = 'text-[10px] px-2 py-0.5 rounded-full font-semibold whitespace-nowrap bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+          pBadge.textContent = '✓ อัปโหลดแล้ว';
+        }
+      }
+    }
+
+    function applyVideoDomUpdate(subId, videoId, val) {
+      const trimmed = (val || '').trim();
+      const vInput = document.getElementById(`video-input-${subId}-${videoId}`);
+      const vActions = document.getElementById(`video-actions-${subId}-${videoId}`);
+      const vBtn = document.getElementById(`video-btn-open-${subId}-${videoId}`);
+      const vBadge = document.getElementById(`video-badge-${subId}-${videoId}`);
+
+      if (!trimmed) {
+        if (vInput && vInput.value !== '') vInput.value = '';
+        if (vActions) vActions.classList.add('hidden');
+        if (vBadge) {
+          vBadge.className = 'text-[10px] px-2 py-0.5 rounded-full font-semibold bg-slate-800 text-slate-400 border border-slate-700';
+          vBadge.textContent = '⚪ รอคลิป';
+        }
+      } else {
+        if (vInput && vInput.value !== trimmed) vInput.value = trimmed;
+        if (vBtn) vBtn.href = trimmed;
+        if (vActions) vActions.classList.remove('hidden');
+        if (vBadge) {
+          vBadge.className = 'text-[10px] px-2 py-0.5 rounded-full font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30';
+          vBadge.textContent = '✓ มีคลิปแล้ว';
+        }
+      }
+    }
+
     function saveSublabPhoto(subId, photoId, value) {
       const st = STUDENTS[currentStudentIndex];
       const sData = getStudentData(st.id);
       if (!sData.sublabs[subId]) sData.sublabs[subId] = {};
       if (!sData.sublabs[subId].photos) sData.sublabs[subId].photos = {};
-      sData.sublabs[subId].photos[photoId] = value.trim();
-      if (photoId === 'p1') {
-        sData.sublabs[subId].imageUrl = value.trim();
+      const trimmed = (value || '').trim();
+
+      if (!trimmed) {
+        delete sData.sublabs[subId].photos[photoId];
+        if (photoId === 'p1') sData.sublabs[subId].imageUrl = '';
+      } else {
+        sData.sublabs[subId].photos[photoId] = trimmed;
+        if (photoId === 'p1') sData.sublabs[subId].imageUrl = trimmed;
       }
+
+      // Instant DOM update with zero flicker
+      applyPhotoDomUpdate(subId, photoId, trimmed);
 
       checkSublabAutoCompletion(subId, sData);
       saveStudentData(st.id, sData);
       updateStats();
-      renderWeeksAccordion();
-      showToast('บันทึกรูปภาพเรียบร้อย');
+      showToast(trimmed ? 'บันทึกรูปภาพเรียบร้อย' : 'ลบรูปภาพแล้ว');
     }
 
     function clearPhoto(subId, photoId) {
       const st = STUDENTS[currentStudentIndex];
       const sData = getStudentData(st.id);
-      if (sData.sublabs[subId] && sData.sublabs[subId].photos) {
-        delete sData.sublabs[subId].photos[photoId];
+      if (sData.sublabs && sData.sublabs[subId]) {
+        if (sData.sublabs[subId].photos) {
+          delete sData.sublabs[subId].photos[photoId];
+        }
+        if (photoId === 'p1') {
+          sData.sublabs[subId].imageUrl = '';
+        }
       }
-      if (photoId === 'p1' && sData.sublabs[subId]) {
-        sData.sublabs[subId].imageUrl = '';
-      }
+
+      // 1. Instantly wipe from DOM so image disappears in 0ms without page refresh
+      applyPhotoDomUpdate(subId, photoId, '');
+
+      // 2. Recheck completion & update stats
+      checkSublabAutoCompletion(subId, sData);
       saveStudentData(st.id, sData);
       updateStats();
-      renderWeeksAccordion();
-      showToast('ลบรูปภาพแล้ว');
+      showToast('ลบรูปภาพแล้ว (หายทันที) ✓');
     }
 
     function saveSublabVideo(subId, videoId, value) {
@@ -2837,16 +2901,42 @@ newgrp dialout</pre>
       const sData = getStudentData(st.id);
       if (!sData.sublabs[subId]) sData.sublabs[subId] = {};
       if (!sData.sublabs[subId].videos) sData.sublabs[subId].videos = {};
-      sData.sublabs[subId].videos[videoId] = value.trim();
-      if (videoId === 'v1') {
-        sData.sublabs[subId].videoUrl = value.trim();
+      const trimmed = (value || '').trim();
+
+      if (!trimmed) {
+        delete sData.sublabs[subId].videos[videoId];
+        if (videoId === 'v1') sData.sublabs[subId].videoUrl = '';
+      } else {
+        sData.sublabs[subId].videos[videoId] = trimmed;
+        if (videoId === 'v1') sData.sublabs[subId].videoUrl = trimmed;
       }
+
+      applyVideoDomUpdate(subId, videoId, trimmed);
 
       checkSublabAutoCompletion(subId, sData);
       saveStudentData(st.id, sData);
       updateStats();
-      renderWeeksAccordion();
-      showToast('บันทึกลิงก์วิดีโอเรียบร้อย');
+      showToast(trimmed ? 'บันทึกลิงก์วิดีโอเรียบร้อย' : 'ลบวิดีโอแล้ว');
+    }
+
+    function clearVideo(subId, videoId) {
+      const st = STUDENTS[currentStudentIndex];
+      const sData = getStudentData(st.id);
+      if (sData.sublabs && sData.sublabs[subId]) {
+        if (sData.sublabs[subId].videos) {
+          delete sData.sublabs[subId].videos[videoId];
+        }
+        if (videoId === 'v1') {
+          sData.sublabs[subId].videoUrl = '';
+        }
+      }
+
+      applyVideoDomUpdate(subId, videoId, '');
+
+      checkSublabAutoCompletion(subId, sData);
+      saveStudentData(st.id, sData);
+      updateStats();
+      showToast('ลบคลิปวิดีโอแล้ว ✓');
     }
 
     function saveSublabMetric(subId, metricKey, value) {
@@ -2878,8 +2968,19 @@ newgrp dialout</pre>
       const sData = getStudentData(st.id);
       if (!sData.sublabs[subId]) sData.sublabs[subId] = {};
       if (!sData.sublabs[subId].photos) sData.sublabs[subId].photos = {};
-      sData.sublabs[subId].photos[photoId] = value.trim();
-      if (photoId === 'p1') sData.sublabs[subId].imageUrl = value.trim();
+      const trimmed = (value || '').trim();
+
+      if (!trimmed) {
+        delete sData.sublabs[subId].photos[photoId];
+        if (photoId === 'p1') sData.sublabs[subId].imageUrl = '';
+      } else {
+        sData.sublabs[subId].photos[photoId] = trimmed;
+        if (photoId === 'p1') sData.sublabs[subId].imageUrl = trimmed;
+      }
+
+      // Instant live DOM preview toggle
+      applyPhotoDomUpdate(subId, photoId, trimmed);
+
       checkSublabAutoCompletion(subId, sData);
       scheduleDebouncedCloudSave(st.id, sData);
       updateStats();
@@ -2890,8 +2991,18 @@ newgrp dialout</pre>
       const sData = getStudentData(st.id);
       if (!sData.sublabs[subId]) sData.sublabs[subId] = {};
       if (!sData.sublabs[subId].videos) sData.sublabs[subId].videos = {};
-      sData.sublabs[subId].videos[videoId] = value.trim();
-      if (videoId === 'v1') sData.sublabs[subId].videoUrl = value.trim();
+      const trimmed = (value || '').trim();
+
+      if (!trimmed) {
+        delete sData.sublabs[subId].videos[videoId];
+        if (videoId === 'v1') sData.sublabs[subId].videoUrl = '';
+      } else {
+        sData.sublabs[subId].videos[videoId] = trimmed;
+        if (videoId === 'v1') sData.sublabs[subId].videoUrl = trimmed;
+      }
+
+      applyVideoDomUpdate(subId, videoId, trimmed);
+
       checkSublabAutoCompletion(subId, sData);
       scheduleDebouncedCloudSave(st.id, sData);
       updateStats();
