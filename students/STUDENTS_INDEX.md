@@ -1,53 +1,35 @@
-# 🎓 ดัชนีโฟลเดอร์ใหญ่และชุดโปรเจกต์ประจำตัวรายบุคคล (Students Standalone Kits)
+# 🎓 ดัชนีโฟลเดอร์และคู่มือรันโปรเจกต์รายบุคคล (Students Run Directory)
 ## วิชา IoT-App-2569 ภาคเรียนที่ 2/2568
 
-ทุกโฟลเดอร์ในหน้านี้เป็น **โฟลเดอร์ใหญ่ฉบับสมบูรณ์ (Standalone Big Folder)** ของนักศึกษาแต่ละคน โดยบรรจุโค้ด, รายงาน, ผังวงจร ESP32 (ครบ 38 ขา), และคู่มือคำสั่งรันครบทั้ง 12 สัปดาห์ (Week 01 – Week 12) ที่ได้รับการผูกรหัสนักศึกษา, ชื่อ-นามสกุล, หัวข้อ MQTT, และวิดเจ็ตหน้าปัด SVG Gauge (Lab 8.5) เรียบร้อยแล้ว พร้อมส่งงานและรันได้ทันทีโดยไม่ต้องตั้งค่าใหม่
+โฟลเดอร์นี้รวบรวม **ไฟล์คำสั่งรันและสคริปต์ประจำตัวนักศึกษาแต่ละคน** โดยแยกออกเป็นโฟลเดอร์เฉพาะบุคคล ทุกคำสั่งได้รับการผูกรหัสนักศึกษา, ชื่อ-นามสกุล, หัวข้อ MQTT, และวิดเจ็ตหน้าปัด SVG Gauge (Lab 8.5) ตามโจทย์เฉพาะตัวเรียบร้อยแล้ว
 
 ---
 
-## 📋 รายชื่อนักศึกษาและโฟลเดอร์ใหญ่ประจำตัว
+---
 
-| รหัสนักศึกษา | ชื่อ - นามสกุล | ชื่อภาษาอังกฤษ | วิดเจ็ตหน้าปัด Lab 8.5 (ซ้าย + ขวา) | ลิงก์โฟลเดอร์ใหญ่ประจำตัว | ไฟล์ ZIP ดาวน์โหลด (8 MB) |
-| :---: | :--- | :--- | :--- | :---: | :---: |
-| **67030248** | นายสุวิจักขณ์ ลาวัง | Suwijak Lawang | Analog Speedometer + 7-Segment | [📂 `67030248_Suwijak_Lawang`](67030248_Suwijak_Lawang/) | [📦 `67030248_Suwijak_Lawang.zip`](zips/67030248_Suwijak_Lawang.zip) |
-| **67030249** | นางสาวสุวิมล ศรีประไหม | Suwimon Sripramai | Audio VU Meter + 7-Segment | [📂 `67030249_Suwimon_Sripramai`](67030249_Suwimon_Sripramai/) | [📦 `67030249_Suwimon_Sripramai.zip`](zips/67030249_Suwimon_Sripramai.zip) |
-| **67030268** | นายกร แดงทอง | Korn Daengthong | Analog Speedometer + Liquid Tank | [📂 `67030268_Korn_Daengthong`](67030268_Korn_Daengthong/) | [📦 `67030268_Korn_Daengthong.zip`](zips/67030268_Korn_Daengthong.zip) |
-| **67030270** | นายกฤษฏิณัช สำราญกิจ | Kritsadinat Samrankit | Retro 7-Segment + Liquid Tank | [📂 `67030270_Kritsadinat_Samrankit`](67030270_Kritsadinat_Samrankit/) | [📦 `67030270_Kritsadinat_Samrankit.zip`](zips/67030270_Kritsadinat_Samrankit.zip) |
-| **67030299** | นางสาวธนพร พิศมัย | Thanaporn Pitsamai | Liquid Tank + Retro 7-Segment | [📂 `67030299_Thanaporn_Pitsamai`](67030299_Thanaporn_Pitsamai/) | [📦 `67030299_Thanaporn_Pitsamai.zip`](zips/67030299_Thanaporn_Pitsamai.zip) |
-| **67030359** | นายอัฐวุฒิ บัวเรียน | Attawut Bualian | Liquid Tank + Audio VU Meter | [📂 `67030359_Attawut_Bualian`](67030359_Attawut_Bualian/) | [📦 `67030359_Attawut_Bualian.zip`](zips/67030359_Attawut_Bualian.zip) |
-| **67030360** | นายอิทธิพัทธิ์ สุทธินวล | Ittipat Sutthinuan | Analog Speedometer + 7-Segment | [📂 `67030360_Ittipat_Sutthinuan`](67030360_Ittipat_Sutthinuan/) | [📦 `67030360_Ittipat_Sutthinuan.zip`](zips/67030360_Ittipat_Sutthinuan.zip) |
+## 📦 ดาวน์โหลดชุดรวมทุกแล็บของทุกคน (Master All-In-One Pack)
+> [!IMPORTANT]
+> **ดาวน์โหลดครั้งเดียวได้ครบทั้ง 13 สัปดาห์ ของเพื่อนทุกคน (8 คน):**  
+> 🔗 **[ดาวน์โหลด All_Students_All_Labs_Master_Pack.zip (72 MB)](zips/All_Students_All_Labs_Master_Pack.zip)**  
+> ภายในไฟล์บรรจุโฟลเดอร์โปรเจกต์ฉบับสมบูรณ์ของนักศึกษาทุกคน พร้อมผังวงจร ESP32 (38 ขา) และคำสั่งรันครบทั้งหมด
+
+---
+## 📋 รายชื่อนักศึกษาและลิงก์คู่มือประจำตัว
+
+| รหัสนักศึกษา | ชื่อ - นามสกุล | ชื่อภาษาอังกฤษ | วิดเจ็ตหน้าปัด Lab 8.5 (ซ้าย + ขวา) | ลิงก์โฟลเดอร์และคู่มือคำสั่งรัน |
+| :---: | :--- | :--- | :--- | :---: |
+| **67030248** | นายสุวิจักขณ์ ลาวัง | Suwijak Lawang | Analog + Retro | [📂 เปิดโฟลเดอร์ `67030248_Suwijak_Lawang`](67030248_Suwijak_Lawang/RUN_COMMANDS_67030248.md) |
+| **67030249** | นางสาวสุวิมล ศรีประไหม | Suwimon Sripramai | Audio + Retro | [📂 เปิดโฟลเดอร์ `67030249_Suwimon_Sripramai`](67030249_Suwimon_Sripramai/RUN_COMMANDS_67030249.md) |
+| **67030268** | นายกร แดงทอง | Korn Daengthong | Analog + Liquid | [📂 เปิดโฟลเดอร์ `67030268_Korn_Daengthong`](67030268_Korn_Daengthong/RUN_COMMANDS_67030268.md) |
+| **67030270** | นายกฤษฏิณัช สำราญกิจ | Kritsadinat Samrankit | Retro + Liquid | [📂 เปิดโฟลเดอร์ `67030270_Kritsadinat_Samrankit`](67030270_Kritsadinat_Samrankit/RUN_COMMANDS_67030270.md) |
+| **67030299** | นางสาวธนพร พิศมัย | Thanaporn Pitsamai | Liquid + Retro | [📂 เปิดโฟลเดอร์ `67030299_Thanaporn_Pitsamai`](67030299_Thanaporn_Pitsamai/RUN_COMMANDS_67030299.md) |
+| **67030359** | นายอัฐวุฒิ บัวเรียน | Attawut Bualian | Liquid + Audio | [📂 เปิดโฟลเดอร์ `67030359_Attawut_Bualian`](67030359_Attawut_Bualian/RUN_COMMANDS_67030359.md) |
+| **67030360** | นายอิทธิพัทธิ์ สุทธินวล | Ittipat Sutthinuan | Analog + Retro | [📂 เปิดโฟลเดอร์ `67030360_Ittipat_Sutthinuan`](67030360_Ittipat_Sutthinuan/RUN_COMMANDS_67030360.md) |
+| **67030181** | นายภูมิพัฒน์ กุลด้วง | Phumipat Kulduang | Audio + Retro | [📂 เปิดโฟลเดอร์ `67030181_Phumipat_Kulduang`](67030181_Phumipat_Kulduang/RUN_COMMANDS_67030181.md) |
 
 ---
 
-## 📂 โครงสร้างภายในโฟลเดอร์ของแต่ละคน
-
-```text
-67030xxx_FriendName/
-├── README.md                  # แนะนำการใช้งานและโปรไฟล์ประจำตัว
-├── RUN_COMMANDS.md            # รวมคำสั่งรันทุกแล็บ (ผูกรหัสของตนเองแล้ว)
-├── circuits/                  # ผังวงจร ESP32 ครบ 38 ขา (SVG & PNG)
-├── CIRCUITS_WIRING_GUIDE.md   # คู่มือต่อสายไฟ Breadboard
-├── CHECKLIST_AND_DATA_COPY.md # ตารางบันทึกค่าสำเร็จรูป (Copy-Paste)
-├── MASTER_CHECKLIST.md        # ข้อมูลการทำเดี่ยว vs ทำคู่
-├── remote_doctor.py           # สคริปต์ตรวจพอร์ต COMx
-│
-├── Week01_Intro/              # โค้ดและรายงาน Week 01
-├── Week02_POT_and_LED/        # โค้ดและรายงาน Week 02
-├── Week03_LDR_Calibration/    # โค้ดและรายงาน Week 03 (โฟลเดอร์ <รหัส>_template)
-├── Week04_RGB_Color_Sensing/  # โค้ดและรายงาน Week 04 (โฟลเดอร์ <รหัส>)
-├── Week05_WiFi_ESP32/         # โค้ดและรายงาน Week 05
-├── Week06_SoftAP_FreeRTOS/    # โค้ดและรายงาน Week 06 (SSID: ESP32_AP_<เลขท้าย>)
-├── Week07_WiFi_Provisioning/  # โค้ดและรายงาน Week 07 (BLE: PROV_<เลขท้าย>)
-├── Week08_Kestrel_and_SVG/    # Kestrel Server & Dual Gauge SVG ตามโจทย์ตนเอง
-├── Week09_SPI_OLED_and_UI/    # SPI OLED SSD1306 (OLED Line 1: <รหัส>)
-├── Week10_HTTP_UDP_CoAP/      # Benchmark HTTP, UDP, CoAP
-├── Week11_MQTT_and_RainMaker/ # Mosquitto mTLS (Topic: iot/<รหัส>/...) & RainMaker
-└── Week12_Flutter_MQTT_App/   # แอปพลิเคชันมือถือ Flutter ผูก Topic ตนเอง
-```
-
----
-
-## ⚡ วิธีการนำไปใช้งาน
-1. **คัดลอกโฟลเดอร์ของตัวเอง** ไปไว้ที่หน้า Desktop หรือเครื่องของตัวเอง
-2. **เปิดไฟล์ `RUN_COMMANDS.md`**
-3. เสียบบอร์ด ESP32 แล้วคัดลอกคำสั่งในสัปดาห์นั้นไปวางใน Terminal เพื่อรันได้ทันที
+## ⚡ วิธีใช้งานหน้างานสำหรับเพื่อนแต่ละคน
+1. เข้าไปที่โฟลเดอร์ของตัวเอง เช่น `cd students/67030248_Suwijak_Lawang/`
+2. เปิดไฟล์ `RUN_COMMANDS_<รหัส>.md`
+3. คัดลอกคำสั่งในแต่ละ Week ไปวางใน Terminal ได้ทันที โค้ดและล็อกที่แสดงจะติดชื่อและรหัสของตัวเองถูกต้อง 100%!

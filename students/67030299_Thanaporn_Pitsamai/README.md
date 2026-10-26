@@ -2,7 +2,7 @@
 ## นักศึกษา: นางสาวธนพร พิศมัย (Thanaporn Pitsamai)
 ### รหัสนักศึกษา: `67030299` | Sec: IoT-App-2569
 
-โฟลเดอร์นี้เป็น **ชุดโปรเจกต์ฉบับสมบูรณ์ที่พร้อมรันและส่งงานได้ทันที** ครบทั้ง 12 สัปดาห์ (Week 01 – Week 12) โดยโค้ด, รายงาน, หัวข้อ MQTT, ชื่อ Wi-Fi/BLE, และหน้าปัด SVG Gauge ได้รับการผูกค่าเป็นของ **นางสาวธนพร พิศมัย (67030299)** เรียบร้อยแล้ว 100%
+โฟลเดอร์นี้เป็น **ชุดโปรเจกต์ฉบับสมบูรณ์ที่พร้อมรันและส่งงานได้ทันที** ครบทั้ง 13 สัปดาห์ (Week 01 – Week 13) โดยโค้ด, รายงาน, หัวข้อ MQTT, ชื่อ Wi-Fi/BLE, และหน้าปัด SVG Gauge ได้รับการผูกค่าเป็นของ **นางสาวธนพร พิศมัย (67030299)** เรียบร้อยแล้ว 100%
 
 ---
 
@@ -28,7 +28,8 @@
 ├── Week09_SPI_OLED_and_UI/    # Week 09: SPI OLED (7 ขา) & Kestrel Web UI
 ├── Week10_HTTP_UDP_CoAP/      # Week 10: Local Communication Benchmark (HTTP/UDP/CoAP)
 ├── Week11_MQTT_and_RainMaker/ # Week 11: MQTT Broker mTLS (iot/67030299/...) & RainMaker
-└── Week12_Flutter_MQTT_App/   # Week 12: Flutter Mobile IoT Dashboard
+├── Week12_Flutter_MQTT_App/   # Week 12: Flutter Mobile IoT Dashboard
+└── Week13_Kestrel_Edge_Gateway/ # Week 13: Converged Edge Gateway (.NET 8 Kestrel)
 ```
 
 ---

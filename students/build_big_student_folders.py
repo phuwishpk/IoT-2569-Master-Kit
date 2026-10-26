@@ -53,6 +53,12 @@ STUDENTS = [
         "name_th": "นายอิทธิพัทธิ์ สุทธินวล",
         "name_en": "Ittipat Sutthinuan",
         "folder_name": "67030360_Ittipat_Sutthinuan"
+    },
+    {
+        "id": "67030181",
+        "name_th": "นายภูมิพัฒน์ กุลด้วง",
+        "name_en": "Phumipat Kulduang",
+        "folder_name": "67030181_Phumipat_Kulduang"
     }
 ]
 
@@ -270,6 +276,7 @@ WEEKS_AND_DIRS = [
     "Week10_HTTP_UDP_CoAP",
     "Week11_MQTT_and_RainMaker",
     "Week12_Flutter_MQTT_App",
+    "Week13_Kestrel_Edge_Gateway",
     "circuits"
 ]
 
@@ -304,7 +311,7 @@ for st in STUDENTS:
         dst = os.path.join(st_big_folder, item)
         if os.path.exists(dst):
             shutil.rmtree(dst)
-        shutil.copytree(src, dst)
+        shutil.copytree(src, dst, ignore=shutil.ignore_patterns('build', '.git', 'bin', 'obj', '.vs', '.cache', '__pycache__', '*.tmp'))
         
     # 2. Copy shared reference files
     for item in SHARED_FILES:
@@ -371,6 +378,11 @@ for st in STUDENTS:
     if os.path.exists(os.path.join(p12, "67030183_template")):
         os.rename(os.path.join(p12, "67030183_template"), os.path.join(p12, f"{sid}_template"))
 
+    # Week 13
+    p13 = os.path.join(st_big_folder, "Week13_Kestrel_Edge_Gateway")
+    if os.path.exists(os.path.join(p13, "67030183_template")):
+        os.rename(os.path.join(p13, "67030183_template"), os.path.join(p13, f"{sid}_template"))
+
     # 4. Update Week 08 Lab 8.5 Dual Gauge HTML
     lab85_html = os.path.join(st_big_folder, "Week08_Kestrel_and_SVG/Lab8-5/Kestrel_Dual_Dashboard/wwwroot/index.html")
     if os.path.exists(lab85_html):
@@ -406,7 +418,7 @@ for st in STUDENTS:
 ## นักศึกษา: {nth} ({nen})
 ### รหัสนักศึกษา: `{sid}` | Sec: IoT-App-2569
 
-โฟลเดอร์นี้เป็น **ชุดโปรเจกต์ฉบับสมบูรณ์ที่พร้อมรันและส่งงานได้ทันที** ครบทั้ง 12 สัปดาห์ (Week 01 – Week 12) โดยโค้ด, รายงาน, หัวข้อ MQTT, ชื่อ Wi-Fi/BLE, และหน้าปัด SVG Gauge ได้รับการผูกค่าเป็นของ **{nth} ({sid})** เรียบร้อยแล้ว 100%
+โฟลเดอร์นี้เป็น **ชุดโปรเจกต์ฉบับสมบูรณ์ที่พร้อมรันและส่งงานได้ทันที** ครบทั้ง 13 สัปดาห์ (Week 01 – Week 13) โดยโค้ด, รายงาน, หัวข้อ MQTT, ชื่อ Wi-Fi/BLE, และหน้าปัด SVG Gauge ได้รับการผูกค่าเป็นของ **{nth} ({sid})** เรียบร้อยแล้ว 100%
 
 ---
 
@@ -432,7 +444,8 @@ for st in STUDENTS:
 ├── Week09_SPI_OLED_and_UI/    # Week 09: SPI OLED (7 ขา) & Kestrel Web UI
 ├── Week10_HTTP_UDP_CoAP/      # Week 10: Local Communication Benchmark (HTTP/UDP/CoAP)
 ├── Week11_MQTT_and_RainMaker/ # Week 11: MQTT Broker mTLS (iot/{sid}/...) & RainMaker
-└── Week12_Flutter_MQTT_App/   # Week 12: Flutter Mobile IoT Dashboard
+├── Week12_Flutter_MQTT_App/   # Week 12: Flutter Mobile IoT Dashboard
+└── Week13_Kestrel_Edge_Gateway/ # Week 13: Converged Edge Gateway (.NET 8 Kestrel)
 ```
 
 ---
@@ -454,5 +467,5 @@ for st in STUDENTS:
     print(f"   ✓ Created personalized README.md and RUN_COMMANDS.md")
 
 print("\n=======================================================")
-print("ALL 7 BIG STANDALONE STUDENT FOLDERS CREATED SUCCESSFULLY!")
+print("ALL 8 BIG STANDALONE STUDENT FOLDERS CREATED SUCCESSFULLY!")
 print("=======================================================")

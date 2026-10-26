@@ -48,6 +48,12 @@ STUDENTS = [
         "name_th": "นายอิทธิพัทธิ์ สุทธินวล",
         "name_en": "Ittipat Sutthinuan",
         "folder_name": "67030360_Ittipat_Sutthinuan"
+    },
+    {
+        "id": "67030181",
+        "name_th": "นายภูมิพัฒน์ กุลด้วง",
+        "name_en": "Phumipat Kulduang",
+        "folder_name": "67030181_Phumipat_Kulduang"
     }
 ]
 

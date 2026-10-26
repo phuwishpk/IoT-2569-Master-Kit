@@ -51,6 +51,12 @@ STUDENTS = [
         "name_th": "นายอิทธิพัทธิ์ สุทธินวล",
         "name_en": "Ittipat Sutthinuan",
         "folder_name": "67030360_Ittipat_Sutthinuan"
+    },
+    {
+        "id": "67030181",
+        "name_th": "นายภูมิพัฒน์ กุลด้วง",
+        "name_en": "Phumipat Kulduang",
+        "folder_name": "67030181_Phumipat_Kulduang"
     }
 ]
 
@@ -216,5 +222,24 @@ for st in STUDENTS:
                 arcname = os.path.relpath(filepath, src_dir)
                 zipf.write(filepath, arcname)
     print(f"✓ Re-compressed: {folder}.zip")
+
+# Create ALL-IN-ONE Master Package for all students
+master_zip_path = os.path.join(zip_dir, "All_Students_All_Labs_Master_Pack.zip")
+print(f"\n📦 Creating Master Consolidated Archive: {os.path.basename(master_zip_path)}...")
+with zipfile.ZipFile(master_zip_path, "w", zipfile.ZIP_DEFLATED) as master_zip:
+    for st in STUDENTS:
+        folder = st["folder_name"]
+        src_dir = os.path.join(BASE_DIR, folder)
+        for root, dirs, files in os.walk(src_dir):
+            for file in files:
+                filepath = os.path.join(root, file)
+                arcname = os.path.join(folder, os.path.relpath(filepath, src_dir))
+                master_zip.write(filepath, arcname)
+        print(f"   + Included folder: {folder}")
+    for sf in ["STUDENTS_INDEX.md", "checklist_dashboard.html", "CIRCUITS_WIRING_GUIDE.md", "MASTER_CHECKLIST.md"]:
+        sfp = os.path.join(BASE_DIR, sf)
+        if os.path.exists(sfp):
+            master_zip.write(sfp, sf)
+print(f"✓ Master Archive created: {master_zip_path} ({os.path.getsize(master_zip_path)} bytes)")
 
 print("\nALL STUDENT REPORTS ENRICHED AND VERIFIED 100%!")
