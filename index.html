@@ -15,6 +15,10 @@
   <!-- html2canvas for Exporting Checklist as Image (PNG) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
+  <!-- Firebase Realtime Database SDK for Real-Time Cloud Sync -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
   <!-- Google Fonts: Inter & Sarabun -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -204,15 +208,22 @@
           <!-- Injected by JS -->
         </div>
 
-        <!-- Storage Safety Notice Banner -->
-        <div class="mt-3 p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex flex-wrap items-center justify-between gap-2.5 text-xs">
-          <div class="flex items-center gap-2">
-            <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span class="text-slate-200 font-semibold">ระบบบันทึกข้อมูลอัตโนมัติในเบราว์เซอร์เครื่องนี้ (Local Auto-Save)</span>
-            <span id="storage-last-save" class="text-muted text-[11px] font-mono">• พร้อมใช้งาน</span>
+        <!-- Real-Time Cloud Sync Status Banner -->
+        <div class="mt-3 p-3 rounded-xl bg-gradient-to-r from-emerald-950/60 via-slate-900/95 to-sky-950/60 border border-emerald-500/40 flex flex-wrap items-center justify-between gap-2.5 text-xs shadow-lg">
+          <div class="flex items-center gap-2.5">
+            <span id="cloud-status-dot" class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400"></span>
+            <span class="text-emerald-300 font-bold flex items-center gap-1">
+              <span>☁️</span> Real-Time Cloud Sync (ซิงก์ข้อมูลเชื่อมถึงกันทุกเครื่องอัตโนมัติ)
+            </span>
+            <span id="storage-last-save" class="text-slate-300 text-[11px] font-mono">• กำลังเชื่อมต่อฐานข้อมูลกลาง...</span>
           </div>
-          <div class="flex items-center gap-2 text-[11px] text-amber-300/90 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">
-            <span>💾 <b>แนะนำ:</b> เมื่อกรอกข้อมูลเสร็จ ให้กดปุ่ม <b>"📥 ส่งออกข้อมูล (JSON)"</b> สำรองไฟล์เก็บไว้ในคอมพิวเตอร์ เพื่อความปลอดภัย 100% ไม่มีทางหาย</span>
+          <div class="flex items-center gap-2">
+            <button onclick="forceCloudPullAll()" class="px-2.5 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 text-[11px] font-semibold transition flex items-center gap-1" title="ดึงข้อมูลล่าสุดของเพื่อนทุกคนจาก Cloud ทันที">
+              <span>🔄</span> ดึงข้อมูลล่าสุดจาก Cloud
+            </button>
+            <button onclick="forceCloudPushCurrent()" class="px-2.5 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-[11px] font-semibold transition flex items-center gap-1" title="บังคับส่งข้อมูลของรหัสนี้ขึ้น Cloud ทันที">
+              <span>☁️</span> ซิงก์ขึ้น Cloud ทันที
+            </button>
           </div>
         </div>
 
@@ -973,10 +984,26 @@
     let currentPort = 'COM3';
     let cmdFilter = 'all';
 
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyDfB8eoKWmPhDzpV-QPSceMF8Q4lUEmbns",
+      authDomain: "testproject-c8b86.firebaseapp.com",
+      databaseURL: "https://testproject-c8b86-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "testproject-c8b86",
+      storageBucket: "testproject-c8b86.firebasestorage.app",
+      messagingSenderId: "645092711729",
+      appId: "1:645092711729:web:3ebe587ae58c48a061e410"
+    };
+    const CLOUD_DB_URL = FIREBASE_CONFIG.databaseURL;
+    const CLIENT_INSTANCE_ID = 'client_' + Math.random().toString(36).substring(2, 10) + '_' + Date.now();
+    const cloudDataCache = {};
+    let firebaseDb = null;
+    let isCloudConnected = false;
+
     function init() {
       renderStudentPills();
       renderStudentCards();
       loadStudent(0);
+      initCloudSync();
     }
 
     function switchNav(navId) {
@@ -994,16 +1021,51 @@
       }
     }
 
+    function getStudentProgressCount(stId) {
+      const sData = getStudentData(stId);
+      if (!sData || !sData.sublabs) return 0;
+      let count = 0;
+      WEEKS_DATA.forEach(w => {
+        w.sublabs.forEach(sub => {
+          const sd = sData.sublabs[sub.id];
+          if (!sd) return;
+          const hasPhoto = sd.photos && Object.values(sd.photos).some(v => v && v.trim() !== '');
+          const hasTerm = sd.terminalLog && sd.terminalLog.trim() !== '';
+          const hasMetric = sd.metrics && Object.values(sd.metrics).some(v => v && v.trim() !== '');
+          if (sd.completed || hasPhoto || hasTerm || hasMetric) count++;
+        });
+      });
+      return count;
+    }
+
     function renderStudentPills() {
       const container = document.getElementById('student-selector');
       container.innerHTML = '';
       STUDENTS.forEach((st, idx) => {
+        const prog = getStudentProgressCount(st.id);
         const btn = document.createElement('button');
         btn.className = `student-pill px-3 py-1.5 rounded-lg text-xs font-mono border border-border bg-sidebar hover:border-sky-400 transition flex items-center gap-1.5 whitespace-nowrap ${idx === currentStudentIndex ? 'active' : ''}`;
         btn.id = `pill-${st.id}`;
         btn.onclick = () => loadStudent(idx);
-        btn.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${idx === currentStudentIndex ? 'bg-sky-400' : 'bg-gray-400'}"></span><b>${st.id}</b> <span class="opacity-80">${st.name_th.split(' ')[1] || st.name_th}</span>`;
+        const badgeHtml = prog > 0
+          ? `<span id="pill-badge-${st.id}" class="ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">${prog}</span>`
+          : `<span id="pill-badge-${st.id}" class="hidden ml-1 px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">0</span>`;
+        btn.innerHTML = `<span class="pill-dot w-1.5 h-1.5 rounded-full ${idx === currentStudentIndex ? 'bg-sky-400' : 'bg-gray-400'}"></span><b>${st.id}</b> <span class="opacity-80">${st.name_th.split(' ')[1] || st.name_th}</span>${badgeHtml}`;
         container.appendChild(btn);
+      });
+    }
+
+    function updateStudentPillsBadges() {
+      STUDENTS.forEach(st => {
+        const badge = document.getElementById(`pill-badge-${st.id}`);
+        if (!badge) return;
+        const prog = getStudentProgressCount(st.id);
+        if (prog > 0) {
+          badge.textContent = prog;
+          badge.classList.remove('hidden');
+        } else {
+          badge.classList.add('hidden');
+        }
       });
     }
 
@@ -1041,38 +1103,269 @@
       return `iot_v2_data_${stId}`;
     }
 
+    function mergeStudentDatasets(localObj, cloudObj) {
+      if (!localObj || !localObj.sublabs) return cloudObj || { sublabs: {} };
+      if (!cloudObj || !cloudObj.sublabs) return localObj || { sublabs: {} };
+
+      const cloudNewer = (cloudObj.lastUpdated || '') >= (localObj.lastUpdated || '');
+      const primary = cloudNewer ? cloudObj : localObj;
+      const secondary = cloudNewer ? localObj : cloudObj;
+
+      const merged = {
+        lastUpdated: primary.lastUpdated || secondary.lastUpdated || new Date().toISOString(),
+        updatedByClient: primary.updatedByClient || secondary.updatedByClient || '',
+        weekLogs: Object.assign({}, secondary.weekLogs || {}, primary.weekLogs || {}),
+        sublabs: {}
+      };
+
+      const allSubIds = new Set([
+        ...Object.keys(localObj.sublabs || {}),
+        ...Object.keys(cloudObj.sublabs || {})
+      ]);
+
+      allSubIds.forEach(subId => {
+        const pSub = (primary.sublabs && primary.sublabs[subId]) || {};
+        const sSub = (secondary.sublabs && secondary.sublabs[subId]) || {};
+
+        const mMetrics = {};
+        const allMKeys = new Set([
+          ...Object.keys(sSub.metrics || {}),
+          ...Object.keys(pSub.metrics || {})
+        ]);
+        allMKeys.forEach(k => {
+          const pVal = pSub.metrics && pSub.metrics[k];
+          const sVal = sSub.metrics && sSub.metrics[k];
+          mMetrics[k] = (pVal !== undefined && pVal !== '') ? pVal : (sVal || '');
+        });
+
+        const mPhotos = {};
+        const allPKeys = new Set([
+          ...Object.keys(sSub.photos || {}),
+          ...Object.keys(pSub.photos || {})
+        ]);
+        allPKeys.forEach(k => {
+          const pVal = pSub.photos && pSub.photos[k];
+          const sVal = sSub.photos && sSub.photos[k];
+          mPhotos[k] = (pVal !== undefined && pVal !== '') ? pVal : (sVal || '');
+        });
+
+        const mVideos = {};
+        const allVKeys = new Set([
+          ...Object.keys(sSub.videos || {}),
+          ...Object.keys(pSub.videos || {})
+        ]);
+        allVKeys.forEach(k => {
+          const pVal = pSub.videos && pSub.videos[k];
+          const sVal = sSub.videos && sSub.videos[k];
+          mVideos[k] = (pVal !== undefined && pVal !== '') ? pVal : (sVal || '');
+        });
+
+        merged.sublabs[subId] = {
+          completed: pSub.completed !== undefined ? pSub.completed : (sSub.completed || false),
+          terminalLog: (pSub.terminalLog !== undefined && pSub.terminalLog !== '') ? pSub.terminalLog : (sSub.terminalLog || ''),
+          notes: (pSub.notes !== undefined && pSub.notes !== '') ? pSub.notes : (sSub.notes || ''),
+          imageUrl: (pSub.imageUrl !== undefined && pSub.imageUrl !== '') ? pSub.imageUrl : (sSub.imageUrl || ''),
+          videoUrl: (pSub.videoUrl !== undefined && pSub.videoUrl !== '') ? pSub.videoUrl : (sSub.videoUrl || ''),
+          metrics: mMetrics,
+          photos: mPhotos,
+          videos: mVideos
+        };
+      });
+
+      return merged;
+    }
+
+    function hasAnyStudentContent(data) {
+      if (!data || !data.sublabs) return false;
+      for (const sd of Object.values(data.sublabs)) {
+        if (!sd) continue;
+        if (sd.completed) return true;
+        if (sd.terminalLog && sd.terminalLog.trim() !== '') return true;
+        if (sd.notes && sd.notes.trim() !== '') return true;
+        if (sd.metrics && Object.values(sd.metrics).some(v => v && v.trim() !== '')) return true;
+        if (sd.photos && Object.values(sd.photos).some(v => v && v.trim() !== '')) return true;
+        if (sd.videos && Object.values(sd.videos).some(v => v && v.trim() !== '')) return true;
+      }
+      if (data.weekLogs && Object.values(data.weekLogs).some(v => v && v.trim() !== '')) return true;
+      return false;
+    }
+
     function getStudentData(stId) {
+      if (cloudDataCache[stId]) {
+        return cloudDataCache[stId];
+      }
       try {
         const raw = localStorage.getItem(getStorageKey(stId));
-        return raw ? JSON.parse(raw) : { sublabs: {} };
+        const parsed = raw ? JSON.parse(raw) : { sublabs: {} };
+        if (!parsed.sublabs) parsed.sublabs = {};
+        cloudDataCache[stId] = parsed;
+        return parsed;
       } catch (e) {
         console.error("Storage read error", e);
         return { sublabs: {} };
       }
     }
 
-    function saveStudentData(stId, data) {
+    function saveLocalQuietly(stId, data) {
+      cloudDataCache[stId] = data;
       try {
-        data.lastUpdated = new Date().toISOString();
         localStorage.setItem(getStorageKey(stId), JSON.stringify(data));
-        updateStorageStatusBanner(data.lastUpdated);
       } catch (e) {
-        console.error("Storage save error", e);
-        if (e.name === 'QuotaExceededError' || e.code === 22 || e.number === -2147024882) {
-          alert('⚠️ คำเตือน: พื้นที่เก็บข้อมูลของเบราว์เซอร์เต็ม (Browser Storage Quota Exceeded)!\n\nสาเหตุเกิดจากการอัปโหลดภาพถ่ายหลายภาพลงในหน่วยความจำเครื่อง\n\nคำแนะนำเพื่อความปลอดภัย 100%:\n1. กรุณากดปุ่ม "📥 ส่งออกข้อมูล (JSON)" เพื่อดาวน์โหลดไฟล์สำรองข้อมูลทั้งหมดเก็บไว้ในคอมพิวเตอร์ของคุณทันที\n2. หรือเลือกใช้การแปะลิงก์ URL รูปภาพ (Google Drive / Imgur / Cloud) แทนการอัปโหลดไฟล์ตรง');
+        console.warn("Local storage quota reached; full data is safely stored in Cloud Sync.", e);
+      }
+    }
+
+    async function pushStudentDataToCloud(stId, data) {
+      updateStorageStatusBanner(data.lastUpdated, 'syncing');
+      try {
+        if (firebaseDb) {
+          await firebaseDb.ref('iot_2569_students/' + stId).set(data);
+        } else {
+          await fetch(`${CLOUD_DB_URL}/iot_2569_students/${stId}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+        }
+        isCloudConnected = true;
+        updateStorageStatusBanner(data.lastUpdated, 'synced');
+        updateStudentPillsBadges();
+      } catch (err) {
+        console.error("Cloud push error:", err);
+        updateStorageStatusBanner(data.lastUpdated, 'error');
+      }
+    }
+
+    function saveStudentData(stId, data) {
+      data.lastUpdated = new Date().toISOString();
+      data.updatedByClient = CLIENT_INSTANCE_ID;
+      saveLocalQuietly(stId, data);
+      updateStudentPillsBadges();
+      pushStudentDataToCloud(stId, data);
+    }
+
+    function updateStorageStatusBanner(isoDate, mode) {
+      const el = document.getElementById('storage-last-save');
+      const dot = document.getElementById('cloud-status-dot');
+      if (!el) return;
+
+      const timeStr = isoDate ? new Date(isoDate).toLocaleTimeString('th-TH') : new Date().toLocaleTimeString('th-TH');
+      if (mode === 'syncing') {
+        el.textContent = `• ⏳ กำลังซิงก์ข้อมูลขึ้น Cloud...`;
+        if (dot) dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping';
+      } else if (mode === 'remote') {
+        el.textContent = `• ☁️ ซิงก์ข้อมูล Real-time ล่าสุดจากเพื่อนเมื่อ ${timeStr}`;
+        if (dot) dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400';
+      } else if (mode === 'error') {
+        el.textContent = `• ⚠️ บันทึกลงเครื่องแล้ว (รอการเชื่อมต่อ Cloud) ${timeStr}`;
+        if (dot) dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-rose-400';
+      } else if (isoDate) {
+        el.textContent = `• ☁️ ซิงก์ออนไลน์ตรงกันทุกเครื่องแล้วเมื่อ ${timeStr}`;
+        if (dot) dot.className = 'inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400';
+      } else {
+        el.textContent = isCloudConnected ? `• ☁️ เชื่อมต่อฐานข้อมูลกลางสำเร็จ (พร้อมซิงก์ Real-Time)` : `• พร้อมใช้งาน`;
+      }
+    }
+
+    function applyIncomingCloudMap(allCloudData, isManualRefresh) {
+      if (!allCloudData || typeof allCloudData !== 'object') return;
+      let activeStUpdatedRemotely = false;
+      const currentStId = STUDENTS[currentStudentIndex].id;
+
+      STUDENTS.forEach(st => {
+        const cData = allCloudData[st.id];
+        const lData = getStudentData(st.id);
+
+        if (cData && cData.sublabs) {
+          const isFromOtherClient = cData.updatedByClient !== CLIENT_INSTANCE_ID;
+          const isNewerOrDiff = cData.lastUpdated !== lData.lastUpdated;
+          if (isFromOtherClient && isNewerOrDiff) {
+            const merged = mergeStudentDatasets(lData, cData);
+            saveLocalQuietly(st.id, merged);
+            if (st.id === currentStId) {
+              activeStUpdatedRemotely = true;
+            }
+          } else if (!hasAnyStudentContent(lData) && hasAnyStudentContent(cData)) {
+            saveLocalQuietly(st.id, cData);
+            if (st.id === currentStId) {
+              activeStUpdatedRemotely = true;
+            }
+          }
+        } else if (hasAnyStudentContent(lData)) {
+          // Local has data that is not in Cloud yet -> upload to Cloud automatically!
+          pushStudentDataToCloud(st.id, lData);
+        }
+      });
+
+      updateStudentPillsBadges();
+
+      if (activeStUpdatedRemotely || isManualRefresh) {
+        const curData = getStudentData(currentStId);
+        updateStorageStatusBanner(curData.lastUpdated, 'remote');
+        updateStats();
+        const activeTag = document.activeElement ? document.activeElement.tagName : '';
+        if (activeTag !== 'INPUT' && activeTag !== 'TEXTAREA' || isManualRefresh) {
+          renderWeeksAccordion();
+          renderCommandsView();
         }
       }
     }
 
-    function updateStorageStatusBanner(isoDate) {
-      const el = document.getElementById('storage-last-save');
-      if (el) {
-        if (isoDate) {
-          const d = new Date(isoDate);
-          el.textContent = `• บันทึกล่าสุดเมื่อ ${d.toLocaleTimeString('th-TH')}`;
-        } else {
-          el.textContent = `• ยังไม่มีประวัติการบันทึกของรหัสนี้`;
+    async function forceCloudPullAll() {
+      showToast('🔄 กำลังดึงข้อมูลล่าสุดของทุกคนจาก Cloud...');
+      try {
+        const resp = await fetch(`${CLOUD_DB_URL}/iot_2569_students.json`);
+        if (resp.ok) {
+          const allCloudData = await resp.json();
+          isCloudConnected = true;
+          applyIncomingCloudMap(allCloudData || {}, true);
+          showToast('☁️ ดึงข้อมูลล่าสุดจาก Cloud เรียบร้อย!');
         }
+      } catch (err) {
+        console.error("Cloud pull error:", err);
+        showToast('⚠️ ไม่สามารถเชื่อมต่อ Cloud ได้ในขณะนี้');
+      }
+    }
+
+    async function forceCloudPushCurrent() {
+      const st = STUDENTS[currentStudentIndex];
+      const sData = getStudentData(st.id);
+      await pushStudentDataToCloud(st.id, sData);
+      showToast(`☁️ ซิงก์ข้อมูลของ ${st.id} ขึ้น Cloud สำเร็จ!`);
+    }
+
+    async function initCloudSync() {
+      // 1. Initial REST pull & bidirectional merge
+      try {
+        const resp = await fetch(`${CLOUD_DB_URL}/iot_2569_students.json`);
+        if (resp.ok) {
+          const initialCloud = await resp.json();
+          isCloudConnected = true;
+          applyIncomingCloudMap(initialCloud || {}, true);
+          const curSt = STUDENTS[currentStudentIndex];
+          updateStorageStatusBanner(getStudentData(curSt.id).lastUpdated);
+        }
+      } catch (e) {
+        console.warn("Initial REST fetch error:", e);
+      }
+
+      // 2. Attach Real-Time WebSocket listener via Firebase SDK
+      try {
+        if (typeof firebase !== 'undefined' && firebase.initializeApp) {
+          if (!firebase.apps || firebase.apps.length === 0) {
+            firebase.initializeApp(FIREBASE_CONFIG);
+          }
+          firebaseDb = firebase.database();
+          firebaseDb.ref('iot_2569_students').on('value', snapshot => {
+            isCloudConnected = true;
+            const val = snapshot.val();
+            if (val) {
+              applyIncomingCloudMap(val, false);
+            }
+          });
+        }
+      } catch (e) {
+        console.warn("Firebase WebSocket listener setup warning:", e);
       }
     }
 

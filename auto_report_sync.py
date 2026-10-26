@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
 auto_report_sync.py
-Automated Lab Report Generator & Live Sync Bridge for IoT-2569 Master Kit.
+Automated Lab Report Generator & Real-Time Cloud Sync Bridge for IoT-2569 Master Kit.
 
 Usage:
-  1. Auto-process newest JSON in ~/Downloads:
+  1. Pull ALL 9 students' latest data from Firebase Cloud & write all reports (DEFAULT):
      python3 auto_report_sync.py
 
-  2. Process specific JSON file:
+  2. Process specific exported JSON file:
      python3 auto_report_sync.py path/to/IoT_Lab_Data_67030248.json
 
   3. Start Live Local Sync Server (Port 5050):
      python3 auto_report_sync.py --server
 
-  4. Watch ~/Downloads directory continuously:
+  4. Watch Cloud & ~/Downloads continuously:
      python3 auto_report_sync.py --watch
 """
 
@@ -22,12 +22,29 @@ import sys
 import json
 import glob
 import time
+import base64
 import argparse
+import urllib.request
+import urllib.error
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from datetime import datetime
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STUDENTS_DIR = os.path.join(BASE_DIR, "students")
+CLOUD_DB_URL = "https://testproject-c8b86-default-rtdb.asia-southeast1.firebasedatabase.app"
+
+STUDENT_META = {
+    "67030073": ("นายณัฐพงศ์ เนียมประดิษฐ", "Natthaphong Niampradit"),
+    "67030180": ("นายภูมิชนะ เทียมแก้ว", "Phumchana Thiamkaew"),
+    "67030248": ("นายสุวิจักขณ์ ลาวัง", "Suwijak Lawang"),
+    "67030249": ("นางสาวสุวิมล ศรีประไหม", "Suwimon Sripramai"),
+    "67030268": ("นายกร แดงทอง", "Korn Daengthong"),
+    "67030270": ("นายกฤษฏิณัช สำราญกิจ", "Kritsadinat Samrankit"),
+    "67030299": ("นางสาวธนพร พิศมัย", "Thanaporn Pitsamai"),
+    "67030359": ("นายอัฐวุฒิ บัวเรียน", "Attawut Bualian"),
+    "67030360": ("นายอิทธิพัทธิ์ สุทธินวล", "Ittipat Sutthinuan"),
+    "67030183": ("นายภูวิชญ์ ประกอบจิตร", "Phuwish Prakobchit"),
+}
 
 # Week report template mapping
 WEEK_REPORT_RELPATHS = {
@@ -62,7 +79,7 @@ WEEK_TITLES = {
     "13": "Week 13: The Ultimate Converged Edge Gateway (.NET 8 Kestrel)",
 }
 
-def generate_week_report_markdown(week_num: str, st_id: str, st_name_th: str, st_name_en: str, sublabs_data: dict) -> str:
+def generate_week_report_markdown(week_num: str, st_id: str, st_name_th: str, st_name_en: str, sublabs_data: dict, report_dir: str = None) -> str:
     """Generate high-quality academic markdown report for a specific week."""
     now_str = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     title = WEEK_TITLES.get(week_num, f"Week {week_num}: IoT Lab Report")
@@ -73,11 +90,10 @@ def generate_week_report_markdown(week_num: str, st_id: str, st_name_th: str, st
     md.append(f"> * **ชื่อ-นามสกุล (ไทย):** `{st_name_th}`")
     md.append(f"> * **ชื่อ-นามสกุล (อังกฤษ):** `{st_name_en}`")
     md.append(f"> * **วิชา:** 03376134 IoT-App-2569 (ภาคเรียนที่ 2/2568)")
-    md.append(f"> * **วันที่อัปเดตรายงาน:** `{now_str}`")
+    md.append(f"> * **วันที่อัปเดตรายงาน (Cloud Sync):** `{now_str}`")
     md.append("---\n")
     md.append(f"# รายงานผลการทดลองประจำสัปดาห์ที่ {week_num}\n## {title}\n")
     
-    # Filter sublabs for this week
     week_prefix = f"w{week_num}_"
     week_sublabs = {k: v for k, v in sublabs_data.items() if k.startswith(week_prefix)}
     
@@ -100,8 +116,8 @@ def generate_week_report_markdown(week_num: str, st_id: str, st_name_th: str, st
                     md.append(f"| `{k}` | **{val}** | ค่าที่บันทึกจากการทดลองจริง |")
             md.append("\n")
             
-        # Terminal Log
-        term_log = data.get("termLog", "").strip()
+        # Terminal Log (supports both terminalLog and termLog keys)
+        term_log = (data.get("terminalLog") or data.get("termLog") or "").strip()
         if term_log:
             md.append("### 2. บันทึกข้อความการทำงานของระบบ (Runtime Terminal / Serial Monitor)")
             md.append("```text")
@@ -114,7 +130,20 @@ def generate_week_report_markdown(week_num: str, st_id: str, st_name_th: str, st
             md.append("### 3. ภาพหลักฐานผลการทดลอง (Photos / Evidence)")
             for p_id, p_val in photos.items():
                 if p_val:
-                    if p_val.startswith("data:"):
+                    if p_val.startswith("data:image/") and report_dir:
+                        try:
+                            header, b64data = p_val.split(",", 1)
+                            ext = "png" if "png" in header else "jpg"
+                            img_dir = os.path.join(report_dir, "cloud_images")
+                            os.makedirs(img_dir, exist_ok=True)
+                            img_filename = f"{sl_id}_{p_id}.{ext}"
+                            img_path = os.path.join(img_dir, img_filename)
+                            with open(img_path, "wb") as img_f:
+                                img_f.write(base64.b64decode(b64data))
+                            md.append(f"* **{p_id}:** ![{sl_id}_{p_id}](cloud_images/{img_filename})")
+                        except Exception:
+                            md.append(f"* **{p_id}:** มีการบันทึกภาพถ่ายหลักฐานในระบบ")
+                    elif p_val.startswith("data:"):
                         md.append(f"* **{p_id}:** มีการบันทึกภาพถ่ายหลักฐานในระบบ")
                     else:
                         md.append(f"* **{p_id}:** ![{p_id}]({p_val})")
@@ -126,7 +155,6 @@ def generate_week_report_markdown(week_num: str, st_id: str, st_name_th: str, st
             md.append("### 4. บันทึกเพิ่มเติมและการวิเคราะห์ส่วนบุคคล")
             md.append(f"> {notes}\n")
 
-    # Discussion & Conclusion
     md.append("## 🔍 สรุปและวิเคราะห์ผลการทดลอง (Discussion & Conclusion)")
     md.append(f"จากการทดลองประจำสัปดาห์ที่ {week_num} ({title}) ของ **{st_name_th} ({st_id})**:")
     md.append("1. **การทำงานของระบบ:** สามารถเชื่อมต่อและสั่งการทำงานของฮาร์ดแวร์บอร์ด ESP32 ได้อย่างสมบูรณ์ตามโจทย์")
@@ -136,66 +164,98 @@ def generate_week_report_markdown(week_num: str, st_id: str, st_name_th: str, st
     return "\n".join(md)
 
 def update_student_reports_from_dataset(dataset_obj: dict) -> list:
-    """Takes dataset exported from web and updates reports in the student's folder."""
+    """Takes dataset exported from web or Cloud and updates reports in the student's folder."""
     st_id = dataset_obj.get("studentId")
-    st_name_th = dataset_obj.get("nameTh", "")
-    st_name_en = dataset_obj.get("nameEn", "")
-    data = dataset_obj.get("dataset", {})
+    meta_th, meta_en = STUDENT_META.get(st_id, ("", ""))
+    st_name_th = dataset_obj.get("nameTh") or meta_th
+    st_name_en = dataset_obj.get("nameEn") or meta_en
+    data = dataset_obj.get("dataset", dataset_obj)
     sublabs = data.get("sublabs", {})
     
-    if not st_id:
-        print("❌ Error: Missing studentId in dataset.")
+    if not st_id or not sublabs:
         return []
         
-    # Find student folder
-    student_folders = [d for d in os.listdir(STUDENTS_DIR) if d.startswith(st_id)]
+    student_folders = [d for d in os.listdir(STUDENTS_DIR) if d.startswith(st_id) and os.path.isdir(os.path.join(STUDENTS_DIR, d))]
     if not student_folders:
-        print(f"❌ Error: Could not find student folder starting with {st_id} in {STUDENTS_DIR}")
         return []
         
     st_folder = os.path.join(STUDENTS_DIR, student_folders[0])
-    print(f"👤 Found student folder: {st_folder}")
-    
     updated_files = []
     
-    # Check which weeks have data
     active_weeks = set()
-    for sl_id in sublabs.keys():
-        if sl_id.startswith("w") and "_" in sl_id:
-            w = sl_id[1:3]
-            active_weeks.add(w)
+    for sl_id, sl_val in sublabs.items():
+        if sl_id.startswith("w") and "_" in sl_id and isinstance(sl_val, dict):
+            has_data = bool(
+                sl_val.get("completed") or
+                sl_val.get("terminalLog") or
+                sl_val.get("termLog") or
+                sl_val.get("notes") or
+                any(sl_val.get("metrics", {}).values()) or
+                any(sl_val.get("photos", {}).values())
+            )
+            if has_data:
+                active_weeks.add(sl_id[1:3])
             
-    print(f"📊 Active weeks with data in dataset: {sorted(active_weeks)}")
+    if not active_weeks:
+        return []
+
+    print(f"👤 Updating reports for {st_id} ({st_name_th}) -> Active weeks: {sorted(active_weeks)}")
     
     for w in sorted(active_weeks):
         rel_pattern = WEEK_REPORT_RELPATHS.get(w)
         if not rel_pattern:
             continue
             
-        # Resolve path
-        rel_path = rel_pattern.format(
-            id=st_id,
-            template=f"{st_id}_template"
-        )
+        rel_path = rel_pattern.format(id=st_id, template=f"{st_id}_template")
         report_path = os.path.join(st_folder, rel_path)
         
-        # If directory doesn't exist, try looking for report.md under week folder
         if not os.path.exists(os.path.dirname(report_path)):
             week_dir_prefix = f"Week{w}"
             matching_week_dirs = [d for d in os.listdir(st_folder) if d.startswith(week_dir_prefix)]
             if matching_week_dirs:
                 report_path = os.path.join(st_folder, matching_week_dirs[0], "report.md")
                 
-        os.makedirs(os.path.dirname(report_path), exist_ok=True)
+        report_dir = os.path.dirname(report_path)
+        os.makedirs(report_dir, exist_ok=True)
         
-        new_content = generate_week_report_markdown(w, st_id, st_name_th, st_name_en, sublabs)
+        new_content = generate_week_report_markdown(w, st_id, st_name_th, st_name_en, sublabs, report_dir=report_dir)
         with open(report_path, "w", encoding="utf-8") as f:
             f.write(new_content)
             
-        print(f"   ✓ Updated report for Week {w}: {os.path.relpath(report_path, BASE_DIR)}")
+        print(f"   ✓ Updated Week {w}: {os.path.relpath(report_path, BASE_DIR)}")
         updated_files.append(report_path)
         
     return updated_files
+
+def sync_all_from_firebase_cloud() -> list:
+    """Fetch all students' data from Firebase Realtime Database and update local reports."""
+    url = f"{CLOUD_DB_URL}/iot_2569_students.json"
+    print(f"☁️  Fetching real-time shared data from Cloud: {url} ...")
+    try:
+        req = urllib.request.Request(url, headers={"Accept": "application/json"})
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            cloud_map = json.loads(resp.read().decode("utf-8"))
+    except Exception as e:
+        print(f"❌ Could not reach Cloud DB: {e}")
+        return []
+
+    if not cloud_map or not isinstance(cloud_map, dict):
+        print("ℹ️  No student data uploaded to Cloud yet.")
+        return []
+
+    total_updated = []
+    for st_id, st_data in sorted(cloud_map.items()):
+        if st_id.startswith("_") or not isinstance(st_data, dict):
+            continue
+        payload = {
+            "studentId": st_id,
+            "dataset": st_data
+        }
+        updated = update_student_reports_from_dataset(payload)
+        total_updated.extend(updated)
+
+    print(f"\n✅ Cloud Sync Complete! Updated {len(total_updated)} report files across students.")
+    return total_updated
 
 class SyncHandler(BaseHTTPRequestHandler):
     def _set_headers(self, status=200):
@@ -210,6 +270,14 @@ class SyncHandler(BaseHTTPRequestHandler):
         self._set_headers(200)
 
     def do_GET(self):
+        if self.path == '/api/pull-cloud':
+            updated = sync_all_from_firebase_cloud()
+            self._set_headers(200)
+            self.wfile.write(json.dumps({
+                "status": "success",
+                "updatedFilesCount": len(updated)
+            }).encode('utf-8'))
+            return
         self._set_headers(200)
         resp = {"status": "ok", "service": "IoT-2569 Auto Report Sync Server", "port": 5050}
         self.wfile.write(json.dumps(resp).encode('utf-8'))
@@ -221,13 +289,16 @@ class SyncHandler(BaseHTTPRequestHandler):
             try:
                 payload = json.loads(body)
                 updated = update_student_reports_from_dataset(payload)
+                # Also sync any other students from Cloud!
+                cloud_updated = sync_all_from_firebase_cloud()
+                all_files = list(set(updated + cloud_updated))
                 self._set_headers(200)
                 resp = {
                     "status": "success",
                     "studentId": payload.get("studentId"),
-                    "updatedFilesCount": len(updated),
-                    "updatedFiles": [os.path.basename(f) for f in updated],
-                    "message": f"Successfully updated {len(updated)} lab reports!"
+                    "updatedFilesCount": len(all_files),
+                    "updatedFiles": [os.path.basename(f) for f in all_files],
+                    "message": f"Successfully updated {len(all_files)} lab reports!"
                 }
                 self.wfile.write(json.dumps(resp).encode('utf-8'))
             except Exception as e:
@@ -242,8 +313,9 @@ class SyncHandler(BaseHTTPRequestHandler):
 def run_server(port=5050):
     server = HTTPServer(('127.0.0.1', port), SyncHandler)
     print(f"\n🚀 IoT-2569 Auto Report Sync Server running at http://localhost:{port}")
-    print("   Open your browser and click '⚡ Auto-Sync บันทึก Report ลงเครื่อง' on the web portal.")
-    print("   Press Ctrl+C to stop.\n")
+    print("   Doing initial Cloud pull for all 9 students...")
+    sync_all_from_firebase_cloud()
+    print("\n   Listening for 1-Click Sync requests from browser (Ctrl+C to stop)...")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
@@ -253,7 +325,6 @@ def find_latest_download_json():
     downloads = os.path.expanduser("~/Downloads")
     candidates = glob.glob(os.path.join(downloads, "IoT_Lab_Data_*.json"))
     if not candidates:
-        # Check current dir
         candidates = glob.glob(os.path.join(BASE_DIR, "IoT_Lab_Data_*.json"))
     if not candidates:
         return None
@@ -262,10 +333,11 @@ def find_latest_download_json():
 
 def main():
     parser = argparse.ArgumentParser(description="Auto Report Sync for IoT-2569 Master Kit")
-    parser.add_argument("file", nargs="?", help="Path to exported JSON file")
+    parser.add_argument("file", nargs="?", help="Path to exported JSON file (optional; defaults to Cloud Sync)")
+    parser.add_argument("--cloud", action="store_true", help="Pull all students' data from Firebase Cloud DB")
     parser.add_argument("--server", action="store_true", help="Run local HTTP sync server on port 5050")
     parser.add_argument("--port", type=int, default=5050, help="Port for local sync server (default 5050)")
-    parser.add_argument("--watch", action="store_true", help="Continuously watch ~/Downloads for new JSON files")
+    parser.add_argument("--watch", action="store_true", help="Continuously watch Cloud DB every 10s and update reports")
     args = parser.parse_args()
 
     if args.server:
@@ -273,37 +345,29 @@ def main():
         return
 
     if args.watch:
-        print("👀 Watching ~/Downloads for IoT_Lab_Data_*.json exports (Ctrl+C to stop)...")
-        last_seen = None
+        print("👀 Watching Firebase Cloud DB every 10 seconds for student updates (Ctrl+C to stop)...")
         while True:
-            latest = find_latest_download_json()
-            if latest and latest != last_seen:
-                mtime = os.path.getmtime(latest)
-                if time.time() - mtime < 10:  # Created within last 10 seconds
-                    print(f"\n⚡ New export detected: {latest}")
-                    with open(latest, "r", encoding="utf-8") as f:
-                        data = json.load(f)
-                    update_student_reports_from_dataset(data)
-                    last_seen = latest
-            time.sleep(2)
+            sync_all_from_firebase_cloud()
+            time.sleep(10)
         return
 
-    target_file = args.file
-    if not target_file:
-        target_file = find_latest_download_json()
-        if not target_file:
-            print("⚠️ No exported JSON file specified and none found in ~/Downloads.")
-            print("💡 Usage tips:")
-            print("   1. Click '📥 ส่งออกข้อมูล (JSON)' on the web portal to download your data.")
-            print("   2. Run: python3 auto_report_sync.py")
-            print("   3. Or run with --server: python3 auto_report_sync.py --server")
-            return
+    if args.file:
+        print(f"📖 Processing local JSON file: {args.file}")
+        with open(args.file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        updated = update_student_reports_from_dataset(data)
+        print(f"\n🎉 Finished! Successfully generated/updated {len(updated)} reports.")
+        return
 
-    print(f"📖 Processing: {target_file}")
-    with open(target_file, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    updated = update_student_reports_from_dataset(data)
-    print(f"\n🎉 Finished! Successfully generated/updated {len(updated)} reports.")
+    # Default action: Pull all 9 students from Firebase Cloud DB!
+    updated = sync_all_from_firebase_cloud()
+    if not updated:
+        latest = find_latest_download_json()
+        if latest:
+            print(f"📖 Found local exported JSON in Downloads: {latest}")
+            with open(latest, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            update_student_reports_from_dataset(data)
 
 if __name__ == "__main__":
     main()
