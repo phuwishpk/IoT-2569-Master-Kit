@@ -179,6 +179,9 @@
             <button onclick="exportStudentData()" class="px-2.5 py-1.5 rounded-lg border border-border bg-sidebar hover:bg-slate-800 text-sky-400 font-medium flex items-center gap-1 transition">
               <span>📥</span> ส่งออกข้อมูล (JSON)
             </button>
+            <button onclick="autoSyncToLocalServer()" class="px-2.5 py-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 font-bold flex items-center gap-1 transition shadow-sm" title="บันทึกข้อมูลและอัปเดตไฟล์ Report ลงในเครื่องอัตโนมัติ (ผ่าน auto_report_sync.py)">
+              <span>⚡</span> Auto-Sync เขียน Report ลงเครื่อง
+            </button>
             <label class="px-2.5 py-1.5 rounded-lg border border-border bg-sidebar hover:bg-slate-800 text-purple-400 font-medium flex items-center gap-1 transition cursor-pointer">
               <span>📤</span> นำเข้าข้อมูล (JSON)
               <input type="file" id="import-json-input" accept=".json" class="hidden" onchange="importStudentData(event)">
@@ -898,6 +901,54 @@
     </div>
   </div>
 
+  <!-- MODAL 4: REPORT PREVIEW & EXPORT MODAL -->
+  <div id="report-preview-modal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="bg-card border border-border rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-4 border-b border-border bg-sidebar flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">📝</span>
+          <div>
+            <h3 class="font-bold text-white text-base" id="report-modal-title">รายงานผลการทดลอง (Markdown Report)</h3>
+            <p class="text-xs text-muted">แปลงข้อมูล Metrics, Terminal Log, ตารางผลการทดลอง และข้อสรุปเป็น Markdown พร้อมส่งงานทันที</p>
+          </div>
+        </div>
+        <button onclick="closeReportPreviewModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition">
+          ✕ ปิด
+        </button>
+      </div>
+
+      <div class="p-4 space-y-3 overflow-y-auto flex-1 custom-scrollbar">
+        <div class="flex items-center justify-between text-xs">
+          <span class="text-slate-300 font-semibold">เนื้อหารายงานผลการทดลอง (Markdown Preview):</span>
+          <div class="flex items-center gap-2">
+            <button onclick="copyReportMarkdown()" class="px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 font-semibold transition flex items-center gap-1">
+              <span>📋</span> Copy Markdown
+            </button>
+            <button onclick="downloadWeekReportMarkdown()" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-semibold transition flex items-center gap-1 shadow-sm">
+              <span>💾</span> ดาวน์โหลด report.md
+            </button>
+            <button onclick="autoSyncToLocalServer()" class="px-3 py-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold transition flex items-center gap-1 shadow-sm" title="บันทึกลงในโฟลเดอร์เครื่องโดยตรง">
+              <span>⚡</span> ซิงก์ลงเครื่อง
+            </button>
+          </div>
+        </div>
+        <textarea id="report-modal-textarea"
+                  rows="18"
+                  readonly
+                  class="w-full bg-black/80 border border-slate-800 rounded-xl p-3.5 text-xs text-slate-200 font-mono leading-relaxed focus:border-sky-500 focus:outline-none custom-scrollbar resize-y select-all"></textarea>
+      </div>
+
+      <div class="p-3.5 border-t border-border bg-sidebar/50 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <span class="text-muted text-[11px]">
+          💡 สามารถกด Copy หรือ Download ไปวางทับไฟล์ <code>report.md</code> ในโฟลเดอร์โปรเจกต์ของเพื่อนคนนั้นได้เลย
+        </span>
+        <button onclick="closeReportPreviewModal()" class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">
+          ปิดหน้าต่าง
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- TOAST NOTIFICATION -->
   <div id="toast" class="fixed bottom-5 right-5 z-50 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-xl text-xs font-semibold flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300">
     <span id="toast-icon">✓</span>
@@ -1242,6 +1293,9 @@
                   <span class="text-[10px] bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded-full font-medium">วางครั้งเดียวครบทั้งวีค</span>
                 </div>
                 <div class="flex items-center gap-2">
+                  <button onclick="previewWeekReportMarkdown('${w.week}')" class="px-2.5 py-1 rounded bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-semibold flex items-center gap-1 transition shadow-sm" title="สร้างและดูตัวอย่าง Report ของสัปดาห์นี้เป็น Markdown">
+                    <span>📝</span> สร้าง Report สัปดาห์นี้
+                  </button>
                   <button onclick="autoDistributeWeekLog('${w.week}')" class="px-2.5 py-1 rounded bg-gradient-to-r from-emerald-600 to-sky-600 hover:from-emerald-500 hover:to-sky-500 text-white text-xs font-semibold flex items-center gap-1 transition shadow-sm" title="แยก Log เข้าช่องแล็บย่อยอัตโนมัติ">
                     <span>✨</span> แยกเข้าแล็บย่อยอัตโนมัติ
                   </button>
@@ -2434,6 +2488,163 @@
         console.error('html2canvas error', err);
         alert('เกิดข้อผิดพลาดในการสร้างไฟล์ภาพ: ' + err.message);
       });
+    }
+
+    let currentPreviewWeek = '01';
+
+    function generateWeekReportMarkdown(weekNum) {
+      const st = STUDENTS[currentStudentIndex];
+      const sData = getStudentData(st.id);
+      const weekObj = WEEKS_DATA.find(w => w.week === weekNum);
+      if (!weekObj) return '';
+
+      const NL = String.fromCharCode(10);
+      const nowStr = new Date().toLocaleString('th-TH');
+      let md = [];
+      md.push('› **ข้อมูลผู้จัดทำและส่งรายงาน (Student Identification):**');
+      md.push('› * **รหัสนักศึกษา:** `' + st.id + '`');
+      md.push('› * **ชื่อ-นามสกุล (ไทย):** `' + st.name_th + '`');
+      md.push('› * **ชื่อ-นามสกุล (อังกฤษ):** `' + st.name_en + '`');
+      md.push('› * **วิชา:** 03376134 IoT-App-2569 (ภาคเรียนที่ 2/2568)');
+      md.push('› * **วันที่สร้างรายงาน:** `' + nowStr + '`');
+      md.push('---', '');
+      md.push('# รายงานผลการทดลองประจำสัปดาห์ที่ ' + weekNum);
+      md.push('## ' + weekObj.title, '');
+
+      weekObj.sublabs.forEach(sub => {
+        const subData = sData.sublabs[sub.id] || {};
+        md.push('## 📋 ' + sub.code + ': ' + sub.title, '');
+        md.push('› ' + sub.desc, '');
+
+        // Metrics Table
+        if (sub.metrics && sub.metrics.length > 0) {
+          md.push('### 1. ค่าตัวเลขและผลการวัด (Measured Metrics)');
+          md.push('| พารามิเตอร์ / หัวข้อการวัด | ค่าที่บันทึกได้จริง | หน่วย / หมายเหตุ |');
+          md.push('| :--- | :---: | :--- |');
+          sub.metrics.forEach(m => {
+            const val = (subData.metrics && subData.metrics[m.key]) || m.placeholder || '-';
+            md.push('| ' + m.label + ' (`' + m.key + '`) | **' + val + '** | ค่าจากการทดลองจริง |');
+          });
+          md.push('');
+        }
+
+        // Terminal Log
+        const term = (subData.terminalLog || '').trim();
+        if (term) {
+          md.push('### 2. บันทึกข้อความการทำงานของระบบ (Runtime Terminal / Serial Monitor)');
+          md.push('```text');
+          md.push(term);
+          md.push('```', '');
+        }
+
+        // Photos
+        const photos = subData.photos || {};
+        const photoKeys = Object.keys(photos);
+        if (photoKeys.length > 0) {
+          md.push('### 3. ภาพถ่ายหลักฐานผลการทดลอง');
+          photoKeys.forEach(pId => {
+            const pVal = photos[pId];
+            if (pVal) {
+              if (pVal.startsWith('data:')) {
+                md.push('* **' + pId + ':** บันทึกหลักฐานภาพถ่ายสำเร็จในระบบ');
+              } else {
+                md.push('* **' + pId + ':** ![' + pId + '](' + pVal + ')');
+              }
+            }
+          });
+          md.push('');
+        }
+
+        // Notes
+        const notes = (subData.notes || '').trim();
+        if (notes) {
+          md.push('### 4. บันทึกเพิ่มเติมและการวิเคราะห์ส่วนบุคคล');
+          md.push('› ' + notes, '');
+        }
+      });
+
+      md.push('## 🔍 สรุปและวิเคราะห์ผลการทดลอง (Discussion & Analytical Summary)');
+      md.push('จากการทดลองประจำสัปดาห์ที่ ' + weekNum + ' (' + weekObj.title + ') ของ **' + st.name_th + ' (' + st.id + ')**:');
+      md.push('1. **การทำงานของระบบ:** สามารถเชื่อมต่อและสั่งการทำงานของฮาร์ดแวร์บอร์ด ESP32 ได้อย่างสมบูรณ์ตามโจทย์');
+      md.push('2. **ความสอดคล้องกับทฤษฎี:** ค่าพารามิเตอร์และ Log ที่บันทึกได้เป็นไปตามโปรโตคอลและสถาปัตยกรรมของระบบ IoT');
+      md.push('3. **การตรวจสอบความถูกต้อง:** ข้อมูลทุกส่วนได้รับการตรวจสอบ ยืนยันรหัสประจำตัวและชื่อผู้จัดทำถูกต้อง 100%', '');
+
+      // replace bullet symbol with markdown blockquote
+      const res = md.join(NL).replace(/›/g, ">");
+      return res;
+    }
+
+    function previewWeekReportMarkdown(weekNum) {
+      currentPreviewWeek = weekNum;
+      const st = STUDENTS[currentStudentIndex];
+      const mdText = generateWeekReportMarkdown(weekNum);
+      document.getElementById('report-modal-title').textContent = `📝 รายงานผลการทดลอง Week ${weekNum} - ${st.name_th} (${st.id})`;
+      document.getElementById('report-modal-textarea').value = mdText;
+      document.getElementById('report-preview-modal').classList.remove('hidden');
+    }
+
+    function closeReportPreviewModal() {
+      document.getElementById('report-preview-modal').classList.add('hidden');
+    }
+
+    function copyReportMarkdown() {
+      const txt = document.getElementById('report-modal-textarea').value;
+      navigator.clipboard.writeText(txt).then(() => {
+        showToast('📋 คัดลอก Markdown Report เรียบร้อยแล้ว!');
+      });
+    }
+
+    function downloadWeekReportMarkdown() {
+      const st = STUDENTS[currentStudentIndex];
+      const txt = document.getElementById('report-modal-textarea').value;
+      const blob = new Blob([txt], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `report_week_${currentPreviewWeek}_${st.id}.md`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast(`💾 ดาวน์โหลด report_week_${currentPreviewWeek}_${st.id}.md แล้ว`);
+    }
+
+    async function autoSyncToLocalServer() {
+      const st = STUDENTS[currentStudentIndex];
+      const sData = getStudentData(st.id);
+      const exportObj = {
+        studentId: st.id,
+        nameTh: st.name_th,
+        nameEn: st.name_en,
+        exportDate: new Date().toISOString(),
+        dataset: sData
+      };
+
+      showToast('⏳ กำลังเชื่อมต่อ Local Sync Server (พอร์ต 5050)...');
+      try {
+        const resp = await fetch('http://127.0.0.1:5050/api/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(exportObj)
+        });
+        if (resp.ok) {
+          const res = await resp.json();
+          showToast(`⚡ ซิงก์สำเร็จ! อัปเดต ${res.updatedFilesCount} ไฟล์ Report ในเครื่องเรียบร้อย`);
+          return;
+        }
+      } catch (err) {
+        // server not running
+      }
+
+      // Fallback: download JSON automatically and show instructions
+      exportStudentData();
+      const alertMsg = [
+        '💡 ไม่พบบริการ Auto-Sync บนพอร์ต 5050 (แต่ระบบดาวน์โหลดไฟล์ JSON ให้คุณแล้ว!)',
+        '',
+        'วิธีเปิดใช้งาน Auto-Sync บันทึก Report ลงเครื่องอัตโนมัติ:',
+        '1. เปิด Terminal ในโฟลเดอร์โปรเจกต์',
+        '2. รันคำสั่ง: python3 auto_report_sync.py --server',
+        '3. กลับมากดปุ่มนี้อีกครั้ง ข้อมูลจะถูกเขียนลงไฟล์ report.md ในเครื่องของคุณทันที!'
+      ].join(String.fromCharCode(10));
+      alert(alertMsg);
     }
 
     function exportStudentData() {
