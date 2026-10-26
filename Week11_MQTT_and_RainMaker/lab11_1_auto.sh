@@ -1,13 +1,62 @@
 #!/usr/bin/env bash
 # Lab 11.1 (Mosquitto Broker & MQTT Fundamentals) — รันทุกกิจกรรมในคำสั่งเดียว
-# ใช้: ./lab11_1_auto.sh <รหัสนักศึกษา> "<ชื่อ-นามสกุล>"
+# ใช้: bash lab11_1_auto.sh <รหัสนักศึกษา>   (ชื่อดึงจากรายชื่อกลุ่มให้เอง)
 # บน macOS สคริปต์จะแคปหน้าจอ 2 รูปให้อัตโนมัติ (~/mqtt_lab/<รหัส>_lab11_1_photo1.png, photo2.png)
 # ให้แต่ละคนรันบนเครื่องของตัวเอง ผลลัพธ์จริงจาก Broker จะถูกบันทึกไว้ที่ ~/mqtt_lab/lab11_1_<รหัส>.txt
 set -u
-ID="${1:-}"
-NAME="${2:-}"
-if [ -z "$ID" ]; then echo "ใช้: $0 <รหัสนักศึกษา> \"<ชื่อ-นามสกุล>\""; exit 1; fi
+# ---- รายชื่อกลุ่ม: พิมพ์แค่รหัสก็พอ (หรือพิมพ์ตามชื่อโฟลเดอร์ รหัส_ชื่อ_นามสกุล ก็ได้) ----
+roster_name() {
+  case "$1" in
+    67030073) echo "Natthaphong Niampradit";;
+    67030180) echo "Phumchana Thiamkaew";;
+    67030183) echo "Phuwish Prakobchit";;
+    67030248) echo "Suwijak Lawang";;
+    67030249) echo "Suwimon Sripramai";;
+    67030268) echo "Korn Daengthong";;
+    67030270) echo "Kritsadinat Samrankit";;
+    67030299) echo "Thanaporn Pitsamai";;
+    67030359) echo "Attawut Bualian";;
+    67030360) echo "Ittipat Sutthinuan";;
+  esac
+}
+RAW="${1:-}"; ID="$(printf '%s' "$RAW" | grep -oE '^[0-9]{8}' || true)"
+[ -z "$ID" ] && { echo "ใช้: bash $0 <รหัสนักศึกษา 8 หลัก>   เช่น  bash $0 67030073"; exit 1; }
+NAME="${2:-$(roster_name "$ID")}"
+[ -z "$NAME" ] && NAME="$(printf '%s' "${RAW#"$ID"}" | tr '_' ' ' | sed 's/^ *//')"
+[ -z "$(roster_name "$ID")" ] && echo "ℹ️  รหัส $ID ไม่อยู่ในรายชื่อกลุ่ม — ใช้ชื่อ: ${NAME:-(ไม่ระบุ)}"
 WHO="$ID${NAME:+ $NAME}"
+SELF="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+
+# รูปต้องเป็นหน้าต่าง Terminal ที่รันสคริปต์นี้เอง — ถ้ารันจาก VS Code/iTerm จะเปิดหน้าต่าง Terminal ใหม่ให้รันต่อ
+if [ "$(uname)" = Darwin ] && [ "${TERM_PROGRAM:-}" != "Apple_Terminal" ]; then
+  echo "ℹ️  เปิดหน้าต่าง Terminal ใหม่ให้รัน Lab 11.1 ของ $WHO (รูปจะได้เป็นหน้าต่างนั้น)..."
+  osascript - "$SELF" "$ID" "$NAME" >/dev/null <<'OSA' && exit 0
+on run argv
+  tell application "Terminal"
+    activate
+    do script "bash " & quoted form of item 1 of argv & " " & quoted form of item 2 of argv & " " & quoted form of item 3 of argv
+  end tell
+end run
+OSA
+  echo "❌ เปิด Terminal ให้ไม่ได้ — เปิดแอป Terminal เองแล้วรัน: bash \"$SELF\" $ID"; exit 1
+fi
+# หาเลขหน้าต่าง Terminal ของ tty นี้ (ไม่ใช่หน้าต่างที่อยู่ด้านหน้า ซึ่งอาจเป็นหน้าต่างอื่น)
+my_window() {
+  osascript - "$1" 2>/dev/null <<'OSA'
+on run argv
+  tell application "Terminal"
+    repeat with w in windows
+      repeat with tb in tabs of w
+        if tty of tb is (item 1 of argv) then return id of w
+      end repeat
+    end repeat
+  end tell
+  return ""
+end run
+OSA
+}
+MYWIN=""
+[ "$(uname)" = Darwin ] && MYWIN="$(my_window "$(tty)")"
 H=127.0.0.1
 LAB="$HOME/mqtt_lab"; mkdir -p "$LAB"
 OUT="$LAB/lab11_1_${ID}.txt"; BLOG="$LAB/broker_${ID}.log"; : > "$BLOG"
@@ -43,9 +92,9 @@ snap() {
   local f="$LAB/${ID}_lab11_1_$1.png"
   if command -v screencapture >/dev/null 2>&1; then
     sleep 1
-    local wid; wid="$(osascript -e 'tell application "Terminal" to id of front window' 2>/dev/null || true)"
-    if [ -n "$wid" ]; then screencapture -x -o -l"$wid" "$f" 2>/dev/null; else screencapture -x "$f" 2>/dev/null; fi
-    if [ -s "$f" ]; then printf '\033[1;32m✅ บันทึกรูปแล้ว: %s\033[0m\n' "$f"; else printf '\033[1;31m⚠️ แคปอัตโนมัติไม่สำเร็จ — กด Cmd+Shift+4 แคปเองตรงนี้\033[0m\n'; fi
+    rm -f "$f"
+    if [ -n "$MYWIN" ]; then screencapture -x -o -l"$MYWIN" "$f" 2>/dev/null; fi
+    if [ -s "$f" ]; then printf '\033[1;32m✅ บันทึกรูปแล้ว: %s\033[0m\n' "$f"; else printf '\033[1;31m⚠️ แคปอัตโนมัติไม่สำเร็จ — กด Cmd+Shift+4 แล้ว Space แล้วคลิกหน้าต่างนี้\033[0m\n'; fi
   fi
 }
 mark() { wc -l < "$BLOG"; }
