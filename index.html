@@ -1599,7 +1599,9 @@ newgrp dialout</pre>
     const MY_PROFILE_KEY = 'iot_v3_my_student';
     const LAST_VIEW_KEY = 'iot_v3_last_view';
     const ADMIN_PROFILE = '__admin__';
-    const META_KEYS = new Set(['lastUpdated', 'updatedByClient']);
+    // SCHEMA_VERSION: Firebase rules accept writes only when this tag is present -> old page versions can no longer overwrite data
+    const SCHEMA_VERSION = 3;
+    const META_KEYS = new Set(['lastUpdated', 'updatedByClient', 'schemaVersion']);
 
     const shadowData = {};      // stId -> สถานะล่าสุดที่คำนวณ diff ไปแล้ว
     const pendingOps = {};      // stId -> { 'sublabs/w02_2/videos/v1': value | null }
@@ -1863,7 +1865,7 @@ newgrp dialout</pre>
       flushInFlight[stId] = true;
       const sent = Object.assign({}, pendingOps[stId]);
       const nowIso = new Date().toISOString();
-      const payload = Object.assign({}, sanitizeOps(sent), { lastUpdated: nowIso, updatedByClient: CLIENT_INSTANCE_ID });
+      const payload = Object.assign({}, sanitizeOps(sent), { lastUpdated: nowIso, updatedByClient: CLIENT_INSTANCE_ID, schemaVersion: SCHEMA_VERSION });
       if (isCurrentStudent(stId)) updateStorageStatusBanner(nowIso, 'syncing');
       try {
         if (firebaseDb && firebaseConnected) {
