@@ -123,11 +123,14 @@ cam "รูปที่ 1: Broker Verbose Log (New client / SUBSCRIBE / PUBLISH)
 snap photo1
 
 hr "11-1.3 QoS 0 / 1 / 2 (ดูแพ็กเก็ตใน Broker Log)"
+QSEQ=(); QN=()
 for q in 0 1 2; do
   M=$(mark)
-  $SUB -t "test/qos" -q $q -v -C 1 -W 4 > /dev/null 2>&1 & SQ=$!; sleep 0.5
-  $PUB -t "test/qos" -m "QoS $q Message" -q $q; wait $SQ 2>/dev/null; sleep 0.2
-  echo "--- QoS $q ---"; since "$M" | grep -E "PUBLISH|PUBACK|PUBREC|PUBREL|PUBCOMP" | grep -v "Sending PUBLISH to auto" | sed 's/^/   /'
+  $SUB -i "sub_qos$q" -t "test/qos" -q $q -v -C 1 -W 4 > /dev/null 2>&1 & SQ=$!; sleep 0.5
+  $PUB -i "pub_qos$q" -t "test/qos" -m "QoS $q Message" -q $q; wait $SQ 2>/dev/null; sleep 0.2
+  echo "--- QoS $q (Publisher <-> Broker) ---"; since "$M" | grep "pub_qos$q" | grep -E "PUBLISH|PUBACK|PUBREC|PUBREL|PUBCOMP" | sed 's/^/   /'
+  QSEQ[$q]="$(since "$M" | grep "pub_qos$q" | grep -oE "(Received|Sending) (PUBLISH|PUBACK|PUBREC|PUBREL|PUBCOMP)" | awk '{print $2}' | awk 'BEGIN{ORS=""} {if (NR>1) print " → "; print}')"
+  QN[$q]="$(since "$M" | grep "pub_qos$q" | grep -cE "(Received|Sending) (PUBLISH|PUBACK|PUBREC|PUBREL|PUBCOMP)")"
 done
 
 printf '\033[2J\033[H'; hr "Lab 11.1 — $WHO  ($(date '+%Y-%m-%d %H:%M'))"
@@ -149,6 +152,20 @@ $PUB -t "node/esp32/status" -m "ONLINE"; sleep 0.4
 kill -9 "$W" 2>/dev/null   # จำลองไฟดับ / เน็ตหลุดกะทันหัน
 wait $S5 2>/dev/null
 echo "[Subscriber node/esp32/status] ได้รับ:"; sed 's/^/   /' "$LAB/.s5"
+
+hr "ค่าสำหรับกรอกในเว็บ — Lab 11.1"
+echo "พอร์ต Plain MQTT      : $PORT"
+echo "พอร์ต mTLS Secure     : 8883 (ใช้ใน Lab 11.3)"
+echo "Topic Filter ที่ Sub    : home/#  และ  home/+/light"
+echo "LWT Topic             : node/esp32/status"
+echo "LWT Payload           : LOST_CONNECTION_OFFLINE"
+echo "Retain Message Flag   : -r (retain = 1)"
+echo
+echo "ตารางผล (ก๊อปไปวางในช่อง 📋 ตารางผล):"
+echo "#### ตารางเปรียบเทียบลำดับแพ็กเก็ต QoS 0 / 1 / 2 (จาก Broker Log)"
+echo "| QoS | ลำดับแพ็กเก็ตที่สังเกตได้ | จำนวนแพ็กเก็ต |"
+echo "|---|---|---|"
+for q in 0 1 2; do echo "| $q | ${QSEQ[$q]} | ${QN[$q]} |"; done
 
 hr "เสร็จสิ้น"
 echo "📄 Log ทั้งหมด (วางในช่อง 💻 Lab 11.1): $OUT"
