@@ -8,7 +8,6 @@ roster_name() {
   case "$1" in
     67030073) echo "Natthaphong Niampradit";;
     67030180) echo "Phumchana Thiamkaew";;
-    67030183) echo "Phuwish Prakobchit";;
     67030248) echo "Suwijak Lawang";;
     67030249) echo "Suwimon Sripramai";;
     67030268) echo "Korn Daengthong";;
