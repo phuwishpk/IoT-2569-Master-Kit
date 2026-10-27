@@ -103,6 +103,9 @@
         <div id="connStatus" style="color: var(--accent); font-weight: bold;">● SignalR Online</div>
     </div>
 
+    <!-- ชื่อสมาชิกกลุ่ม: เปิดหน้าเว็บด้วย ?group=รหัส1,รหัส2,... (สคริปต์ lab13_3_auto.sh ใส่ให้เอง) -->
+    <div id="groupBar" style="display:none; margin:-8px 0 20px; padding:10px 16px; border:1px solid rgba(0,229,255,0.35); border-radius:14px; background:rgba(0,229,255,0.08); color:#e2e8f0; font-size:16px; font-weight:600;"></div>
+
     <div class="grid">
         <!-- การ์ด 1: มาตรวัดเซนเซอร์ -->
         <div class="card" style="text-align: center;">
@@ -131,6 +134,18 @@
         </div>
     </div>
 
+    <script>
+        (function showGroup() {
+            const ROSTER = {"67030248": "สุวิจักขณ์ ลาวัง", "67030249": "สุวิมล ศรีประไหม", "67030268": "กร แดงทอง", "67030270": "กฤษฏิณัช สำราญกิจ", "67030299": "ธนพร พิศมัย", "67030359": "อัฐวุฒิ บัวเรียน", "67030360": "อิทธิพัทธิ์ สุทธินวล", "67030180": "ภูมิชนะ เทียมแก้ว", "67030073": "ณัฐพงศ์ เนียมประดิษฐ", "67030183": "ภูวิชญ์ ประกอบจิตร"};
+            const raw = new URLSearchParams(location.search).get('group') || '';
+            const ids = raw.split(/[\s,]+/).filter(Boolean);
+            if (!ids.length) return;
+            const bar = document.getElementById('groupBar');
+            bar.textContent = '👥 กลุ่ม: ' + ids.map(id => id + (ROSTER[id] ? ' ' + ROSTER[id] : '')).join('  •  ');
+            bar.style.display = 'block';
+            document.title = 'Kestrel Edge — ' + ids.join(', ');
+        })();
+    </script>
     <script>
         let isLedOn = false;
         const connection = new signalR.HubConnectionBuilder()

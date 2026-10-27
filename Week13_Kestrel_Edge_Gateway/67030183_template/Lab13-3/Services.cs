@@ -22,7 +22,7 @@ public record TelemetryData(double Voltage, int Raw, long Timestamp);
 public class SerialBridgeWorker : BackgroundService
 {
     private SerialPort? _serial;
-    private readonly string _portName = "/dev/cu.usbserial-0001"; // พอร์ตของ ESP32 บน macOS
+    private readonly string _portName = Environment.GetEnvironmentVariable("SERIAL_PORT") ?? "/dev/cu.usbserial-0001"; // พอร์ตของ ESP32 บน macOS (ตั้งผ่าน SERIAL_PORT ได้)
     private readonly int _baudRate = 115200;
     private readonly GatewayStateStore _store;
     private readonly MqttServer _mqttServer;

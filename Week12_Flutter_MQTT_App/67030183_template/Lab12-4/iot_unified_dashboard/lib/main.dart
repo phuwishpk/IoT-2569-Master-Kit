@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'actuator_control_screen.dart';
 import 'telemetry_dashboard_screen.dart';
 
+// รายชื่อสมาชิกกลุ่ม ส่งตอน build ด้วย --dart-define=GROUP="รหัส ชื่อ|รหัส ชื่อ|..." (ว่างได้)
+const String _group = String.fromEnvironment('GROUP');
+
 void main() {
   runApp(const UnifiedIotApp());
 }
@@ -56,9 +59,28 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
   Widget build(BuildContext context) {
     return Scaffold(
       // ใช้ IndexedStack เพื่อรักษาสถานะ (State) และการเชื่อมต่อ MQTT ของทั้งสองหน้าจอให้ทำงานต่อเนื่อง
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
+      body: Column(
+        children: [
+          if (_group.isNotEmpty)
+            Container(
+              width: double.infinity,
+              color: const Color(0xFF1E293B),
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+              child: SafeArea(
+                bottom: false,
+                child: Text(
+                  '👥 กลุ่ม: ${_group.split('|').join('  •  ')}',
+                  style: const TextStyle(color: Color(0xFF00E5FF), fontSize: 14, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+          Expanded(
+            child: IndexedStack(
+              index: _currentIndex,
+              children: _pages,
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
