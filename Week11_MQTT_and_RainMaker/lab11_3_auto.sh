@@ -59,14 +59,16 @@ cd "$CERT" || exit 1
 rm -f ca.* server.* client.* ./*.srl
 run openssl genrsa -out ca.key 2048
 run openssl req -out ca.csr -key ca.key -new -subj "/C=TH/ST=Bangkok/O=IoT Security Lab/CN=IoT Root CA ($ID)"
-run openssl x509 -req -in ca.csr -out ca.crt -sha256 -days 3650 -signkey ca.key
-printf 'subjectAltName=IP:127.0.0.1%s,DNS:localhost\n' "${LANIP:+,IP:$LANIP}" > server.ext
+printf 'basicConstraints=critical,CA:TRUE\nkeyUsage=critical,keyCertSign,cRLSign\n' > ca.ext
+run openssl x509 -req -in ca.csr -out ca.crt -sha256 -days 3650 -signkey ca.key -extfile ca.ext
+printf 'subjectAltName=IP:127.0.0.1%s,DNS:localhost\nextendedKeyUsage=serverAuth\n' "${LANIP:+,IP:$LANIP}" > server.ext
 run openssl genrsa -out server.key 2048
 run openssl req -out server.csr -key server.key -new -subj "/C=TH/ST=Bangkok/O=IoT Broker/CN=${LANIP:-127.0.0.1}"
 run openssl x509 -req -in server.csr -out server.crt -sha256 -CA ca.crt -CAkey ca.key -CAcreateserial -days 3650 -extfile server.ext
+printf 'extendedKeyUsage=clientAuth\n' > client.ext
 run openssl genrsa -out client.key 2048
 run openssl req -out client.csr -key client.key -new -subj "/C=TH/ST=Bangkok/O=IoT Node ($ID)/CN=esp32-secure-node"
-run openssl x509 -req -in client.csr -out client.crt -sha256 -CA ca.crt -CAkey ca.key -CAcreateserial -days 3650
+run openssl x509 -req -in client.csr -out client.crt -sha256 -CA ca.crt -CAkey ca.key -CAcreateserial -days 3650 -extfile client.ext
 echo; echo "ไฟล์ที่ได้ (6 ไฟล์):"
 for f in ca.key ca.crt server.key server.crt client.key client.crt; do printf '   %-11s %6s bytes\n' "$f" "$(wc -c < "$f" | tr -d ' ')"; done
 run openssl verify -CAfile ca.crt server.crt client.crt
