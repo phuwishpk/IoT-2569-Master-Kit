@@ -62,7 +62,7 @@ allow_anonymous true
 log_type all
 ```
 
-![Mosquitto Broker Running](images/lab11_1_broker_start.png)
+![Mosquitto Broker Running](images/lab11_1_photo1.png)
 *รูปที่ 2: หน้าต่าง Terminal แสดงการเริ่มต้นทำงานของ Mosquitto Broker บนพอร์ต 1883*
 
 ---
@@ -99,7 +99,7 @@ log_type all
 * เมื่อส่งข้อความปกติในขณะที่ยังไม่มีใคร Subscribe -> ข้อความจะหายไปในทันที
 * เมื่อส่งข้อความโดยระบุพารามิเตอร์ `-r` (Retain) -> Broker จะบันทึกข้อความล่าสุดค้างไว้ในระบบ เมื่อมี Subscriber เชื่อมต่อเข้ามาในภายหลัง จะได้รับข้อความนี้ทันทีโดยไม่ต้องรอรอบส่งใหม่
 
-![Retained Message Test](images/lab11_1_retain.png)
+![Retained Message Test](images/lab11_1_photo2.png)
 *รูปที่ 5: หน้าต่าง Subscriber เชื่อมต่อเข้ามาใหม่และได้รับข้อความ Retained ทันที*
 
 ---
@@ -124,6 +124,71 @@ log_type all
    * *ตอบ:* ช่วยให้แดชบอร์ดหรือแอปพลิเคชันที่เพิ่งเปิดใช้งานและเชื่อมต่อเข้ามาใหม่ สามารถดึงสถานะล่าสุดของอุปกรณ์ (เช่น สถานะเปิด/ปิดของหลอดไฟ หรืออุณหภูมิล่าสุด) มาแสดงผลบนหน้าจอได้ในทันที โดยไม่ต้องรอให้อุปกรณ์ฝั่งเซนเซอร์ส่งข้อมูลในรอบถัดไป
 
 ---
+
+
+
+---
+
+### 3.7 บันทึกผลการทดสอบจริงจาก Terminal (Execution Logs)
+ผลการทดสอบระบบผ่านสคริปต์อัตโนมัติบน Terminal ของ **นายณัฐพงศ์ เนียมประดิษฐ (67030073)**:
+
+```text
+[1;36m══════ Lab 11.1 — 67030073 Natthaphong Niampradit ══════[0m
+เครื่อง: phuwish@MacBook-Pro-khxng-Phuwish.local   เวลา: 2026-10-27 14:43:53   Broker: mosquitto version 2.1.2
+
+[1;36m══════ 11-1.1 Broker เริ่มทำงาน ══════[0m
+1793087033: Info: running mosquitto as user: phuwish.
+1793087033: mosquitto version 2.1.2 starting
+1793087033: Config loaded from /Users/phuwish/mqtt_lab/mosquitto.conf.
+1793087033: Bridge support available.
+1793087033: Persistence support available.
+1793087033: TLS support available.
+[2J[H
+[1;36m══════ Lab 11.1 — 67030073 Natthaphong Niampradit  (2026-10-27 14:43) ══════[0m
+
+[1;36m══════ 11-1.2 Publish/Subscribe + Wildcards (# และ +) ══════[0m
+[Subscriber home/#] ได้รับ:
+   home/livingroom/light ON
+   home/livingroom/temp 26.4
+   home/bedroom/balcony/light ON
+[Subscriber home/+/light] ได้รับ (home/bedroom/balcony/light ต้องไม่ผ่าน):
+   home/livingroom/light ON
+   home/kitchen/light OFF
+
+[Broker Verbose Log]
+1793087033: New client connected from 127.0.0.1:65499 as auto-6B38FD1D-3DBE-D314-65D5-438DE17F352C (p4, c1, k60).
+1793087033: Sending CONNACK to auto-6B38FD1D-3DBE-D314-65D5-438DE17F352C (0, 0)
+1793087033: Received SUBSCRIBE from auto-6B38FD1D-3DBE-D314-65D5-438DE17F352C
+1793087033: Sending SUBACK to auto-6B38FD1D-3DBE-D314-65D5-438DE17F352C
+1793087034: New client connected from 127.0.0.1:65510 as auto-40C25395-3DF1-5805-DFF8-C1D0387FFEA6 (p4, c1, k60).
+1793087034: Sending CONNACK to auto-40C25395-3DF1-5805-DFF8-C1D0387FFEA6 (0, 0)
+1793087034: Received PUBLISH from auto-40C25395-3DF1-5805-DFF8-C1D0387FFEA6 (d0, q0, r0, m0, 'home/livingroom/light', ... (2 bytes))
+1793087034: Sending PUBLISH to auto-6B38FD1D-3DBE-D314-65D5-438DE17F352C (d0, q0, r0, m0, 'home/livingroom/light', ... (2 bytes))
+1793087034: New client connected from 127.0.0.1:65511 as auto-CAF2D7F1-2B5A-B80C-B8D9-49FC7D6719F1 (p4, c1, k60).
+1793087034: Sending CONNACK to auto-CAF2D7F1-2B5A-B80C-B8D9-49FC7D6719F1 (0, 0)
+1793087034: Received PUBLISH from auto-CAF2D7F1-2B5A-B80C-B8D9-49FC7D6719F1 (d0, q0, r0, m0, 'home/livingroom/temp', ... (4 bytes))
+1793087034: Sending PUBLISH to auto-6B38FD1D-3DBE-D314-65D5-438DE17F352C (d0, q0, r0, m0, 'home/livingroom/temp', ... (4 bytes))
+
+[1;33m📸 รูปที่ 1: Broker Verbose Log (New client / SUBSCRIBE / PUBLISH)[0m
+[1;32m✅ บันทึกรูปแล้ว: /Users/phuwish/mqtt_lab/67030073_lab11_1_photo1.png[0m
+
+[1;36m══════ 11-1.3 QoS 0 / 1 / 2 (ดูแพ็กเก็ตใน Broker Log) ══════[0m
+--- QoS 0 (Publisher <-> Broker) ---
+   1793087036: Receive
+... (truncated for display, see lab11_1_67030073.txt for full log)
+```
+
+<div align="center">
+  <img src="images/lab11_1_photo1.png" alt="Terminal Capture 1: Mosquitto Broker Verbose & Wildcards" width="700"/>
+  <br/>
+  <b>รูปที่ 2: หน้าต่าง Terminal บันทึกผลการรัน Mosquitto Broker ในโหมด Verbose และการทดสอบ Publish/Subscribe Wildcards จริง (67030073)</b>
+</div>
+
+<div align="center" style="margin-top: 15px;">
+  <img src="images/lab11_1_photo2.png" alt="Terminal Capture 2: Retained Messages & LWT Test" width="700"/>
+  <br/>
+  <b>รูปที่ 5: หน้าต่าง Terminal บันทึกผลการทดสอบ Retained Message และการจำลองสัญญาณ LWT เมื่อตัดการเชื่อมต่อ (67030073)</b>
+</div>
 
 ## 4. ใบงานที่ 11.2: การพัฒนา ESP32 MQTT Client (Telemetry & Control)
 
@@ -217,6 +282,72 @@ log_type all
 
 ---
 
+
+
+---
+
+### 5.5 ผลการทดสอบใบรับรองดิจิทัลและ mTLS Handshake จริง
+ผลการรันสคริปต์ `lab11_3_auto.sh` ด้วย OpenSSL และการตรวจสอบใบรับรองดิจิทัล 2048-bit RSA ของ **นายณัฐพงศ์ เนียมประดิษฐ (67030073)**:
+
+```text
+[1;36m══════ Lab 11.3 — 67030073 Natthaphong Niampradit ══════[0m
+เครื่อง: phuwish@MacBook-Pro-khxng-Phuwish.local   เวลา: 2026-10-27 14:45:39   OpenSSL 4.1.0 23 Oct 2026 (Library: OpenSSL 4.1.0 23 Oct 2026)   mosquitto version 2.1.2
+
+[1;36m══════ 11-3.1 สร้าง Root CA / Server / Client Certificate ด้วย OpenSSL ══════[0m
+$ openssl genrsa -out ca.key 2048
+$ openssl req -out ca.csr -key ca.key -new -subj /C=TH/ST=Bangkok/O=IoT Security Lab/CN=IoT Root CA (67030073)
+$ openssl x509 -req -in ca.csr -out ca.crt -sha256 -days 3650 -signkey ca.key -extfile ca.ext
+   Certificate request self-signature ok
+   subject=C=TH, ST=Bangkok, O=IoT Security Lab, CN=IoT Root CA (67030073)
+$ openssl genrsa -out server.key 2048
+$ openssl req -out server.csr -key server.key -new -subj /C=TH/ST=Bangkok/O=IoT Broker/CN=192.168.100.41
+$ openssl x509 -req -in server.csr -out server.crt -sha256 -CA ca.crt -CAkey ca.key -CAcreateserial -days 3650 -extfile server.ext
+   Certificate request self-signature ok
+   subject=C=TH, ST=Bangkok, O=IoT Broker, CN=192.168.100.41
+$ openssl genrsa -out client.key 2048
+$ openssl req -out client.csr -key client.key -new -subj /C=TH/ST=Bangkok/O=IoT Node (67030073)/CN=esp32-secure-node
+$ openssl x509 -req -in client.csr -out client.crt -sha256 -CA ca.crt -CAkey ca.key -CAcreateserial -days 3650 -extfile client.ext
+   Certificate request self-signature ok
+   subject=C=TH, ST=Bangkok, O=IoT Node (67030073), CN=esp32-secure-node
+
+ไฟล์ที่ได้ (6 ไฟล์):
+   ca.key        1704 bytes
+   ca.crt        1241 bytes
+   server.key    1704 bytes
+   server.crt    1253 bytes
+   client.key    1704 bytes
+   client.crt    1220 bytes
+$ openssl verify -CAfile ca.crt server.crt client.crt
+   server.crt: OK
+   client.crt: OK
+[server.crt]
+   subject=C=TH, ST=Bangkok, O=IoT Broker, CN=192.168.100.41
+   issuer=C=TH, ST=Bangkok, O=IoT Security Lab, CN=IoT Root CA (67030073)
+   notAfter=Oct 24 07:45:40 2036 GMT
+[client.crt]
+   subject=C=TH, ST=Bangkok, O=IoT Node (67030073), CN=esp32-secure-node
+   issuer=C=TH, ST=Bangkok, O=IoT Security Lab, CN=IoT Root CA (67030073)
+   notAfter=Oct 24 07:45:40 2036 GMT
+
+[1;36m══════ 11-3.2 Mosquitto MQTTS พอร์ต 8883 (บังคับใบรับรอง Client) ══════[0m
+   listener 8883 0.0.0.0
+   cafile <certs>/ca.crt
+   certfile <certs>/server.crt
+   keyfile <certs>/server.key
+   require_certificate true
+   tls_version tlsv1.2
+   allow_anonymous true
+   log_type all
+   1793087140: Info: running mosquitto as user: phuwish.
+   1793087140: mosquitto version 2.1.2
+... (see lab11_3_67030073.txt for full log)
+```
+
+* **ผลการตรวจสอบความถูกต้องของใบรับรอง:**
+  - `openssl verify -CAfile ca.crt server.crt client.crt` -> **`server.crt: OK`**, **`client.crt: OK`**
+  - **Certificate Authority:** `CN=IoT Root CA (67030073)`
+  - **Server CN:** `CN=192.168.100.41`
+  - **Client CN:** `CN=esp32-secure-node`
 ## 6. ใบงานที่ 11.4: แพลตฟอร์มคลาวด์ ESP RainMaker & Smart Light
 
 > 🎥 **วิดีโอสาธิตการทำงานจริง (YouTube Shorts):** [https://www.youtube.com/shorts/FS7aSXBQBvA](https://www.youtube.com/shorts/FS7aSXBQBvA)  

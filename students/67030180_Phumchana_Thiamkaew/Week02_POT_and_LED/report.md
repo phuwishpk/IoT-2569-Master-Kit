@@ -3,7 +3,7 @@
 > * **ชื่อ-นามสกุล (ไทย):** `นายภูมิชนะ เทียมแก้ว`
 > * **ชื่อ-นามสกุล (อังกฤษ):** `Phumchana Thiamkaew`
 > * **วิชา:** 03376134 IoT-App-2569 (ภาคเรียนที่ 2/2568)
-> * **วันที่อัปเดตรายงาน (Cloud Sync):** `26/10/2026 19:07:40`
+> * **วันที่อัปเดตรายงาน (Cloud Sync):** `27/10/2026 15:47:27`
 ---
 
 # รายงานผลการทดลองประจำสัปดาห์ที่ 02
@@ -14,12 +14,14 @@
 ## 📋 ผลการทดลองส่วนที่ Lab 02.2
 
 ### 3. ภาพหลักฐานผลการทดลอง (Photos / Evidence)
-* **p1:** ![w02_2_p1](cloud_images/w02_2_p1.jpg)
-* **p2:** ![w02_2_p2](cloud_images/w02_2_p2.jpg)
-* **p3:** ![w02_2_p3](cloud_images/w02_2_p3.jpg)
+* **p2:** ![p2](https://www.youtube.com/shorts/idf_4HMfYwY?feature=share)
 
 
 ## 📋 ผลการทดลองส่วนที่ Lab 02.3
+
+### 3. ภาพหลักฐานผลการทดลอง (Photos / Evidence)
+* **p1:** ![p1](https://www.youtube.com/shorts/sDU07WYlxWk?feature=share)
+
 
 ## 🔍 สรุปและวิเคราะห์ผลการทดลอง (Discussion & Conclusion)
 จากการทดลองประจำสัปดาห์ที่ 02 (Week 02: Sensors & Calibration I (POT 10k & LED PWM)) ของ **นายภูมิชนะ เทียมแก้ว (67030180)**:

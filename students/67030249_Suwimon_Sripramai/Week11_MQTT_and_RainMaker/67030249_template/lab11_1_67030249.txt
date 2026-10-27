@@ -1,0 +1,87 @@
+
+[1;36m══════ Lab 11.1 — 67030249 Suwimon Sripramai ══════[0m
+เครื่อง: phuwish@MacBook-Pro-khxng-Phuwish.local   เวลา: 2026-10-27 14:44:28   Broker: mosquitto version 2.1.2
+
+[1;36m══════ 11-1.1 Broker เริ่มทำงาน ══════[0m
+1793087068: Info: running mosquitto as user: phuwish.
+1793087068: mosquitto version 2.1.2 starting
+1793087068: Config loaded from /Users/phuwish/mqtt_lab/mosquitto.conf.
+1793087068: Bridge support available.
+1793087068: Persistence support available.
+1793087068: TLS support available.
+[2J[H
+[1;36m══════ Lab 11.1 — 67030249 Suwimon Sripramai  (2026-10-27 14:44) ══════[0m
+
+[1;36m══════ 11-1.2 Publish/Subscribe + Wildcards (# และ +) ══════[0m
+[Subscriber home/#] ได้รับ:
+   home/livingroom/light ON
+   home/livingroom/temp 26.4
+   home/bedroom/balcony/light ON
+[Subscriber home/+/light] ได้รับ (home/bedroom/balcony/light ต้องไม่ผ่าน):
+   home/livingroom/light ON
+   home/kitchen/light OFF
+
+[Broker Verbose Log]
+1793087068: New client connected from 127.0.0.1:50153 as auto-EAC57337-0249-B7A3-2D25-03B7D8AD3FB4 (p4, c1, k60).
+1793087068: Sending CONNACK to auto-EAC57337-0249-B7A3-2D25-03B7D8AD3FB4 (0, 0)
+1793087068: Received SUBSCRIBE from auto-EAC57337-0249-B7A3-2D25-03B7D8AD3FB4
+1793087068: Sending SUBACK to auto-EAC57337-0249-B7A3-2D25-03B7D8AD3FB4
+1793087069: New client connected from 127.0.0.1:50171 as auto-B07EF93C-0A11-4814-D304-120FDFBB67CB (p4, c1, k60).
+1793087069: Sending CONNACK to auto-B07EF93C-0A11-4814-D304-120FDFBB67CB (0, 0)
+1793087069: Received PUBLISH from auto-B07EF93C-0A11-4814-D304-120FDFBB67CB (d0, q0, r0, m0, 'home/livingroom/light', ... (2 bytes))
+1793087069: Sending PUBLISH to auto-EAC57337-0249-B7A3-2D25-03B7D8AD3FB4 (d0, q0, r0, m0, 'home/livingroom/light', ... (2 bytes))
+1793087069: New client connected from 127.0.0.1:50172 as auto-B3DBC524-E63A-8F90-E4C5-2A8155233E9B (p4, c1, k60).
+1793087069: Sending CONNACK to auto-B3DBC524-E63A-8F90-E4C5-2A8155233E9B (0, 0)
+1793087069: Received PUBLISH from auto-B3DBC524-E63A-8F90-E4C5-2A8155233E9B (d0, q0, r0, m0, 'home/livingroom/temp', ... (4 bytes))
+1793087069: Sending PUBLISH to auto-EAC57337-0249-B7A3-2D25-03B7D8AD3FB4 (d0, q0, r0, m0, 'home/livingroom/temp', ... (4 bytes))
+
+[1;33m📸 รูปที่ 1: Broker Verbose Log (New client / SUBSCRIBE / PUBLISH)[0m
+[1;32m✅ บันทึกรูปแล้ว: /Users/phuwish/mqtt_lab/67030249_lab11_1_photo1.png[0m
+
+[1;36m══════ 11-1.3 QoS 0 / 1 / 2 (ดูแพ็กเก็ตใน Broker Log) ══════[0m
+--- QoS 0 (Publisher <-> Broker) ---
+   1793087071: Received PUBLISH from pub_qos0 (d0, q0, r0, m0, 'test/qos', ... (13 bytes))
+--- QoS 1 (Publisher <-> Broker) ---
+   1793087072: Received PUBLISH from pub_qos1 (d0, q1, r0, m1, 'test/qos', ... (13 bytes))
+   1793087072: Sending PUBACK to pub_qos1 (m1, rc0)
+--- QoS 2 (Publisher <-> Broker) ---
+   1793087073: Received PUBLISH from pub_qos2 (d0, q2, r0, m1, 'test/qos', ... (13 bytes))
+   1793087073: Sending PUBREC to pub_qos2 (m1, rc0)
+   1793087073: Received PUBREL from pub_qos2 (Mid: 1)
+   1793087073: Sending PUBCOMP to pub_qos2 (m1)
+[2J[H
+[1;36m══════ Lab 11.1 — 67030249 Suwimon Sripramai  (2026-10-27 14:44) ══════[0m
+
+[1;36m══════ 11-1.4 Retained Message ══════[0m
+[ส่งแบบไม่มี -r แล้วเปิด Subscriber ใหม่] ได้รับ:
+   (ว่างเปล่า = ถูกต้อง เพราะไม่มีข้อความคงค้าง)
+[ส่งแบบมี -r แล้วเปิด Subscriber ใหม่] ได้รับทันที:
+   sensor/state CRITICAL_ALERT
+
+[1;33m📸 รูปที่ 2: Retained Message — Subscriber ใหม่ได้ CRITICAL_ALERT ทันที[0m
+[1;32m✅ บันทึกรูปแล้ว: /Users/phuwish/mqtt_lab/67030249_lab11_1_photo2.png[0m
+
+[1;36m══════ 11-1.5 Last Will and Testament (LWT) ══════[0m
+[Subscriber node/esp32/status] ได้รับ:
+   node/esp32/status ONLINE
+   node/esp32/status LOST_CONNECTION_OFFLINE
+
+[1;36m══════ ค่าสำหรับกรอกในเว็บ — Lab 11.1 ══════[0m
+พอร์ต Plain MQTT      : 1883
+พอร์ต mTLS Secure     : 8883 (ใช้ใน Lab 11.3)
+Topic Filter ที่ Sub    : home/#  และ  home/+/light
+LWT Topic             : node/esp32/status
+LWT Payload           : LOST_CONNECTION_OFFLINE
+Retain Message Flag   : -r (retain = 1)
+
+ตารางผล (ก๊อปไปวางในช่อง 📋 ตารางผล):
+#### ตารางเปรียบเทียบลำดับแพ็กเก็ต QoS 0 / 1 / 2 (จาก Broker Log)
+| QoS | ลำดับแพ็กเก็ตที่สังเกตได้ | จำนวนแพ็กเก็ต |
+|---|---|---|
+| 0 | PUBLISH | 1 |
+| 1 | PUBLISH → PUBACK | 2 |
+| 2 | PUBLISH → PUBREC → PUBREL → PUBCOMP | 4 |
+
+[1;36m══════ เสร็จสิ้น ══════[0m
+📄 Log ทั้งหมด (วางในช่อง 💻 Lab 11.1): /Users/phuwish/mqtt_lab/lab11_1_67030249.txt
+🖼️  รูปที่ต้องอัปโหลด: /Users/phuwish/mqtt_lab/67030249_lab11_1_photo1.png และ photo2.png

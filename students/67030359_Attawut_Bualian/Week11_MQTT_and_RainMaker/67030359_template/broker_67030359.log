@@ -1,0 +1,238 @@
+1793087115: Info: running mosquitto as user: phuwish.
+1793087115: mosquitto version 2.1.2 starting
+1793087115: Config loaded from /Users/phuwish/mqtt_lab/mosquitto.conf.
+1793087115: Bridge support available.
+1793087115: Persistence support available.
+1793087115: TLS support available.
+1793087115: TLS-PSK support available.
+1793087115: Websockets support available.
+1793087115: Opening ipv4 listen socket on port 1883.
+1793087115: mosquitto version 2.1.2 running
+1793087115: New connection from 127.0.0.1:51531 on port 1883.
+1793087115: New client connected from 127.0.0.1:51531 as auto-66B14156-90F0-ED06-A35A-7F2B8618627E (p4, c1, k60).
+1793087115: No will message specified.
+1793087115: Sending CONNACK to auto-66B14156-90F0-ED06-A35A-7F2B8618627E (0, 0)
+1793087115: Received SUBSCRIBE from auto-66B14156-90F0-ED06-A35A-7F2B8618627E
+1793087115: 	home/# (QoS 0)
+1793087115: auto-66B14156-90F0-ED06-A35A-7F2B8618627E 0 home/#
+1793087115: Sending SUBACK to auto-66B14156-90F0-ED06-A35A-7F2B8618627E
+1793087116: New connection from 127.0.0.1:51552 on port 1883.
+1793087116: New client connected from 127.0.0.1:51552 as auto-E63B70D6-8AF1-0717-FB5F-948030B0AD16 (p4, c1, k60).
+1793087116: No will message specified.
+1793087116: Sending CONNACK to auto-E63B70D6-8AF1-0717-FB5F-948030B0AD16 (0, 0)
+1793087116: Received PUBLISH from auto-E63B70D6-8AF1-0717-FB5F-948030B0AD16 (d0, q0, r0, m0, 'home/livingroom/light', ... (2 bytes))
+1793087116: Sending PUBLISH to auto-66B14156-90F0-ED06-A35A-7F2B8618627E (d0, q0, r0, m0, 'home/livingroom/light', ... (2 bytes))
+1793087116: Received DISCONNECT from auto-E63B70D6-8AF1-0717-FB5F-948030B0AD16
+1793087116: Client auto-E63B70D6-8AF1-0717-FB5F-948030B0AD16 [127.0.0.1:51552] disconnected.
+1793087116: Client auto-E63B70D6-8AF1-0717-FB5F-948030B0AD16 [127.0.0.1:51552] disconnected: connection closed by client.
+1793087116: New connection from 127.0.0.1:51553 on port 1883.
+1793087116: New client connected from 127.0.0.1:51553 as auto-34753781-F998-72F3-8B82-9110ED62ADD4 (p4, c1, k60).
+1793087116: No will message specified.
+1793087116: Sending CONNACK to auto-34753781-F998-72F3-8B82-9110ED62ADD4 (0, 0)
+1793087116: Received PUBLISH from auto-34753781-F998-72F3-8B82-9110ED62ADD4 (d0, q0, r0, m0, 'home/livingroom/temp', ... (4 bytes))
+1793087116: Sending PUBLISH to auto-66B14156-90F0-ED06-A35A-7F2B8618627E (d0, q0, r0, m0, 'home/livingroom/temp', ... (4 bytes))
+1793087116: Received DISCONNECT from auto-34753781-F998-72F3-8B82-9110ED62ADD4
+1793087116: Client auto-34753781-F998-72F3-8B82-9110ED62ADD4 [127.0.0.1:51553] disconnected.
+1793087116: Client auto-34753781-F998-72F3-8B82-9110ED62ADD4 [127.0.0.1:51553] disconnected: connection closed by client.
+1793087116: New connection from 127.0.0.1:51554 on port 1883.
+1793087116: New client connected from 127.0.0.1:51554 as auto-B0162442-3DF2-57F0-0AE2-F6DD481203B4 (p4, c1, k60).
+1793087116: No will message specified.
+1793087116: Sending CONNACK to auto-B0162442-3DF2-57F0-0AE2-F6DD481203B4 (0, 0)
+1793087116: Received PUBLISH from auto-B0162442-3DF2-57F0-0AE2-F6DD481203B4 (d0, q0, r0, m0, 'home/bedroom/balcony/light', ... (2 bytes))
+1793087116: Sending PUBLISH to auto-66B14156-90F0-ED06-A35A-7F2B8618627E (d0, q0, r0, m0, 'home/bedroom/balcony/light', ... (2 bytes))
+1793087116: Received DISCONNECT from auto-B0162442-3DF2-57F0-0AE2-F6DD481203B4
+1793087116: Client auto-B0162442-3DF2-57F0-0AE2-F6DD481203B4 [127.0.0.1:51554] disconnected.
+1793087116: Client auto-B0162442-3DF2-57F0-0AE2-F6DD481203B4 [127.0.0.1:51554] disconnected: connection closed by client.
+1793087116: Received DISCONNECT from auto-66B14156-90F0-ED06-A35A-7F2B8618627E
+1793087116: Client auto-66B14156-90F0-ED06-A35A-7F2B8618627E [127.0.0.1:51531] disconnected.
+1793087116: Client auto-66B14156-90F0-ED06-A35A-7F2B8618627E [127.0.0.1:51531] disconnected: connection closed by client.
+1793087116: New connection from 127.0.0.1:51555 on port 1883.
+1793087116: New client connected from 127.0.0.1:51555 as auto-D4721416-538C-A3F0-F0A9-B014F811A982 (p4, c1, k60).
+1793087116: No will message specified.
+1793087116: Sending CONNACK to auto-D4721416-538C-A3F0-F0A9-B014F811A982 (0, 0)
+1793087116: Received SUBSCRIBE from auto-D4721416-538C-A3F0-F0A9-B014F811A982
+1793087116: 	home/+/light (QoS 0)
+1793087116: auto-D4721416-538C-A3F0-F0A9-B014F811A982 0 home/+/light
+1793087116: Sending SUBACK to auto-D4721416-538C-A3F0-F0A9-B014F811A982
+1793087116: New connection from 127.0.0.1:51573 on port 1883.
+1793087116: New client connected from 127.0.0.1:51573 as auto-C9F5BCF9-CF9C-6CF2-C8F8-09C3D2CDBAE6 (p4, c1, k60).
+1793087116: No will message specified.
+1793087116: Sending CONNACK to auto-C9F5BCF9-CF9C-6CF2-C8F8-09C3D2CDBAE6 (0, 0)
+1793087116: Received PUBLISH from auto-C9F5BCF9-CF9C-6CF2-C8F8-09C3D2CDBAE6 (d0, q0, r0, m0, 'home/livingroom/light', ... (2 bytes))
+1793087116: Sending PUBLISH to auto-D4721416-538C-A3F0-F0A9-B014F811A982 (d0, q0, r0, m0, 'home/livingroom/light', ... (2 bytes))
+1793087116: Received DISCONNECT from auto-C9F5BCF9-CF9C-6CF2-C8F8-09C3D2CDBAE6
+1793087116: Client auto-C9F5BCF9-CF9C-6CF2-C8F8-09C3D2CDBAE6 [127.0.0.1:51573] disconnected.
+1793087116: Client auto-C9F5BCF9-CF9C-6CF2-C8F8-09C3D2CDBAE6 [127.0.0.1:51573] disconnected: connection closed by client.
+1793087116: New connection from 127.0.0.1:51574 on port 1883.
+1793087116: New client connected from 127.0.0.1:51574 as auto-FFAC24EB-E0C2-48E5-E571-29377FAB4CD2 (p4, c1, k60).
+1793087116: No will message specified.
+1793087116: Sending CONNACK to auto-FFAC24EB-E0C2-48E5-E571-29377FAB4CD2 (0, 0)
+1793087116: Received PUBLISH from auto-FFAC24EB-E0C2-48E5-E571-29377FAB4CD2 (d0, q0, r0, m0, 'home/kitchen/light', ... (3 bytes))
+1793087116: Sending PUBLISH to auto-D4721416-538C-A3F0-F0A9-B014F811A982 (d0, q0, r0, m0, 'home/kitchen/light', ... (3 bytes))
+1793087116: Received DISCONNECT from auto-FFAC24EB-E0C2-48E5-E571-29377FAB4CD2
+1793087116: Client auto-FFAC24EB-E0C2-48E5-E571-29377FAB4CD2 [127.0.0.1:51574] disconnected.
+1793087116: Client auto-FFAC24EB-E0C2-48E5-E571-29377FAB4CD2 [127.0.0.1:51574] disconnected: connection closed by client.
+1793087116: Received DISCONNECT from auto-D4721416-538C-A3F0-F0A9-B014F811A982
+1793087116: Client auto-D4721416-538C-A3F0-F0A9-B014F811A982 [127.0.0.1:51555] disconnected.
+1793087116: Client auto-D4721416-538C-A3F0-F0A9-B014F811A982 [127.0.0.1:51555] disconnected: connection closed by client.
+1793087116: New connection from 127.0.0.1:51575 on port 1883.
+1793087116: New client connected from 127.0.0.1:51575 as auto-19C63353-DE3A-B3C6-7918-EAEB6A65AE54 (p4, c1, k60).
+1793087116: No will message specified.
+1793087116: Sending CONNACK to auto-19C63353-DE3A-B3C6-7918-EAEB6A65AE54 (0, 0)
+1793087116: Received PUBLISH from auto-19C63353-DE3A-B3C6-7918-EAEB6A65AE54 (d0, q0, r0, m0, 'home/bedroom/balcony/light', ... (2 bytes))
+1793087116: Received DISCONNECT from auto-19C63353-DE3A-B3C6-7918-EAEB6A65AE54
+1793087116: Client auto-19C63353-DE3A-B3C6-7918-EAEB6A65AE54 [127.0.0.1:51575] disconnected.
+1793087116: Client auto-19C63353-DE3A-B3C6-7918-EAEB6A65AE54 [127.0.0.1:51575] disconnected: connection closed by client.
+1793087117: New connection from 127.0.0.1:51604 on port 1883.
+1793087117: New client connected from 127.0.0.1:51604 as sub_qos0 (p4, c1, k60).
+1793087117: No will message specified.
+1793087117: Sending CONNACK to sub_qos0 (0, 0)
+1793087117: Received SUBSCRIBE from sub_qos0
+1793087117: 	test/qos (QoS 0)
+1793087117: sub_qos0 0 test/qos
+1793087117: Sending SUBACK to sub_qos0
+1793087118: New connection from 127.0.0.1:51622 on port 1883.
+1793087118: New client connected from 127.0.0.1:51622 as pub_qos0 (p4, c1, k60).
+1793087118: No will message specified.
+1793087118: Sending CONNACK to pub_qos0 (0, 0)
+1793087118: Received PUBLISH from pub_qos0 (d0, q0, r0, m0, 'test/qos', ... (13 bytes))
+1793087118: Sending PUBLISH to sub_qos0 (d0, q0, r0, m0, 'test/qos', ... (13 bytes))
+1793087118: Received DISCONNECT from pub_qos0
+1793087118: Client pub_qos0 [127.0.0.1:51622] disconnected.
+1793087118: Client pub_qos0 [127.0.0.1:51622] disconnected: connection closed by client.
+1793087118: Received DISCONNECT from sub_qos0
+1793087118: Client sub_qos0 [127.0.0.1:51604] disconnected.
+1793087118: Client sub_qos0 [127.0.0.1:51604] disconnected: connection closed by client.
+1793087118: New connection from 127.0.0.1:51633 on port 1883.
+1793087118: New client connected from 127.0.0.1:51633 as sub_qos1 (p4, c1, k60).
+1793087118: No will message specified.
+1793087118: Sending CONNACK to sub_qos1 (0, 0)
+1793087118: Received SUBSCRIBE from sub_qos1
+1793087118: 	test/qos (QoS 1)
+1793087118: sub_qos1 1 test/qos
+1793087118: Sending SUBACK to sub_qos1
+1793087119: New connection from 127.0.0.1:51644 on port 1883.
+1793087119: New client connected from 127.0.0.1:51644 as pub_qos1 (p4, c1, k60).
+1793087119: No will message specified.
+1793087119: Sending CONNACK to pub_qos1 (0, 0)
+1793087119: Received PUBLISH from pub_qos1 (d0, q1, r0, m1, 'test/qos', ... (13 bytes))
+1793087119: Sending PUBLISH to sub_qos1 (d0, q1, r0, m1, 'test/qos', ... (13 bytes))
+1793087119: Sending PUBACK to pub_qos1 (m1, rc0)
+1793087119: Client pub_qos1 [127.0.0.1:51644] disconnected: connection closed by client.
+1793087119: Client pub_qos1 [127.0.0.1:51644] disconnected: connection closed by client.
+1793087119: Received PUBACK from sub_qos1 (Mid: 1, RC:0)
+1793087119: Received DISCONNECT from sub_qos1
+1793087119: Client sub_qos1 [127.0.0.1:51633] disconnected.
+1793087119: New connection from 127.0.0.1:51652 on port 1883.
+1793087119: New client connected from 127.0.0.1:51652 as sub_qos2 (p4, c1, k60).
+1793087119: No will message specified.
+1793087119: Sending CONNACK to sub_qos2 (0, 0)
+1793087119: Received SUBSCRIBE from sub_qos2
+1793087119: 	test/qos (QoS 2)
+1793087119: sub_qos2 2 test/qos
+1793087119: Sending SUBACK to sub_qos2
+1793087119: New connection from 127.0.0.1:51663 on port 1883.
+1793087119: New client connected from 127.0.0.1:51663 as pub_qos2 (p4, c1, k60).
+1793087119: No will message specified.
+1793087119: Sending CONNACK to pub_qos2 (0, 0)
+1793087119: Received PUBLISH from pub_qos2 (d0, q2, r0, m1, 'test/qos', ... (13 bytes))
+1793087119: Sending PUBREC to pub_qos2 (m1, rc0)
+1793087119: Received PUBREL from pub_qos2 (Mid: 1)
+1793087119: Sending PUBLISH to sub_qos2 (d0, q2, r0, m1, 'test/qos', ... (13 bytes))
+1793087119: Sending PUBCOMP to pub_qos2 (m1)
+1793087119: Received PUBREC from sub_qos2 (Mid: 1)
+1793087119: Sending PUBREL to sub_qos2 (m1)
+1793087119: Client pub_qos2 [127.0.0.1:51663] disconnected: connection closed by client.
+1793087119: Client pub_qos2 [127.0.0.1:51663] disconnected: connection closed by client.
+1793087119: Received PUBCOMP from sub_qos2 (Mid: 1, RC:0)
+1793087119: Received DISCONNECT from sub_qos2
+1793087119: Client sub_qos2 [127.0.0.1:51652] disconnected.
+1793087119: Client sub_qos2 [127.0.0.1:51652] disconnected: connection closed by client.
+1793087120: New connection from 127.0.0.1:51674 on port 1883.
+1793087120: New client connected from 127.0.0.1:51674 as auto-FE44A447-8DF0-55AC-D9E4-A248DA610C1C (p4, c1, k60).
+1793087120: No will message specified.
+1793087120: Sending CONNACK to auto-FE44A447-8DF0-55AC-D9E4-A248DA610C1C (0, 0)
+1793087120: Received PUBLISH from auto-FE44A447-8DF0-55AC-D9E4-A248DA610C1C (d0, q0, r1, m0, 'sensor/state', ... (0 bytes))
+1793087120: Received DISCONNECT from auto-FE44A447-8DF0-55AC-D9E4-A248DA610C1C
+1793087120: Client auto-FE44A447-8DF0-55AC-D9E4-A248DA610C1C [127.0.0.1:51674] disconnected.
+1793087120: Client auto-FE44A447-8DF0-55AC-D9E4-A248DA610C1C [127.0.0.1:51674] disconnected: connection closed by client.
+1793087120: New connection from 127.0.0.1:51675 on port 1883.
+1793087120: New client connected from 127.0.0.1:51675 as auto-3C88F272-587D-5C32-4FA6-EF5A816637BC (p4, c1, k60).
+1793087120: No will message specified.
+1793087120: Sending CONNACK to auto-3C88F272-587D-5C32-4FA6-EF5A816637BC (0, 0)
+1793087120: Received PUBLISH from auto-3C88F272-587D-5C32-4FA6-EF5A816637BC (d0, q0, r0, m0, 'sensor/state', ... (6 bytes))
+1793087120: Received DISCONNECT from auto-3C88F272-587D-5C32-4FA6-EF5A816637BC
+1793087120: Client auto-3C88F272-587D-5C32-4FA6-EF5A816637BC [127.0.0.1:51675] disconnected.
+1793087120: Client auto-3C88F272-587D-5C32-4FA6-EF5A816637BC [127.0.0.1:51675] disconnected: connection closed by client.
+1793087120: New connection from 127.0.0.1:51676 on port 1883.
+1793087120: New client connected from 127.0.0.1:51676 as auto-27AA0CCD-742C-80BD-34AF-7C470791A9B7 (p4, c1, k60).
+1793087120: No will message specified.
+1793087120: Sending CONNACK to auto-27AA0CCD-742C-80BD-34AF-7C470791A9B7 (0, 0)
+1793087120: Received SUBSCRIBE from auto-27AA0CCD-742C-80BD-34AF-7C470791A9B7
+1793087120: 	sensor/state (QoS 0)
+1793087120: auto-27AA0CCD-742C-80BD-34AF-7C470791A9B7 0 sensor/state
+1793087120: Sending SUBACK to auto-27AA0CCD-742C-80BD-34AF-7C470791A9B7
+1793087122: Received DISCONNECT from auto-27AA0CCD-742C-80BD-34AF-7C470791A9B7
+1793087122: Client auto-27AA0CCD-742C-80BD-34AF-7C470791A9B7 [127.0.0.1:51676] disconnected.
+1793087122: Client auto-27AA0CCD-742C-80BD-34AF-7C470791A9B7 [127.0.0.1:51676] disconnected: connection closed by client.
+1793087122: New connection from 127.0.0.1:51731 on port 1883.
+1793087122: New client connected from 127.0.0.1:51731 as auto-4D93676C-A1A4-E254-FD84-1B2324D12B01 (p4, c1, k60).
+1793087122: No will message specified.
+1793087122: Sending CONNACK to auto-4D93676C-A1A4-E254-FD84-1B2324D12B01 (0, 0)
+1793087122: Received PUBLISH from auto-4D93676C-A1A4-E254-FD84-1B2324D12B01 (d0, q0, r1, m0, 'sensor/state', ... (14 bytes))
+1793087122: Received DISCONNECT from auto-4D93676C-A1A4-E254-FD84-1B2324D12B01
+1793087122: Client auto-4D93676C-A1A4-E254-FD84-1B2324D12B01 [127.0.0.1:51731] disconnected.
+1793087122: Client auto-4D93676C-A1A4-E254-FD84-1B2324D12B01 [127.0.0.1:51731] disconnected: connection closed by client.
+1793087122: New connection from 127.0.0.1:51732 on port 1883.
+1793087122: New client connected from 127.0.0.1:51732 as auto-BFE72E91-5207-5728-0AC4-0ED8F702AE21 (p4, c1, k60).
+1793087122: No will message specified.
+1793087122: Sending CONNACK to auto-BFE72E91-5207-5728-0AC4-0ED8F702AE21 (0, 0)
+1793087122: Received SUBSCRIBE from auto-BFE72E91-5207-5728-0AC4-0ED8F702AE21
+1793087122: 	sensor/state (QoS 0)
+1793087122: auto-BFE72E91-5207-5728-0AC4-0ED8F702AE21 0 sensor/state
+1793087122: Sending SUBACK to auto-BFE72E91-5207-5728-0AC4-0ED8F702AE21
+1793087122: Sending PUBLISH to auto-BFE72E91-5207-5728-0AC4-0ED8F702AE21 (d0, q0, r1, m0, 'sensor/state', ... (14 bytes))
+1793087122: Received DISCONNECT from auto-BFE72E91-5207-5728-0AC4-0ED8F702AE21
+1793087122: Client auto-BFE72E91-5207-5728-0AC4-0ED8F702AE21 [127.0.0.1:51732] disconnected.
+1793087122: Client auto-BFE72E91-5207-5728-0AC4-0ED8F702AE21 [127.0.0.1:51732] disconnected: connection closed by client.
+1793087123: New connection from 127.0.0.1:51760 on port 1883.
+1793087123: New client connected from 127.0.0.1:51760 as auto-25AB903C-BC01-CAFA-32F9-44384B511C6A (p4, c1, k60).
+1793087123: No will message specified.
+1793087123: Sending CONNACK to auto-25AB903C-BC01-CAFA-32F9-44384B511C6A (0, 0)
+1793087123: Received PUBLISH from auto-25AB903C-BC01-CAFA-32F9-44384B511C6A (d0, q0, r1, m0, 'sensor/state', ... (0 bytes))
+1793087123: Received DISCONNECT from auto-25AB903C-BC01-CAFA-32F9-44384B511C6A
+1793087123: Client auto-25AB903C-BC01-CAFA-32F9-44384B511C6A [127.0.0.1:51760] disconnected.
+1793087123: Client auto-25AB903C-BC01-CAFA-32F9-44384B511C6A [127.0.0.1:51760] disconnected: connection closed by client.
+1793087123: New connection from 127.0.0.1:51761 on port 1883.
+1793087123: New client connected from 127.0.0.1:51761 as auto-517C9D1E-4AB3-4DC2-AB4A-671396C3FDEF (p4, c1, k60).
+1793087123: No will message specified.
+1793087123: Sending CONNACK to auto-517C9D1E-4AB3-4DC2-AB4A-671396C3FDEF (0, 0)
+1793087123: Received SUBSCRIBE from auto-517C9D1E-4AB3-4DC2-AB4A-671396C3FDEF
+1793087123: 	node/esp32/status (QoS 0)
+1793087123: auto-517C9D1E-4AB3-4DC2-AB4A-671396C3FDEF 0 node/esp32/status
+1793087123: Sending SUBACK to auto-517C9D1E-4AB3-4DC2-AB4A-671396C3FDEF
+1793087123: New connection from 127.0.0.1:51779 on port 1883.
+1793087123: New client connected from 127.0.0.1:51779 as Node_Client_01 (p4, c1, k60).
+1793087123: Will message specified (23 bytes) (r0, q1).
+1793087123: 	node/esp32/status
+1793087123: Sending CONNACK to Node_Client_01 (0, 0)
+1793087123: Received SUBSCRIBE from Node_Client_01
+1793087123: 	dummy/listen (QoS 0)
+1793087123: Node_Client_01 0 dummy/listen
+1793087123: Sending SUBACK to Node_Client_01
+1793087124: New connection from 127.0.0.1:51798 on port 1883.
+1793087124: New client connected from 127.0.0.1:51798 as auto-A0908568-11A4-DC0E-2263-32077F560CE2 (p4, c1, k60).
+1793087124: No will message specified.
+1793087124: Sending CONNACK to auto-A0908568-11A4-DC0E-2263-32077F560CE2 (0, 0)
+1793087124: Received PUBLISH from auto-A0908568-11A4-DC0E-2263-32077F560CE2 (d0, q0, r0, m0, 'node/esp32/status', ... (6 bytes))
+1793087124: Sending PUBLISH to auto-517C9D1E-4AB3-4DC2-AB4A-671396C3FDEF (d0, q0, r0, m0, 'node/esp32/status', ... (6 bytes))
+1793087124: Received DISCONNECT from auto-A0908568-11A4-DC0E-2263-32077F560CE2
+1793087124: Client auto-A0908568-11A4-DC0E-2263-32077F560CE2 [127.0.0.1:51798] disconnected.
+1793087124: Client auto-A0908568-11A4-DC0E-2263-32077F560CE2 [127.0.0.1:51798] disconnected: connection closed by client.
+1793087124: Client Node_Client_01 [127.0.0.1:51779] disconnected: connection closed by client.
+1793087124: Sending PUBLISH to auto-517C9D1E-4AB3-4DC2-AB4A-671396C3FDEF (d0, q0, r0, m0, 'node/esp32/status', ... (23 bytes))
+1793087124: Client Node_Client_01 [127.0.0.1:51779] disconnected: connection closed by client.
+1793087124: Received DISCONNECT from auto-517C9D1E-4AB3-4DC2-AB4A-671396C3FDEF
+1793087124: Client auto-517C9D1E-4AB3-4DC2-AB4A-671396C3FDEF [127.0.0.1:51761] disconnected.
+1793087124: Client auto-517C9D1E-4AB3-4DC2-AB4A-671396C3FDEF [127.0.0.1:51761] disconnected: connection closed by client.
+1793087124: mosquitto version 2.1.2 terminating

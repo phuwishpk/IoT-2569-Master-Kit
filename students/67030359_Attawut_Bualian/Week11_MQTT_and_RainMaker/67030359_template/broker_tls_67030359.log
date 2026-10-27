@@ -1,0 +1,37 @@
+1793087160: Info: running mosquitto as user: phuwish.
+1793087160: mosquitto version 2.1.2 starting
+1793087160: Config loaded from /Users/phuwish/mqtt_lab/mosquitto_tls_67030359.conf.
+1793087160: Bridge support available.
+1793087160: Persistence support available.
+1793087160: TLS support available.
+1793087160: TLS-PSK support available.
+1793087160: Websockets support available.
+1793087160: Opening ipv4 listen socket on port 8883.
+1793087160: mosquitto version 2.1.2 running
+1793087160: New connection from 127.0.0.1:52856 on port 8883.
+1793087160: New client connected from 127.0.0.1:52856 as auto-E3C79D34-3453-5C80-805E-3957CF590F3C (p4, c1, k60).
+1793087160: No will message specified.
+1793087160: Client auto-E3C79D34-3453-5C80-805E-3957CF590F3C negotiated TLSv1.3 cipher TLS_AES_256_GCM_SHA384
+1793087160: Sending CONNACK to auto-E3C79D34-3453-5C80-805E-3957CF590F3C (0, 0)
+1793087160: Received SUBSCRIBE from auto-E3C79D34-3453-5C80-805E-3957CF590F3C
+1793087160: 	secure/test (QoS 0)
+1793087160: auto-E3C79D34-3453-5C80-805E-3957CF590F3C 0 secure/test
+1793087160: Sending SUBACK to auto-E3C79D34-3453-5C80-805E-3957CF590F3C
+1793087161: New connection from 127.0.0.1:52884 on port 8883.
+1793087161: New client connected from 127.0.0.1:52884 as auto-7E33F8CD-5409-84DC-4826-909C11775985 (p4, c1, k60).
+1793087161: No will message specified.
+1793087161: Client auto-7E33F8CD-5409-84DC-4826-909C11775985 negotiated TLSv1.3 cipher TLS_AES_256_GCM_SHA384
+1793087161: Sending CONNACK to auto-7E33F8CD-5409-84DC-4826-909C11775985 (0, 0)
+1793087161: Received PUBLISH from auto-7E33F8CD-5409-84DC-4826-909C11775985 (d0, q0, r0, m0, 'secure/test', ... (30 bytes))
+1793087161: Sending PUBLISH to auto-E3C79D34-3453-5C80-805E-3957CF590F3C (d0, q0, r0, m0, 'secure/test', ... (30 bytes))
+1793087161: Client auto-7E33F8CD-5409-84DC-4826-909C11775985 [127.0.0.1:52884] disconnected: connection closed by client.
+1793087161: Received DISCONNECT from auto-E3C79D34-3453-5C80-805E-3957CF590F3C
+1793087161: Client auto-E3C79D34-3453-5C80-805E-3957CF590F3C [127.0.0.1:52856] disconnected.
+1793087161: Client auto-E3C79D34-3453-5C80-805E-3957CF590F3C [127.0.0.1:52856] disconnected: connection closed by client.
+1793087161: New connection from 127.0.0.1:52885 on port 8883.
+1793087161: OpenSSL Error while trying to get the error[0]: error:0A0000C7:SSL routines::peer did not return a certificate
+1793087161: Client 127.0.0.1 [127.0.0.1:52885] disconnected: Protocol error.
+1793087162: New connection from 127.0.0.1:52915 on port 8883.
+1793087162: Client 127.0.0.1 [127.0.0.1:52915] disconnected: connection closed by client.
+1793087162: Client 127.0.0.1 [127.0.0.1:52915] disconnected: connection closed by client.
+1793087162: mosquitto version 2.1.2 terminating

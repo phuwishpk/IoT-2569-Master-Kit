@@ -1,0 +1,100 @@
+
+[1;36m══════ Lab 11.3 — 67030359 Attawut Bualian ══════[0m
+เครื่อง: phuwish@MacBook-Pro-khxng-Phuwish.local   เวลา: 2026-10-27 14:46:00   OpenSSL 4.1.0 23 Oct 2026 (Library: OpenSSL 4.1.0 23 Oct 2026)   mosquitto version 2.1.2
+
+[1;36m══════ 11-3.1 สร้าง Root CA / Server / Client Certificate ด้วย OpenSSL ══════[0m
+$ openssl genrsa -out ca.key 2048
+$ openssl req -out ca.csr -key ca.key -new -subj /C=TH/ST=Bangkok/O=IoT Security Lab/CN=IoT Root CA (67030359)
+$ openssl x509 -req -in ca.csr -out ca.crt -sha256 -days 3650 -signkey ca.key -extfile ca.ext
+   Certificate request self-signature ok
+   subject=C=TH, ST=Bangkok, O=IoT Security Lab, CN=IoT Root CA (67030359)
+$ openssl genrsa -out server.key 2048
+$ openssl req -out server.csr -key server.key -new -subj /C=TH/ST=Bangkok/O=IoT Broker/CN=192.168.100.41
+$ openssl x509 -req -in server.csr -out server.crt -sha256 -CA ca.crt -CAkey ca.key -CAcreateserial -days 3650 -extfile server.ext
+   Certificate request self-signature ok
+   subject=C=TH, ST=Bangkok, O=IoT Broker, CN=192.168.100.41
+$ openssl genrsa -out client.key 2048
+$ openssl req -out client.csr -key client.key -new -subj /C=TH/ST=Bangkok/O=IoT Node (67030359)/CN=esp32-secure-node
+$ openssl x509 -req -in client.csr -out client.crt -sha256 -CA ca.crt -CAkey ca.key -CAcreateserial -days 3650 -extfile client.ext
+   Certificate request self-signature ok
+   subject=C=TH, ST=Bangkok, O=IoT Node (67030359), CN=esp32-secure-node
+
+ไฟล์ที่ได้ (6 ไฟล์):
+   ca.key        1704 bytes
+   ca.crt        1241 bytes
+   server.key    1704 bytes
+   server.crt    1253 bytes
+   client.key    1704 bytes
+   client.crt    1220 bytes
+$ openssl verify -CAfile ca.crt server.crt client.crt
+   server.crt: OK
+   client.crt: OK
+[server.crt]
+   subject=C=TH, ST=Bangkok, O=IoT Broker, CN=192.168.100.41
+   issuer=C=TH, ST=Bangkok, O=IoT Security Lab, CN=IoT Root CA (67030359)
+   notAfter=Oct 24 07:46:00 2036 GMT
+[client.crt]
+   subject=C=TH, ST=Bangkok, O=IoT Node (67030359), CN=esp32-secure-node
+   issuer=C=TH, ST=Bangkok, O=IoT Security Lab, CN=IoT Root CA (67030359)
+   notAfter=Oct 24 07:46:00 2036 GMT
+
+[1;36m══════ 11-3.2 Mosquitto MQTTS พอร์ต 8883 (บังคับใบรับรอง Client) ══════[0m
+   listener 8883 0.0.0.0
+   cafile <certs>/ca.crt
+   certfile <certs>/server.crt
+   keyfile <certs>/server.key
+   require_certificate true
+   tls_version tlsv1.2
+   allow_anonymous true
+   log_type all
+   1793087160: Info: running mosquitto as user: phuwish.
+   1793087160: mosquitto version 2.1.2 starting
+   1793087160: Config loaded from /Users/phuwish/mqtt_lab/mosquitto_tls_67030359.conf.
+   1793087160: Bridge support available.
+   1793087160: Persistence support available.
+   1793087160: TLS support available.
+   1793087160: TLS-PSK support available.
+   1793087160: Websockets support available.
+
+[1;36m══════ 11-3.3 (1) Client ที่ถูกต้อง — ส่ง ca.crt + client.crt + client.key ══════[0m
+$ mosquitto_pub -h 127.0.0.1 -p 8883 -t secure/test -m "Hello Secure World! (67030359)" --cafile ca.crt --cert client.crt --key client.key
+[Subscriber ได้รับผ่านช่องทางเข้ารหัส]
+   secure/test Hello Secure World! (67030359)
+[Broker Log]
+   1793087160: New connection from 127.0.0.1:52856 on port 8883.
+   1793087160: New client connected from 127.0.0.1:52856 as auto-E3C79D34-3453-5C80-805E-3957CF590F3C (p4, c1, k60).
+   1793087160: Sending CONNACK to auto-E3C79D34-3453-5C80-805E-3957CF590F3C (0, 0)
+   1793087160: Received SUBSCRIBE from auto-E3C79D34-3453-5C80-805E-3957CF590F3C
+   1793087161: New connection from 127.0.0.1:52884 on port 8883.
+   1793087161: New client connected from 127.0.0.1:52884 as auto-7E33F8CD-5409-84DC-4826-909C11775985 (p4, c1, k60).
+   1793087161: Sending CONNACK to auto-7E33F8CD-5409-84DC-4826-909C11775985 (0, 0)
+   1793087161: Received PUBLISH from auto-7E33F8CD-5409-84DC-4826-909C11775985 (d0, q0, r0, m0, 'secure/test', ... (30 bytes))
+
+[1;36m══════ 11-3.3 (2) ผู้บุกรุก — ไม่ส่งใบรับรอง Client (ส่งแค่ ca.crt) ══════[0m
+$ mosquitto_pub -h 127.0.0.1 -p 8883 -t secure/test -m "Hacker message" --cafile ca.crt
+   Error: The connection was lost
+   (exit code 7 — ไม่เป็น 0 แปลว่าถูกปฏิเสธ)
+[Broker Log]
+   1793087161: New connection from 127.0.0.1:52885 on port 8883.
+   1793087161: OpenSSL Error while trying to get the error[0]: error:0A0000C7:SSL routines::peer did not return a certificate
+   1793087161: Client 127.0.0.1 [127.0.0.1:52885] disconnected: Protocol error.
+
+[1;36m══════ ข้อมูล TLS Handshake (openssl s_client) ══════[0m
+   subject=C=TH, ST=Bangkok, O=IoT Broker, CN=192.168.100.41
+   issuer=C=TH, ST=Bangkok, O=IoT Security Lab, CN=IoT Root CA (67030359)
+   New, TLSv1.2, Cipher is ECDHE-RSA-AES256-GCM-SHA384
+   Protocol: TLSv1.2
+   Server public key is 2048 bit
+       Protocol  : TLSv1.2
+       Verify return code: 0 (ok)
+
+[1;36m══════ ค่าสำหรับกรอกในเว็บ — Lab 11.3 ══════[0m
+Cipher Suite                 : ECDHE-RSA-AES256-GCM-SHA384 (TLSv1.2)
+Key Length                   : RSA 2048-bit
+Client ที่ไม่มีใบรับรองถูกปฏิเสธ : ใช่ — peer did not return a certificate
+
+สำหรับบอร์ด ESP32 (ข้อ 11-3.4–11-3.5): คัดลอก ca.crt, client.crt, client.key จาก /Users/phuwish/mqtt_lab/certs_67030359 ไปไว้ที่ main/certs/
+   แล้วตั้ง Broker URI เป็น mqtts://192.168.100.41:8883  (รันสคริปต์นี้แบบ --keep เพื่อเปิด Broker ค้างไว้)
+
+[1;36m══════ เสร็จสิ้น ══════[0m
+📄 Log ทั้งหมด (วางในช่อง 💻 Lab 11.3): /Users/phuwish/mqtt_lab/lab11_3_67030359.txt
